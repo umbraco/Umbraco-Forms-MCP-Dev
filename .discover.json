@@ -3,6 +3,15 @@
   "swaggerUrl": "https://localhost:44374/umbraco/swagger/forms-management/swagger.json",
   "baseUrl": "https://localhost:44374",
   "collections": [
-    "data-source"
+    "data-source",
+    "data-source-type",
+    "field-type",
+    "folder",
+    "form",
+    "media",
+    "prevalue-source",
+    "prevalue-source-type",
+    "record",
+    "workflow-type"
   ]
 }

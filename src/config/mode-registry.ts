@@ -36,6 +36,24 @@ export const toolModes: ToolModeDefinition[] = [
     description: 'All Umbraco Forms management tools',
     collections: ['data-source']
   },
+    {
+    name: 'form-design',
+    displayName: 'Form Design',
+    description: 'Create and manage forms, fields, folders, and media',
+    collections: ['form', 'field-type', 'folder', 'media']
+  },
+    {
+    name: 'data-sources',
+    displayName: 'Data Sources',
+    description: 'Manage data sources and prevalue sources for form fields',
+    collections: ['data-source', 'data-source-type', 'prevalue-source', 'prevalue-source-type']
+  },
+    {
+    name: 'submissions',
+    displayName: 'Submissions',
+    description: 'View and manage form submission records and workflows',
+    collections: ['record', 'workflow-type']
+  },
   // Add your modes here as you build out your MCP server
   // {
   //   name: 'content',
