@@ -1,0 +1,8 @@
+{
+  "apiName": "Umbraco Forms Management API",
+  "swaggerUrl": "https://localhost:44374/umbraco/swagger/forms-management/swagger.json",
+  "baseUrl": "https://localhost:44374",
+  "collections": [
+    "data-source"
+  ]
+}
