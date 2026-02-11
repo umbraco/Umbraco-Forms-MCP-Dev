@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`list-data-source-types should return all available data source types 1`] = `
+{
+  "content": [],
+  "structuredContent": [
+    {
+      "alias": "sqlDatabase",
+      "description": "Connects to any SQL Server database table and constructs a datasource from it",
+      "entityType": "datasource-type",
+      "icon": "icon-server-alt",
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "SQL Database",
+      "settings": [
+        {
+          "alias": "Connection",
+          "defaultValue": "",
+          "description": "SQL Server connection string",
+          "displayOrder": 10,
+          "isMandatory": true,
+          "isReadOnly": false,
+          "name": "Connection String",
+          "prevalues": [],
+          "view": "Umb.PropertyEditorUi.TextArea",
+        },
+        {
+          "alias": "Table",
+          "defaultValue": "",
+          "description": "Table name",
+          "displayOrder": 20,
+          "isMandatory": true,
+          "isReadOnly": false,
+          "name": "Table Name",
+          "prevalues": [],
+          "view": "Umb.PropertyEditorUi.TextBox",
+        },
+      ],
+      "unique": "00000000-0000-0000-0000-000000000000",
+    },
+    {
+      "alias": "",
+      "description": "Simple data source for integration testing",
+      "entityType": "datasource-type",
+      "icon": "",
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Test Data Source",
+      "settings": [],
+      "unique": "00000000-0000-0000-0000-000000000000",
+    },
+  ],
+}
+`;
