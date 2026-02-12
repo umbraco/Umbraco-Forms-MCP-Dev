@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`list-field-type-validation-patterns should return all available validation patterns 1`] = `
+{
+  "content": [],
+  "structuredContent": [
+    {
+      "labelKey": "validation_validateAsEmail",
+      "name": "",
+      "pattern": "^[a-zA-Z0-9_\\.\\+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-\\.]+$",
+    },
+    {
+      "labelKey": "validation_validateAsNumber",
+      "name": "",
+      "pattern": "^[0-9]*$",
+    },
+    {
+      "labelKey": "validation_validateAsUrl",
+      "name": "",
+      "pattern": "https?\\:\\/\\/[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,}",
+    },
+  ],
+}
+`;

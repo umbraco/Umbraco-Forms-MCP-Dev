@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-prevalue-source-type should return prevalue source type by ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "alias": "dataSource",
+    "description": "Stores prevalues in the prevalues table",
+    "entityType": "prevaluesource-type",
+    "icon": "icon-box",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "DataSource",
+    "settings": [],
+    "unique": "cc9f9b2a-a746-11de-9e17-681b56d89593",
+  },
+}
+`;

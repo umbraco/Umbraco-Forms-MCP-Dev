@@ -28,7 +28,11 @@ import { getUmbracoFormsManagementAPI } from "./umbraco-api/api/generated/umbrac
 import chainedCollection from "./umbraco-api/tools/chained/index.js";
 import dataSourceCollection from "./umbraco-api/tools/data-source/index.js";
 import dataSourceTypeCollection from "./umbraco-api/tools/data-source-type/index.js";
+import fieldTypeCollection from "./umbraco-api/tools/field-type/index.js";
+import folderCollection from "./umbraco-api/tools/folder/index.js";
 import formCollection from "./umbraco-api/tools/form/index.js";
+import prevalueSourceTypeCollection from "./umbraco-api/tools/prevalue-source-type/index.js";
+import workflowTypeCollection from "./umbraco-api/tools/workflow-type/index.js";
 
 // Import MCP client manager (for chaining to other MCP servers)
 import { mcpClientManager } from "./umbraco-api/mcp-client.js";
@@ -77,7 +81,7 @@ const filterConfig: CollectionConfiguration = configLoader.loadFromConfig(server
 // Register Tools with Filtering
 // ============================================================================
 
-const collections = [chainedCollection, dataSourceCollection, dataSourceTypeCollection, formCollection];
+const collections = [chainedCollection, dataSourceCollection, dataSourceTypeCollection, fieldTypeCollection, folderCollection, formCollection, prevalueSourceTypeCollection, workflowTypeCollection];
 let registeredToolCount = 0;
 
 for (const collection of collections) {

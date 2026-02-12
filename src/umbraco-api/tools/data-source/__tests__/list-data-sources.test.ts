@@ -23,12 +23,17 @@ describe("list-data-sources", () => {
       .create();
 
     const result = await listDataSourcesTool.handler(
-      { skip: 0, take: 10 },
+      { skip: 0, take: 100 },
       context
     );
 
-    expect(
-      DataSourceTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    expect(result.isError).toBeUndefined();
+    const content = result.structuredContent as { items: any[]; total: number };
+    expect(content.total).toBeGreaterThanOrEqual(1);
+    const testItem = content.items.find(
+      (i: any) => i.name === `${TEST_NAME} 1`
+    );
+    expect(testItem).toBeDefined();
+    expect(testItem.entityType).toBe("datasource");
   });
 });

@@ -1,25 +1,20 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  FormBuilder,
-  FormTestHelper,
+  FolderBuilder,
 } from "./setup.js";
-import deleteFormTool from "../delete/delete-form.js";
+import deleteFolderTool from "../delete/delete-folder.js";
 
-const TEST_NAME = "_Test Delete Form";
+const TEST_NAME = "_Test Delete Folder";
 
-describe("delete-form", () => {
+describe("delete-folder", () => {
   setupTestEnvironment();
 
-  afterEach(async () => {
-    await FormTestHelper.cleanup(TEST_NAME);
-  });
-
-  it("should delete a form", async () => {
+  it("should delete a folder", async () => {
     const context = createMockRequestHandlerExtra();
-    const builder = await new FormBuilder().withName(TEST_NAME).create();
+    const builder = await new FolderBuilder().withName(TEST_NAME).create();
 
-    const result = await deleteFormTool.handler(
+    const result = await deleteFolderTool.handler(
       { id: builder.getId() },
       context
     );
@@ -30,7 +25,7 @@ describe("delete-form", () => {
   it("should return error for non-existent ID", async () => {
     const context = createMockRequestHandlerExtra();
 
-    const result = await deleteFormTool.handler(
+    const result = await deleteFolderTool.handler(
       { id: "00000000-0000-0000-0000-000000000000" },
       context
     );

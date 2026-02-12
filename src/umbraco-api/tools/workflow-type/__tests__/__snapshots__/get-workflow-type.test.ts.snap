@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-workflow-type should return workflow type by ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "alias": "changeRecordState",
+    "description": "Changes the state of the record being processed when it matches a word",
+    "entityType": "workflow-type",
+    "group": "Legacy",
+    "icon": "icon-autofill",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "Change Record State",
+    "settings": [
+      {
+        "alias": "Words",
+        "defaultValue": "",
+        "description": "Comma seperated list of words to match",
+        "displayOrder": 10,
+        "isMandatory": true,
+        "isReadOnly": false,
+        "name": "Words",
+        "prevalues": [],
+        "view": "Umb.PropertyEditorUi.TextBox",
+      },
+      {
+        "alias": "Action",
+        "defaultValue": "",
+        "description": "What to do if it matches",
+        "displayOrder": 20,
+        "isMandatory": true,
+        "isReadOnly": false,
+        "name": "Action",
+        "prevalues": [
+          "Delete Record",
+          "Approve Record",
+          "Reject Record",
+        ],
+        "view": "Umb.PropertyEditorUi.Dropdown",
+      },
+    ],
+    "unique": "4c40a092-0cb5-481d-96a7-a02d8e7cdb2f",
+  },
+}
+`;

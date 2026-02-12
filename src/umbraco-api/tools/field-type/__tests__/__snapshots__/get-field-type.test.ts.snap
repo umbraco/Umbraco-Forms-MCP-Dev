@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-field-type should return field type by ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "alias": "checkbox",
+    "configurationErrors": [],
+    "description": "Renders a checkbox",
+    "entityType": "field-type",
+    "group": "Simple",
+    "hideLabel": false,
+    "icon": "icon-checkbox",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "isConfigured": true,
+    "mandatoryByDefault": false,
+    "name": "Checkbox",
+    "previewView": "Forms.FieldPreview.Checkbox",
+    "renderInputType": "Single",
+    "settings": [
+      {
+        "alias": "Caption",
+        "defaultValue": "",
+        "description": "The text associated with the checkbox",
+        "displayOrder": 10,
+        "isMandatory": false,
+        "isReadOnly": false,
+        "name": "Caption",
+        "prevalues": [],
+        "view": "Umb.PropertyEditorUi.TextBox",
+      },
+      {
+        "alias": "DefaultValue",
+        "defaultValue": "",
+        "description": "Enter a default value.",
+        "displayOrder": 20,
+        "isMandatory": false,
+        "isReadOnly": false,
+        "name": "Default Value",
+        "prevalues": [],
+        "view": "Umb.PropertyEditorUi.TextBox",
+      },
+      {
+        "alias": "ShowLabel",
+        "defaultValue": "True",
+        "description": "Indicate whether the field's label should be shown when rendering the form.",
+        "displayOrder": 30,
+        "isMandatory": false,
+        "isReadOnly": false,
+        "name": "Show Label",
+        "prevalues": [
+          "true",
+        ],
+        "view": "Umb.PropertyEditorUi.Toggle",
+      },
+    ],
+    "sortOrder": 40,
+    "supportsMandatory": true,
+    "supportsPrevalues": false,
+    "supportsRegex": false,
+    "supportsUploadTypes": false,
+    "unique": "d5c0c390-ae9a-11de-a69e-666455d89593",
+    "view": "/App_Plugins/UmbracoForms/backoffice/Common/FieldTypes/checkbox.html",
+  },
+}
+`;
