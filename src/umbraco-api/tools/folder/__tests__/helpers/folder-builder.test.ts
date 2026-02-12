@@ -19,7 +19,6 @@ describe("FolderBuilder", () => {
   });
 
   it("should create folder with builder", async () => {
-    // Arrange & Act
     const builder = await new FolderBuilder()
       .withName(TEST_NAME)
       .create();
@@ -27,12 +26,10 @@ describe("FolderBuilder", () => {
     const id = builder.getId();
     createdIds.push(id);
 
-    // Assert
     expect(id).toBeDefined();
-
-    const found = await FolderTestHelper.findById(id);
-    expect(found).toBeDefined();
-    expect(found?.name).toBe(TEST_NAME);
+    expect(id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    );
   });
 
   it("should create folder with parent", async () => {

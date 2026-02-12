@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   DataSourceBuilder,
   DataSourceTestHelper,
 } from "./setup.js";
@@ -26,14 +27,8 @@ describe("get-data-source-tree", () => {
       context
     );
 
-    expect(result.isError).toBeUndefined();
-    const content = result.structuredContent as { items: any[]; total: number };
-    expect(content.total).toBeGreaterThanOrEqual(1);
-    const testItem = content.items.find(
-      (i: any) => i.name === TEST_NAME
-    );
-    expect(testItem).toBeDefined();
-    expect(testItem.isFolder).toBe(false);
-    expect(testItem.icon).toBe("icon-database");
+    expect(
+      DataSourceTestHelper.normalizeIds(result)
+    ).toMatchSnapshot();
   });
 });

@@ -4,6 +4,7 @@ const config: JestConfigWithTsJest = {
   displayName: "template",
   preset: "ts-jest/presets/js-with-ts-esm",
   testEnvironment: "node",
+  maxWorkers: 1,
   extensionsToTreatAsEsm: [".ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",

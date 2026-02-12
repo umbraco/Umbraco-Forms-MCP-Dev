@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-form-tree should return form tree including created form 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-folder",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": true,
+        "name": "_Test Builder Folder",
+        "parent": null,
+        "path": "-1,00000000-0000-0000-0000-000000000000",
+      },
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-folder",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": true,
+        "name": "_Test Builder Folder Parent",
+        "parent": null,
+        "path": "-1,00000000-0000-0000-0000-000000000000",
+      },
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-autofill",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": false,
+        "name": "_Test Get Form Tree",
+        "parent": null,
+        "path": "-1,00000000-0000-0000-0000-000000000000",
+      },
+    ],
+    "total": 3,
+  },
+}
+`;

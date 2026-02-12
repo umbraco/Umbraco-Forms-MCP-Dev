@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-prevalue-source should return prevalue source by ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "cachePrevaluesFor": "00:00:00",
+    "created": "NORMALIZED_DATE",
+    "createdBy": 1,
+    "createdByName": "MCP API User",
+    "entityType": "prevaluesource",
+    "fieldPreValueSourceTypeId": "00000000-0000-0000-0000-000000000000",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "_Test Get Prevalue Source",
+    "settings": {},
+    "unique": "00000000-0000-0000-0000-000000000000",
+    "updated": "NORMALIZED_DATE",
+    "updatedBy": 1,
+    "updatedByName": "MCP API User",
+  },
+}
+`;

@@ -27,10 +27,9 @@ describe("create-folder", () => {
       context
     );
 
-    expect(result.isError).toBeUndefined();
-    const content = result.structuredContent as { id: string; name: string };
-    expect(content.name).toBe(TEST_NAME);
-    expect(content.id).toBeDefined();
-    createdIds.push(content.id);
+    createdIds.push((result.structuredContent as any).id);
+    expect(
+      FolderTestHelper.normalizeIds(result)
+    ).toMatchSnapshot();
   });
 });

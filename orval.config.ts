@@ -20,7 +20,7 @@ export default defineConfig({
     input: {
       // Use the included example OpenAPI spec
       // Replace with your add-on's spec path or URL
-      target: "https://localhost:44374/umbraco/swagger/forms-management/swagger.json",
+      target: "./src/umbraco-api/api/forms-management-swagger.json",
       validation: false,
     },
     output: {
@@ -43,11 +43,48 @@ export default defineConfig({
   // Zod schema generation for validation
   umbracoFormsManagementApiZod: {
     input: {
-      target: "https://localhost:44374/umbraco/swagger/forms-management/swagger.json",
+      target: "./src/umbraco-api/api/forms-management-swagger.json",
       validation: false,
     },
     output: {
       target: "./src/umbraco-api/api/generated/umbracoFormsManagementApi.zod.ts",
+      client: "zod",
+      mode: "single",
+      clean: false,
+    },
+  },
+
+  // Delivery API client generation (for form submissions / record creation)
+  umbracoFormsDeliveryApi: {
+    input: {
+      target: "./src/umbraco-api/api/forms-delivery-swagger.json",
+      validation: false,
+    },
+    output: {
+      target: "./src/umbraco-api/api/generated/umbracoFormsDeliveryApi.ts",
+      client: "axios",
+      mode: "single",
+      clean: false,
+      override: {
+        mutator: {
+          path: "./src/umbraco-api/api/delivery-client.ts",
+          name: "deliveryInstance",
+        },
+      },
+    },
+    hooks: {
+      afterAllFilesWrite: orvalImportFixer,
+    },
+  },
+
+  // Delivery API Zod schema generation
+  umbracoFormsDeliveryApiZod: {
+    input: {
+      target: "./src/umbraco-api/api/forms-delivery-swagger.json",
+      validation: false,
+    },
+    output: {
+      target: "./src/umbraco-api/api/generated/umbracoFormsDeliveryApi.zod.ts",
       client: "zod",
       mode: "single",
       clean: false,

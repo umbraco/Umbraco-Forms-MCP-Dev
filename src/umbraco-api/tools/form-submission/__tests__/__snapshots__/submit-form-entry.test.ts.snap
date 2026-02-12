@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`submit-form-entry should submit form entry via Delivery API 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "formId": "00000000-0000-0000-0000-000000000000",
+    "success": true,
+  },
+}
+`;

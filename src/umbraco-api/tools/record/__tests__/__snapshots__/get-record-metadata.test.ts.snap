@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-record-metadata should handle non-existent form ID gracefully 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "count": 0,
+    "lastSubmittedDate": "",
+  },
+}
+`;
+
+exports[`get-record-metadata should return record count and last submit date 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "count": 1,
+    "lastSubmittedDate": "Thursday, February 12, 2026",
+  },
+}
+`;

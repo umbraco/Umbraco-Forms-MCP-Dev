@@ -13,9 +13,11 @@
     "compile": "tsc --noEmit",
     "watch": "tsup --config tsup.config.ts --watch",
     "generate": "orval --config orval.config.ts",
+    "generate:management": "orval --config orval.config.ts --project umbracoFormsManagementApi && orval --config orval.config.ts --project umbracoFormsManagementApiZod",
+    "generate:delivery": "orval --config orval.config.ts --project umbracoFormsDeliveryApi && orval --config orval.config.ts --project umbracoFormsDeliveryApiZod",
     "start:umbraco": "bash scripts/start-umbraco.sh",
     "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
-    "test": "node --experimental-vm-modules $(npm root)/jest/bin/jest.js --testPathPattern=__tests__",
+    "test": "node --experimental-vm-modules $(npm root)/jest/bin/jest.js --testPathPattern=__tests__ --runInBand",
     "test:evals": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --testPathPattern=__evals__ --runInBand --forceExit",
     "test:all": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --runInBand --forceExit"
   },

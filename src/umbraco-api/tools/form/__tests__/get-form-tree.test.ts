@@ -21,9 +21,8 @@ describe("get-form-tree", () => {
 
     const result = await getFormTreeTool.handler({ parentId: undefined }, context);
 
-    expect(result.isError).toBeUndefined();
-    const tree = (result as any).structuredContent;
-    expect(tree.items).toBeDefined();
-    expect(tree.items.some((i: any) => i.name === TEST_NAME)).toBe(true);
+    expect(
+      FormTestHelper.normalizeIds(result)
+    ).toMatchSnapshot();
   });
 });

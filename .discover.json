@@ -8,9 +8,10 @@
     "field-type",
     "folder",
     "form",
-    "media",
+    "form-submission",
     "prevalue-source",
     "prevalue-source-type",
+    "form-submission",
     "record",
     "workflow-type"
   ]

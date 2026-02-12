@@ -18,7 +18,7 @@ describe("list-data-sources", () => {
 
   it("should return paginated list of data sources", async () => {
     const context = createMockRequestHandlerExtra();
-    await new DataSourceBuilder()
+    const builder = await new DataSourceBuilder()
       .withName(`${TEST_NAME} 1`)
       .create();
 
@@ -27,13 +27,8 @@ describe("list-data-sources", () => {
       context
     );
 
-    expect(result.isError).toBeUndefined();
-    const content = result.structuredContent as { items: any[]; total: number };
-    expect(content.total).toBeGreaterThanOrEqual(1);
-    const testItem = content.items.find(
-      (i: any) => i.name === `${TEST_NAME} 1`
-    );
-    expect(testItem).toBeDefined();
-    expect(testItem.entityType).toBe("datasource");
+    expect(
+      DataSourceTestHelper.normalizeIds(result)
+    ).toMatchSnapshot();
   });
 });

@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-record-audit-trail should return audit trail for a record 1`] = `
+{
+  "content": [],
+  "structuredContent": [],
+}
+`;

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-record-page-number should handle non-existent form ID gracefully 1`] = `
+{
+  "content": [],
+  "structuredContent": null,
+}
+`;
+
+exports[`get-record-page-number should return page number for a record 1`] = `
+{
+  "content": [],
+  "structuredContent": null,
+}
+`;

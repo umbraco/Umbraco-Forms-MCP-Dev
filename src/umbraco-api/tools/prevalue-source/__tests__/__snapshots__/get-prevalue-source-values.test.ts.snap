@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-prevalue-source-values should return values for prevalue source 1`] = `
+{
+  "content": [],
+  "structuredContent": [],
+}
+`;

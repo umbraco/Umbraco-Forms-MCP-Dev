@@ -1,0 +1,152 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`list-records should list records for a form 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "results": [
+      {
+        "created": "NORMALIZED_DATE",
+        "culture": "en-US",
+        "fields": [
+          {
+            "fieldId": "00000000-0000-0000-0000-000000000000",
+            "value": "Test Value",
+          },
+          {
+            "fieldId": "member",
+            "value": null,
+          },
+          {
+            "fieldId": "state",
+            "value": "Approved",
+          },
+          {
+            "fieldId": "created",
+            "value": "NORMALIZED_DATE",
+          },
+          {
+            "fieldId": "updated",
+            "value": "NORMALIZED_DATE",
+          },
+          {
+            "fieldId": "recordId",
+            "value": 0,
+          },
+          {
+            "fieldId": "umbracoPageId",
+            "value": 0,
+          },
+          {
+            "fieldId": "umbracoPageName",
+            "value": "",
+          },
+          {
+            "fieldId": "workflowAuditSummary",
+            "value": "0/0",
+          },
+        ],
+        "form": "00000000-0000-0000-0000-000000000000",
+        "id": 0,
+        "member": null,
+        "numberOfWorkflowsCompleted": 0,
+        "numberOfWorkflowsExecuted": 0,
+        "score": 0,
+        "state": "Approved",
+        "umbracoPage": {
+          "id": 0,
+          "name": "",
+          "unique": "00000000-0000-0000-0000-000000000000",
+        },
+        "uniqueId": "00000000-0000-0000-0000-000000000000",
+        "updated": "NORMALIZED_DATE",
+      },
+    ],
+    "schema": [
+      {
+        "alias": "name",
+        "containsSensitiveData": false,
+        "editView": "Umb.PropertyEditorUi.TextBox",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "Name",
+        "showOnListingScreen": true,
+        "view": "text",
+      },
+      {
+        "alias": "member",
+        "containsSensitiveData": true,
+        "editView": "",
+        "id": "member",
+        "name": "Member",
+        "showOnListingScreen": false,
+        "view": "member",
+      },
+      {
+        "alias": "state",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "state",
+        "name": "State",
+        "showOnListingScreen": true,
+        "view": "text",
+      },
+      {
+        "alias": "created",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "created",
+        "name": "Created",
+        "showOnListingScreen": true,
+        "view": "datetime",
+      },
+      {
+        "alias": "updated",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "updated",
+        "name": "Updated",
+        "showOnListingScreen": true,
+        "view": "datetime",
+      },
+      {
+        "alias": "recordId",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "recordId",
+        "name": "Entry Id",
+        "showOnListingScreen": false,
+        "view": "number",
+      },
+      {
+        "alias": "umbracoPageId",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "umbracoPageId",
+        "name": "Page Id",
+        "showOnListingScreen": false,
+        "view": "number",
+      },
+      {
+        "alias": "umbracoPageName",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "umbracoPageName",
+        "name": "Page Name",
+        "showOnListingScreen": false,
+        "view": "text",
+      },
+      {
+        "alias": "workflowAuditSummary",
+        "containsSensitiveData": false,
+        "editView": "",
+        "id": "workflowAuditSummary",
+        "name": "Workflows",
+        "showOnListingScreen": true,
+        "view": "workflowSummary",
+      },
+    ],
+    "totalNumberOfPages": 1,
+    "totalNumberOfResults": 1,
+  },
+}
+`;
