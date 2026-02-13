@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(lsof:*)",
-      "WebFetch(domain:docs.umbraco.com)"
+      "Bash(python3:*)",
+      "Bash(grep:*)"
     ]
   }
 }

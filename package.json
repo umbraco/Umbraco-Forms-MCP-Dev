@@ -18,8 +18,8 @@
     "start:umbraco": "bash scripts/start-umbraco.sh",
     "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
     "test": "node --experimental-vm-modules $(npm root)/jest/bin/jest.js --testPathPattern=__tests__ --runInBand",
-    "test:evals": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --testPathPattern=__evals__ --runInBand --forceExit",
-    "test:all": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --runInBand --forceExit"
+    "test:evals": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --config tests/evals/jest.config.ts --runInBand --forceExit",
+    "test:all": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --testPathPattern=__tests__ --runInBand --forceExit && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --config tests/evals/jest.config.ts --runInBand --forceExit"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -35,6 +35,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.39",
     "@modelcontextprotocol/sdk": "^1.25.1",
     "@umbraco-cms/mcp-server-sdk": "17.0.0-beta.1",
     "axios": "^1.8.4",
