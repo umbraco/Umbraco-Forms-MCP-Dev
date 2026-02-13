@@ -13,12 +13,12 @@ type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
   name: z.string().describe("Name for the new data source"),
-  formDataSourceTypeId: z.string().uuid().describe("The UUID of the data source type. Use list-data-source-types or check available types first."),
+  formDataSourceTypeId: z.string().describe("The UUID of the data source type. Use list-data-source-types or check available types first."),
   settings: z.record(z.string(), z.string()).optional().describe("Key-value settings for the data source configuration. Depends on the data source type."),
 };
 
 const outputSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string(),
 });
 

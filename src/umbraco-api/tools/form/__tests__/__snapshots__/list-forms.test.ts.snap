@@ -3,13 +3,15 @@
 exports[`list-forms should return list of forms including created form 1`] = `
 {
   "content": [],
-  "structuredContent": [
-    {
-      "fields": "",
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "_Test List Forms",
-      "summary": "1 page form with 0 fields",
-    },
-  ],
+  "structuredContent": {
+    "items": [
+      {
+        "fields": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "_Test List Forms",
+        "summary": "1 page form with 0 fields",
+      },
+    ],
+  },
 }
 `;

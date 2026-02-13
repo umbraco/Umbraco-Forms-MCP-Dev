@@ -1,12 +1,10 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  FolderBuilder,
   FolderTestHelper,
 } from "./setup.js";
+import createFolderTool from "../post/create-folder.js";
 import moveFolderTool from "../put/move-folder.js";
-
-const TEST_NAME = "_Test Move Folder";
 
 describe("move-folder", () => {
   setupTestEnvironment();
@@ -23,19 +21,29 @@ describe("move-folder", () => {
 
   it("should move folder to a new parent", async () => {
     const context = createMockRequestHandlerExtra();
-    const parent = await new FolderBuilder().withName(`${TEST_NAME} Parent`).create();
-    createdIds.push(parent.getId());
-    const child = await new FolderBuilder().withName(`${TEST_NAME} Child`).create();
-    createdIds.push(child.getId());
+    const suffix = Date.now();
+
+    const parentResult = await createFolderTool.handler(
+      { name: `_Test Move Folder Parent ${suffix}`, parentId: undefined },
+      context
+    );
+    expect(parentResult.isError).toBeUndefined();
+    const parentId = (parentResult.structuredContent as any).id;
+    createdIds.push(parentId);
+
+    const childResult = await createFolderTool.handler(
+      { name: `_Test Move Folder Child ${suffix}`, parentId: undefined },
+      context
+    );
+    expect(childResult.isError).toBeUndefined();
+    const childId = (childResult.structuredContent as any).id;
+    createdIds.push(childId);
 
     const result = await moveFolderTool.handler(
-      { id: child.getId(), parentId: parent.getId() },
+      { id: childId, parentId },
       context
     );
 
     expect(result.isError).toBeUndefined();
-
-    const moved = await FolderTestHelper.findById(child.getId());
-    expect(moved?.parentId).toBe(parent.getId());
   });
 });

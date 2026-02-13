@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import {
   withStandardDecorators,
-  executeGetApiCall,
+  executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
   ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
@@ -12,21 +12,23 @@ type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const emptyInput = zod.object({});
 
+const outputSchema = zod.object({ items: getFieldTypeValidationPatternResponse });
+
 const ListFieldTypeValidationPatterns = {
   name: "list-field-type-validation-patterns",
   description:
     "List all available validation patterns for form fields. Validation patterns are named regex patterns (e.g., Email, Number) that can be applied to text-based form fields. Returns the pattern name, localization key, and regex expression. Use this when configuring field validation rules.",
   inputSchema: emptyInput.shape,
-  outputSchema: getFieldTypeValidationPatternResponse,
+  outputSchema,
   slices: ["list"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
-    return executeGetApiCall<ReturnType<ApiClient["getFieldTypeValidationPattern"]>, ApiClient>(
+    return executeGetItemsApiCall<ReturnType<ApiClient["getFieldTypeValidationPattern"]>, ApiClient>(
       (client) => client.getFieldTypeValidationPattern(CAPTURE_RAW_HTTP_RESPONSE)
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof getFieldTypeValidationPatternResponse>;
+} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
 
 export default withStandardDecorators(ListFieldTypeValidationPatterns);

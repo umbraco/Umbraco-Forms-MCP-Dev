@@ -11,16 +11,6 @@ exports[`get-form-tree should return form tree including created form 1`] = `
         "icon": "icon-folder",
         "id": "00000000-0000-0000-0000-000000000000",
         "isFolder": true,
-        "name": "_Test Builder Folder",
-        "parent": null,
-        "path": "-1,00000000-0000-0000-0000-000000000000",
-      },
-      {
-        "flags": [],
-        "hasChildren": false,
-        "icon": "icon-folder",
-        "id": "00000000-0000-0000-0000-000000000000",
-        "isFolder": true,
         "name": "_Test Builder Folder Parent",
         "parent": null,
         "path": "-1,00000000-0000-0000-0000-000000000000",
@@ -36,7 +26,7 @@ exports[`get-form-tree should return form tree including created form 1`] = `
         "path": "-1,00000000-0000-0000-0000-000000000000",
       },
     ],
-    "total": 3,
+    "total": 2,
   },
 }
 `;

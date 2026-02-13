@@ -13,13 +13,13 @@ type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
   name: z.string().describe("Name for the new prevalue source"),
-  fieldPreValueSourceTypeId: z.string().uuid().describe("The UUID of the prevalue source type. Use list-prevalue-source-types or check available types first."),
+  fieldPreValueSourceTypeId: z.string().describe("The UUID of the prevalue source type. Use list-prevalue-source-types or check available types first."),
   settings: z.record(z.string(), z.string()).optional().describe("Key-value settings for the prevalue source configuration. Depends on the prevalue source type."),
   cachePrevaluesFor: z.string().optional().default("0").describe("Duration to cache prevalue results (e.g., '0' for no cache, '60' for 60 seconds)"),
 };
 
 const outputSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string(),
 });
 

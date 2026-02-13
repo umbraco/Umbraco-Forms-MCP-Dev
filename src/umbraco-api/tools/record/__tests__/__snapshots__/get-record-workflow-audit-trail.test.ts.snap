@@ -3,6 +3,8 @@
 exports[`get-record-workflow-audit-trail should return workflow audit trail for a record 1`] = `
 {
   "content": [],
-  "structuredContent": [],
+  "structuredContent": {
+    "items": [],
+  },
 }
 `;

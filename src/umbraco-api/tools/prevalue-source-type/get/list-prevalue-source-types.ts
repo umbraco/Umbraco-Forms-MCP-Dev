@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import {
   withStandardDecorators,
-  executeGetApiCall,
+  executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
   ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
@@ -12,21 +12,23 @@ type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const emptyInput = zod.object({});
 
+const outputSchema = zod.object({ items: getPrevalueSourceTypeResponse });
+
 const ListPrevalueSourceTypes = {
   name: "list-prevalue-source-types",
   description:
     "List all available prevalue source type definitions. Prevalue source types define what kinds of prevalue sources can be created (e.g., Get values from textfile, Umbraco data type prevalues, SQL database). Each type includes its configuration settings schema. Returns all installed prevalue source types. Use this to discover what types are available before creating a prevalue source instance.",
   inputSchema: emptyInput.shape,
-  outputSchema: getPrevalueSourceTypeResponse,
+  outputSchema,
   slices: ["list"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
-    return executeGetApiCall<ReturnType<ApiClient["getPrevalueSourceType"]>, ApiClient>(
+    return executeGetItemsApiCall<ReturnType<ApiClient["getPrevalueSourceType"]>, ApiClient>(
       (client) => client.getPrevalueSourceType(CAPTURE_RAW_HTTP_RESPONSE)
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof getPrevalueSourceTypeResponse>;
+} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
 
 export default withStandardDecorators(ListPrevalueSourceTypes);

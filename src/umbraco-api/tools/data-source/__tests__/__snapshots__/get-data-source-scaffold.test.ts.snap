@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-data-source-scaffold should return data source scaffold 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "created": "NORMALIZED_DATE",
+    "createdBy": null,
+    "createdByName": null,
+    "entityType": "datasource",
+    "formDataSourceTypeId": "00000000-0000-0000-0000-000000000000",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "",
+    "settings": {},
+    "unique": "00000000-0000-0000-0000-000000000000",
+    "updated": "NORMALIZED_DATE",
+    "updatedBy": null,
+    "updatedByName": null,
+    "valid": false,
+  },
+}
+`;

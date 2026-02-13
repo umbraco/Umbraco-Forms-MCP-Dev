@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-data-source-tree-ancestors should return empty array when descendantId is omitted 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [],
+  },
+}
+`;
+
+exports[`get-data-source-tree-ancestors should return tree ancestors for a data source 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-database",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": false,
+        "name": "_Test Get Data Source Tree Ancestors",
+        "parent": null,
+      },
+    ],
+  },
+}
+`;

@@ -10,6 +10,8 @@ import getPrevalueSourceTool from "./get/get-prevalue-source.js";
 import listPrevalueSourcesTool from "./get/list-prevalue-sources.js";
 import getPrevalueSourceValuesTool from "./get/get-prevalue-source-values.js";
 import getPrevalueSourceTreeTool from "./get/get-prevalue-source-tree.js";
+import getPrevalueSourceTreeAncestorsTool from "./get/get-prevalue-source-tree-ancestors.js";
+import getPrevalueSourceScaffoldTool from "./get/get-prevalue-source-scaffold.js";
 import createPrevalueSourceTool from "./post/create-prevalue-source.js";
 import updatePrevalueSourceTool from "./put/update-prevalue-source.js";
 import deletePrevalueSourceTool from "./delete/delete-prevalue-source.js";
@@ -26,6 +28,8 @@ const collection: ToolCollectionExport = {
     listPrevalueSourcesTool,
     getPrevalueSourceValuesTool,
     getPrevalueSourceTreeTool,
+    getPrevalueSourceTreeAncestorsTool,
+    getPrevalueSourceScaffoldTool,
     createPrevalueSourceTool,
     updatePrevalueSourceTool,
     deletePrevalueSourceTool,

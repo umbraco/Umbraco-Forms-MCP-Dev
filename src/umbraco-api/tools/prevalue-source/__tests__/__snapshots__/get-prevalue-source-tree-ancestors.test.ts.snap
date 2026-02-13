@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-prevalue-source-tree-ancestors should return empty array when descendantId is omitted 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [],
+  },
+}
+`;
+
+exports[`get-prevalue-source-tree-ancestors should return prevalue source tree ancestors for a descendant ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-box",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": false,
+        "name": "_Test Get Prevalue Source Tree Ancestors",
+        "parent": null,
+      },
+    ],
+  },
+}
+`;

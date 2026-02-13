@@ -3,29 +3,31 @@
 exports[`list-record-set-actions should return all available bulk actions 1`] = `
 {
   "content": [],
-  "structuredContent": [
-    {
-      "alias": "approve",
-      "confirmMessage": "",
-      "description": "Approves a set of records",
-      "group": "",
-      "icon": "icon-check",
-      "id": "00000000-0000-0000-0000-000000000000",
-      "isAvailableForApprovedRecords": false,
-      "name": "Approve",
-      "needsConfirm": false,
-    },
-    {
-      "alias": "reject",
-      "confirmMessage": "",
-      "description": "Rejects a set of records",
-      "group": "",
-      "icon": "icon-wrong",
-      "id": "00000000-0000-0000-0000-000000000000",
-      "isAvailableForApprovedRecords": false,
-      "name": "Reject",
-      "needsConfirm": false,
-    },
-  ],
+  "structuredContent": {
+    "items": [
+      {
+        "alias": "approve",
+        "confirmMessage": "",
+        "description": "Approves a set of records",
+        "group": "",
+        "icon": "icon-check",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isAvailableForApprovedRecords": false,
+        "name": "Approve",
+        "needsConfirm": false,
+      },
+      {
+        "alias": "reject",
+        "confirmMessage": "",
+        "description": "Rejects a set of records",
+        "group": "",
+        "icon": "icon-wrong",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isAvailableForApprovedRecords": false,
+        "name": "Reject",
+        "needsConfirm": false,
+      },
+    ],
+  },
 }
 `;

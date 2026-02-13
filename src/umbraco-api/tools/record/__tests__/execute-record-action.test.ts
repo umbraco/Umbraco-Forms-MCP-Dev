@@ -25,13 +25,13 @@ describe("execute-record-action", () => {
 
     // Get available actions
     const actionsResult = await listRecordSetActionsTool.handler({}, context);
-    const actions = actionsResult.structuredContent as any;
+    const actionsData = (actionsResult.structuredContent as any)?.items;
 
-    if (!actions || !Array.isArray(actions) || actions.length === 0) {
+    if (!actionsData || !Array.isArray(actionsData) || actionsData.length === 0) {
       throw new Error("No record actions available");
     }
 
-    const firstAction = actions[0];
+    const firstAction = actionsData[0];
 
     const result = await executeRecordActionTool.handler(
       {

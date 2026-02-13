@@ -11,14 +11,14 @@ import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbrac
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  id: z.string().uuid().describe("The unique ID of the data source to update"),
+  id: z.string().describe("The unique ID of the data source to update"),
   name: z.string().optional().describe("New name for the data source"),
-  formDataSourceTypeId: z.string().uuid().optional().describe("New data source type ID"),
+  formDataSourceTypeId: z.string().optional().describe("New data source type ID"),
   settings: z.record(z.string(), z.string()).optional().describe("Updated settings as key-value pairs. Replaces existing settings."),
 };
 
 const outputSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string(),
 });
 

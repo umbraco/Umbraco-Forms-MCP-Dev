@@ -11,15 +11,15 @@ import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbrac
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  id: z.string().uuid().describe("The unique ID of the prevalue source to update"),
+  id: z.string().describe("The unique ID of the prevalue source to update"),
   name: z.string().optional().describe("New name for the prevalue source"),
-  fieldPreValueSourceTypeId: z.string().uuid().optional().describe("New prevalue source type ID"),
+  fieldPreValueSourceTypeId: z.string().optional().describe("New prevalue source type ID"),
   settings: z.record(z.string(), z.string()).optional().describe("Updated settings as key-value pairs. Replaces existing settings."),
   cachePrevaluesFor: z.string().optional().describe("New cache duration (e.g., '0' for no cache, '60' for 60 seconds)"),
 };
 
 const outputSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string(),
 });
 
