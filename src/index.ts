@@ -22,7 +22,10 @@ import {
 } from "@umbraco-cms/mcp-server-sdk";
 
 // Import the Orval-generated API client
-import { getUmbracoFormsManagementAPI } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
+import { getUmbracoFormsManagementAPI, type FormSecurityForUser } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
+
+// Import auth types
+import type { FormsUserContext } from "./auth/index.js";
 
 // Import tool collections
 import chainedCollection from "./umbraco-api/tools/chained/index.js";
@@ -81,41 +84,67 @@ const configLoader = createCollectionConfigLoader({
 const filterConfig: CollectionConfiguration = configLoader.loadFromConfig(serverConfig.umbraco);
 
 // ============================================================================
+// Forms User Context
+// ============================================================================
+
+/**
+ * Fetches the current user's Forms security permissions.
+ * Returns a FormsUserContext with full security on success,
+ * or undefined security on failure (user gets only reference/delivery tools).
+ */
+async function fetchFormsUserContext(): Promise<FormsUserContext> {
+  try {
+    const api = getUmbracoFormsManagementAPI();
+    // The custom client returns data directly (not AxiosResponse) when called without CAPTURE_RAW_HTTP_RESPONSE
+    const response = await api.getSecurityUserCurrentFormSecurity() as unknown as FormSecurityForUser;
+    return { security: response.userSecurity };
+  } catch (error) {
+    console.error("Warning: Could not fetch Forms security permissions. Only reference and delivery tools will be available.", error);
+    return { security: undefined };
+  }
+}
+
+// ============================================================================
 // Register Tools with Filtering
 // ============================================================================
 
 const collections = [chainedCollection, dataSourceCollection, dataSourceTypeCollection, fieldTypeCollection, folderCollection, formCollection, formSubmissionCollection, prevalueSourceCollection, prevalueSourceTypeCollection, recordCollection, workflowTypeCollection];
-let registeredToolCount = 0;
-
-for (const collection of collections) {
-  const collectionName = collection.metadata.name;
-
-  // Get tools for current user (pass user context if needed)
-  const tools = collection.tools({});
-
-  for (const tool of tools) {
-    // Check if tool should be included based on filtering config
-    if (!shouldIncludeTool(tool, { collectionName, config: filterConfig })) {
-      continue;
-    }
-
-    // Build annotations from tool definition
-    const annotations = createToolAnnotations(tool);
-
-    // Register tool with MCP server using registerTool API
-    server.registerTool(tool.name, {
-      description: tool.description,
-      inputSchema: tool.inputSchema,
-      outputSchema: tool.outputSchema,
-      annotations,
-    }, tool.handler);
-
-    registeredToolCount++;
-  }
-}
 
 // Start the server
 async function main() {
+  // Fetch the current user's Forms permissions
+  const formsUser = await fetchFormsUserContext();
+
+  // Register tools from collections, filtered by user permissions
+  let registeredToolCount = 0;
+
+  for (const collection of collections) {
+    const collectionName = collection.metadata.name;
+
+    // Get tools for current user (filtered by permissions)
+    const tools = collection.tools(formsUser);
+
+    for (const tool of tools) {
+      // Check if tool should be included based on filtering config
+      if (!shouldIncludeTool(tool, { collectionName, config: filterConfig })) {
+        continue;
+      }
+
+      // Build annotations from tool definition
+      const annotations = createToolAnnotations(tool);
+
+      // Register tool with MCP server using registerTool API
+      server.registerTool(tool.name, {
+        description: tool.description,
+        inputSchema: tool.inputSchema,
+        outputSchema: tool.outputSchema,
+        annotations,
+      }, tool.handler);
+
+      registeredToolCount++;
+    }
+  }
+
   // Discover and register proxied tools from chained MCP servers
   // Skip if chaining is disabled via config (DISABLE_MCP_CHAINING=true)
   const chainingEnabled = mcpServers.length > 0 && !serverConfig.custom.disableMcpChaining;

@@ -126,6 +126,28 @@ function handleMockRequest<T>(config: AxiosRequestConfig): AxiosResponse<T> {
     return createMockResponse(200, undefined as T);
   }
 
+  // GET /security/user/current/form-security - Current user's Forms permissions
+  if (method === "get" && path.includes("/security/user/current/form-security")) {
+    return createMockResponse(200, {
+      key: "mock-user-key",
+      name: "Mock API User",
+      unique: "mock-user-unique",
+      entityType: "user",
+      userSecurity: {
+        manageForms: true,
+        viewEntries: true,
+        editEntries: true,
+        deleteEntries: true,
+        manageWorkflows: true,
+        manageDataSources: true,
+        managePreValueSources: true,
+        user: "mock-user-id",
+      },
+      startFolderIds: [],
+      formsSecurity: [],
+    } as T);
+  }
+
   return createMockResponse(404, { type: "https://tools.ietf.org/html/rfc7231#section-6.5.4", title: "Not Found", status: 404, detail: `Endpoint not found: ${method?.toUpperCase()} ${path}` } as T);
 }
 

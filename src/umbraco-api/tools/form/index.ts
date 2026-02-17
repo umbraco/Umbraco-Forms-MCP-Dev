@@ -1,4 +1,5 @@
 import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
+import { FormsAuthorizationPolicies, type FormsUserContext } from "../../../auth/index.js";
 import listFormsTool from "./get/list-forms.js";
 import getFormTool from "./get/get-form.js";
 import getFormScaffoldTool from "./get/get-form-scaffold.js";
@@ -14,28 +15,40 @@ import updateFormTool from "./put/update-form.js";
 import moveFormTool from "./put/move-form.js";
 import deleteFormTool from "./delete/delete-form.js";
 
-const collection: ToolCollectionExport = {
+const readTools = [
+  listFormsTool,
+  getFormTool,
+  getFormScaffoldTool,
+  getFormScaffoldByTemplateTool,
+  listFormTemplates,
+  getFormTreeTool,
+  getFormTreeAncestorsTool,
+  getFormRelationsTool,
+];
+
+const writeTools = [
+  createFormTool,
+  copyFormTool,
+  updateFormTool,
+  moveFormTool,
+  deleteFormTool,
+];
+
+const workflowTools = [
+  copyFormWorkflowsTool,
+];
+
+const collection: ToolCollectionExport<FormsUserContext> = {
   metadata: {
     name: "form",
     displayName: "Form Tools",
     description:
       "Tools for managing Umbraco Forms - list, view, create, update, copy, move, delete, and browse form hierarchies",
   },
-  tools: () => [
-    listFormsTool,
-    getFormTool,
-    getFormScaffoldTool,
-    getFormScaffoldByTemplateTool,
-    listFormTemplates,
-    getFormTreeTool,
-    getFormTreeAncestorsTool,
-    getFormRelationsTool,
-    createFormTool,
-    copyFormTool,
-    copyFormWorkflowsTool,
-    updateFormTool,
-    moveFormTool,
-    deleteFormTool,
+  tools: (user: FormsUserContext) => [
+    ...(FormsAuthorizationPolicies.HasFormsAccess(user) ? readTools : []),
+    ...(FormsAuthorizationPolicies.ManageForms(user) ? writeTools : []),
+    ...(FormsAuthorizationPolicies.ManageWorkflows(user) ? workflowTools : []),
   ],
 };
 

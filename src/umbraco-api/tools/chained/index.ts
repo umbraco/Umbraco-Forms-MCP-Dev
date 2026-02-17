@@ -24,16 +24,17 @@
  */
 
 import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
+import type { FormsUserContext } from "../../../auth/index.js";
 import getChainedInfoTool from "./get-chained-info.js";
 
-const collection: ToolCollectionExport = {
+const collection: ToolCollectionExport<FormsUserContext> = {
   metadata: {
     name: "chained",
     displayName: "Chained Tools",
     description:
       "Example tools demonstrating how to call tools on chained MCP servers",
   },
-  tools: () => [getChainedInfoTool],
+  tools: (_user: FormsUserContext) => [getChainedInfoTool],
 };
 
 export default collection;

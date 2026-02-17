@@ -7,4 +7,6 @@ export {
   sections,
   AuthorizationPolicies,
   type UserContext,
+  FormsAuthorizationPolicies,
+  type FormsUserContext,
 } from "./auth-policies.js";

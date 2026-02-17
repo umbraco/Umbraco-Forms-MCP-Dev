@@ -17,6 +17,17 @@ exports[`list-record-set-actions should return all available bulk actions 1`] = 
         "needsConfirm": false,
       },
       {
+        "alias": "delete",
+        "confirmMessage": "@formRecordSetActions_deleteConfirm",
+        "description": "Deletes a set of records",
+        "group": "",
+        "icon": "icon-trash",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isAvailableForApprovedRecords": true,
+        "name": "Delete",
+        "needsConfirm": true,
+      },
+      {
         "alias": "reject",
         "confirmMessage": "",
         "description": "Rejects a set of records",
