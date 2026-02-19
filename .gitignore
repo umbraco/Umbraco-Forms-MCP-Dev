@@ -2,3 +2,5 @@ node_modules/
 dist/
 .env
 *.tsbuildinfo
+appsettings.local.json
+.claude/settings.local.json
