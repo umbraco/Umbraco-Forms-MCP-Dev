@@ -15,7 +15,7 @@ exports[`get-record-metadata should return record count and last submit date 1`]
   "content": [],
   "structuredContent": {
     "count": 1,
-    "lastSubmittedDate": "Tuesday, February 17, 2026",
+    "lastSubmittedDate": "Thursday, February 19, 2026",
   },
 }
 `;

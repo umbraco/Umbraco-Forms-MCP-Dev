@@ -21,7 +21,6 @@ export {
 export {
   loadServerConfig,
   clearConfigCache,
-  getCustomFieldDefinitions,
   type ServerConfig,
-  type MyServerCustomConfig,
+  type FormsCustomConfig,
 } from "./server-config.js";

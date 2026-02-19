@@ -1,138 +1,130 @@
-# My-Commerce-MCP
+# Umbraco Forms MCP
 
-MCP server template for Umbraco add-ons using the @umbraco-cms/mcp-server-sdk.
+An MCP (Model Context Protocol) server for [Umbraco Forms](https://umbraco.com/products/umbraco-forms/) that enables AI-powered form management. It provides comprehensive access to the Umbraco Forms Management API, allowing your AI agent to create and manage forms, view submissions, configure data sources and prevalue sources, and more — all through natural conversation.
 
-## Getting Started
+## Intro
 
-### 1. Install Dependencies
+The MCP server authenticates using an Umbraco API user, ensuring secure, permission-based access to the Umbraco Forms API. At startup, it fetches the API user's Forms security permissions and only registers tools the user is authorized to use — no tools are exposed beyond what Umbraco's permission system allows.
 
-```bash
-npm install
+The server also connects to the [Forms Delivery API](https://docs.umbraco.com/umbraco-forms/developer/ajaxforms) if an API key is provided, enabling form definition retrieval and form submissions.
+
+It chains to the [Umbraco CMS MCP server](https://www.npmjs.com/package/@umbraco-cms/mcp-dev), proxying its tools with a `cms:` prefix. This gives your AI agent access to both Forms and CMS capabilities in a single session.
+
+## Quick Start
+
+### 1. Create an Umbraco API User
+
+Create an Umbraco API user with appropriate permissions. You can find instructions in [Umbraco's documentation](https://docs.umbraco.com/umbraco-cms/fundamentals/data/users/api-users).
+
+Grant the user access to the **Forms** section and configure Forms-specific permissions (manage forms, view entries, etc.).
+
+### 2. Add to Your MCP Client
+
+Add the server to your MCP client configuration (Claude Desktop, Cursor, VS Code, etc.):
+
+```json
+{
+  "mcpServers": {
+    "umbraco-forms": {
+      "command": "npx",
+      "args": ["umbraco-forms-mcp-dev"],
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+        "UMBRACO_CLIENT_ID": "your-api-user-id",
+        "UMBRACO_CLIENT_SECRET": "your-api-secret",
+        "UMBRACO_BASE_URL": "https://localhost:{port}",
+        "UMBRACO_FORMS_API_KEY": "your-forms-api-key"
+      }
+    }
+  }
+}
 ```
 
-### 2. Configure Environment
+Restart your MCP client after saving the configuration.
 
-Copy `.env.example` to `.env` and fill in your Umbraco connection details:
+## Configuration
 
-```bash
-cp .env.example .env
-```
+All settings can be provided as environment variables or CLI flags.
 
-### 3. Generate API Client (Optional)
+### Connection
 
-If you have an OpenAPI spec for your add-on:
+| Variable | CLI Flag | Purpose |
+|---|---|---|
+| `UMBRACO_CLIENT_ID` | `--umbraco-client-id` | OAuth client ID |
+| `UMBRACO_CLIENT_SECRET` | `--umbraco-client-secret` | OAuth client secret |
+| `UMBRACO_BASE_URL` | `--umbraco-base-url` | Umbraco instance URL |
+| `UMBRACO_FORMS_API_KEY` | `--umbraco-forms-api-key` | Forms Delivery API key |
 
-1. Update `orval.config.ts` to point to your spec
-2. Run the generator:
+### Tool Filtering
 
-```bash
-npm run generate
-```
+| Variable | CLI Flag | Purpose |
+|---|---|---|
+| `UMBRACO_TOOL_MODES` | `--umbraco-tool-modes` | Enable tool modes (comma-separated) |
+| `UMBRACO_INCLUDE_TOOL_COLLECTIONS` | `--umbraco-include-tool-collections` | Include only these collections |
+| `UMBRACO_EXCLUDE_TOOL_COLLECTIONS` | `--umbraco-exclude-tool-collections` | Exclude these collections |
+| `UMBRACO_INCLUDE_SLICES` | `--umbraco-include-slices` | Include only these slices |
+| `UMBRACO_EXCLUDE_SLICES` | `--umbraco-exclude-slices` | Exclude these slices |
+| `UMBRACO_READONLY` | `--umbraco-readonly` | Block all write operations |
+| `DISABLE_MCP_CHAINING` | `--disable-mcp-chaining` | Disable CMS MCP server chaining |
 
-### 4. Build and Test
+### Modes
 
-```bash
-# Build the server
-npm run build
+Modes are named groups that enable related collections together. Set `UMBRACO_TOOL_MODES` to one or more mode names:
 
-# Run tests
-npm test
+| Mode | Collections |
+|---|---|
+| `form-design` | `form`, `field-type`, `folder`, `media` |
+| `data-sources` | `data-source`, `data-source-type`, `prevalue-source`, `prevalue-source-type` |
+| `submissions` | `record`, `workflow-type` |
+| `forms-data` | `data-source` |
 
-# Test with MCP Inspector
-npm run inspect
-```
+### Collections
 
-## Project Structure
+| Collection | Tools | Description |
+|---|---|---|
+| `form` | 14 | Forms CRUD, scaffolding, tree browsing, relations |
+| `folder` | 6 | Folder CRUD and move operations |
+| `record` | 10 | Record listing, filtering, updating, deleting, auditing |
+| `data-source` | 8 | Data source CRUD, tree browsing, scaffolding |
+| `prevalue-source` | 9 | Prevalue source CRUD, value resolution, tree browsing |
+| `field-type` | 3 | Field type discovery and validation patterns |
+| `workflow-type` | 2 | Workflow type discovery |
+| `data-source-type` | 2 | Data source type discovery |
+| `prevalue-source-type` | 2 | Prevalue source type discovery |
+| `form-submission` | 2 | Delivery API — form definitions and submissions |
 
-```
-├── src/
-│   ├── api/
-│   │   ├── client.ts           # Axios client configuration
-│   │   └── generated/          # Orval-generated API code
-│   ├── tools/
-│   │   └── example/            # Example tool collection
-│   │       ├── get/
-│   │       ├── post/
-│   │       └── index.ts
-│   └── index.ts                # Server entry point
-├── __tests__/
-│   └── example/                # Example tests
-├── package.json
-├── tsconfig.json
-├── tsup.config.ts
-├── jest.config.ts
-├── orval.config.ts
-└── .env.example
-```
+### Slices
 
-## Adding Your Own Tools
+Slices filter tools by operation type. Use `UMBRACO_INCLUDE_SLICES` or `UMBRACO_EXCLUDE_SLICES` with values like `create`, `read`, `update`, `delete`, `list`, `tree`, `search`, `copy`, `move`, `audit`, `scaffolding`, and more.
 
-1. Create a new folder under `src/tools/` for your tool collection
-2. Create tool files following the example pattern:
-   - `get/` for GET operations
-   - `post/` for POST operations
-   - `put/` for PUT operations
-   - `delete/` for DELETE operations
-3. Create an `index.ts` that exports the collection
-4. Register the collection in `src/index.ts`
+For example, `UMBRACO_INCLUDE_SLICES=read,list` registers only read and list tools.
 
-### Tool Pattern Example
+## Permission-Based Tool Filtering
 
-```typescript
-import { z } from "zod";
-import {
-  withStandardDecorators,
-  executeGetApiCall,
-  CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
-} from "@umbraco-cms/mcp-server-sdk";
+At startup, the server calls the Forms security API to determine the user's permissions. Tools are only registered when the user has the required permission:
 
-const inputSchema = {
-  id: z.string().uuid(),
-};
+| Permission | Tools Gated |
+|---|---|
+| **Has Forms Access** | Read tools for forms, folders, data sources, prevalue sources |
+| **Manage Forms** | Create, copy, update, move, delete forms and folders |
+| **View Entries** | List records, metadata, audit trails |
+| **Edit Entries** | Update records, execute record actions |
+| **Delete Entries** | Delete records |
+| **Manage Workflows** | Copy form workflows, retry record workflows |
+| **Manage Data Sources** | Create, update, delete data sources |
+| **Manage PreValue Sources** | Create, update, delete prevalue sources |
 
-const myTool: ToolDefinition<typeof inputSchema> = {
-  name: "my-tool",
-  description: "Does something useful",
-  inputSchema,
-  slices: ["read"],
-  annotations: { readOnlyHint: true },
-  handler: async ({ id }) => {
-    return executeGetApiCall((client) =>
-      client.getMyItem(id, CAPTURE_RAW_HTTP_RESPONSE)
-    );
-  },
-};
+Reference tools (field types, workflow types, data source types, prevalue source types) and delivery API tools are always available.
 
-export default withStandardDecorators(myTool);
-```
+If the security endpoint is unreachable, only reference and delivery tools are registered.
 
-## Testing
+## CMS MCP Server Chaining
 
-Tests use Jest with the MCP toolkit's testing helpers:
+This server automatically chains to the [Umbraco CMS MCP server](https://www.npmjs.com/package/@umbraco-cms/mcp-dev), sharing the same API user credentials. All CMS tools are proxied with a `cms:` prefix (e.g. `cms:get-document`, `cms:list-media`).
 
-```typescript
-import {
-  setupTestEnvironment,
-  createSnapshotResult,
-  createMockRequestHandlerExtra,
-} from "@umbraco-cms/mcp-server-sdk/testing";
+This means your AI agent can work with both Forms and CMS content in a single conversation without needing to configure two separate MCP servers. Any mode, collection, and slice filter configuration is passed through to the chained server.
 
-describe("my-tool", () => {
-  setupTestEnvironment();
-
-  it("should do something", async () => {
-    const result = await myTool.handler({ id: "..." }, createMockRequestHandlerExtra());
-    expect(createSnapshotResult(result)).toMatchSnapshot();
-  });
-});
-```
-
-## Publishing
-
-1. Update `package.json` with your package name and details
-2. Build: `npm run build`
-3. Publish: `npm publish`
+To disable chaining, set `DISABLE_MCP_CHAINING=true`.
 
 ## License
 

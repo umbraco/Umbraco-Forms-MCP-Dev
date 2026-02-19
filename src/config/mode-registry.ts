@@ -54,19 +54,6 @@ export const toolModes: ToolModeDefinition[] = [
     description: 'View and manage form submission records and workflows',
     collections: ['record', 'workflow-type']
   },
-  // Add your modes here as you build out your MCP server
-  // {
-  //   name: 'content',
-  //   displayName: 'Content Management',
-  //   description: 'Document creation, editing, and versioning',
-  //   collections: ['document', 'document-version', 'document-blueprint']
-  // },
-  // {
-  //   name: 'media',
-  //   displayName: 'Media Management',
-  //   description: 'Media library and file operations',
-  //   collections: ['media', 'imaging', 'temporary-file']
-  // }
 ];
 
 /**

@@ -9,7 +9,7 @@ const projectRoot = path.resolve(__dirname, "../../../");
 
 configureEvals({
   mcpServerPath: path.resolve(projectRoot, "dist/index.js"),
-  mcpServerName: "my-commerce-mcp",
+  mcpServerName: "umbraco-forms-mcp",
   serverEnv: {
     UMBRACO_CLIENT_ID: process.env.UMBRACO_CLIENT_ID || "",
     UMBRACO_CLIENT_SECRET: process.env.UMBRACO_CLIENT_SECRET || "",

@@ -1,0 +1,152 @@
+trigger:
+  branches:
+    include:
+    - main
+    - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: nodeVersion
+    value: '22.x'
+
+stages:
+- stage: BuildAndTest
+  displayName: 'Build'
+  jobs:
+  - job: Build
+    displayName: 'Build Package'
+    steps:
+    - task: NodeTool@0
+      displayName: 'Use Node.js $(nodeVersion)'
+      inputs:
+        versionSpec: '$(nodeVersion)'
+
+    - task: Cache@2
+      displayName: 'Cache node_modules'
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package-lock.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+          npm
+        path: 'node_modules'
+
+    - script: npm ci
+      displayName: 'Install dependencies'
+
+    - script: npm run build
+      displayName: 'Build TypeScript'
+
+    - script: npm pack --pack-destination $(Build.ArtifactStagingDirectory)
+      displayName: 'Create NPM package'
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish NPM package to artifacts'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+        artifact: 'npm-package'
+
+- stage: Deploy_Npm
+  displayName: Npm release
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  dependsOn:
+    - BuildAndTest
+  jobs:
+    - job: Publish
+      displayName: Push to NPM
+      steps:
+        - checkout: self
+        - task: NodeTool@0
+          displayName: 'Use Node.js $(nodeVersion)'
+          inputs:
+            versionSpec: '$(nodeVersion)'
+        - script: |
+            # Extract versions from package.json and server.json
+            PKG_VERSION=$(node -p "require('./package.json').version")
+            SERVER_VERSION=$(node -p "require('./server.json').version")
+            SERVER_PKG_VERSION=$(node -p "require('./server.json').packages[0].version")
+
+            # Validate all versions match
+            if [ "$PKG_VERSION" != "$SERVER_VERSION" ] || [ "$PKG_VERSION" != "$SERVER_PKG_VERSION" ]; then
+              echo "##vso[task.logissue type=error]Version mismatch detected!"
+              echo "package.json version: $PKG_VERSION"
+              echo "server.json version: $SERVER_VERSION"
+              echo "server.json packages[0].version: $SERVER_PKG_VERSION"
+              exit 1
+            fi
+            echo "Version validation passed: $PKG_VERSION"
+          displayName: 'Validate version sync between package.json and server.json'
+        - download: current
+          artifact: 'npm-package'
+        - bash: echo "@umbraco-cms:registry=https://registry.npmjs.org" >> .npmrc
+          workingDirectory: $(Pipeline.Workspace)/npm-package
+          displayName: Add scoped registry to .npmrc
+        - task: npmAuthenticate@0
+          displayName: Authenticate with npm
+          inputs:
+            workingFile: $(Pipeline.Workspace)/npm-package/.npmrc
+            customEndpoint: "NPM - Umbraco Backoffice"
+        - script: |
+            # Setup temp npm project to load in defaults from the local .npmrc
+            npm init -y
+
+            # Find the first .tgz file in the current directory
+            files=( ./*.tgz )
+
+            # Extract version from package.json in the tarball
+            tar -tf "${files[0]}" | grep package/package.json | head -1 | xargs tar -xf "${files[0]}" --strip-components=1
+            version=$(node -p "require('./package.json').version")
+
+            # Determine tag based on version
+            if [[ "${version}" == *"alpha"* ]]; then
+              tag="alpha"
+            elif [[ "${version}" == *"beta"* ]]; then
+              tag="beta"
+            elif [[ "${version}" == *"rc"* ]]; then
+              tag="rc"
+            else
+              tag="latest"
+            fi
+
+            echo "Publishing version ${version} with tag ${tag}"
+            npm publish "${files[0]}" --tag $tag --access public
+
+            # Set output variable for MCP Registry stage
+            if [ "$tag" = "latest" ]; then
+              echo "##vso[task.setvariable variable=isStable;isOutput=true]true"
+            else
+              echo "##vso[task.setvariable variable=isStable;isOutput=true]false"
+            fi
+          name: npmPublish
+          displayName: Push to npm with dynamic tagging
+          workingDirectory: $(Pipeline.Workspace)/npm-package
+
+- stage: Deploy_MCP_Registry
+  displayName: MCP Registry release
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  dependsOn:
+    - Deploy_Npm
+  jobs:
+    - job: Publish_MCP
+      displayName: Push to MCP Registry
+      variables:
+        isStableRelease: $[ stageDependencies.Deploy_Npm.Publish.outputs['npmPublish.isStable'] ]
+      condition: eq(variables['isStableRelease'], 'true')
+      steps:
+        - checkout: self
+
+        - script: |
+            # Install mcp-publisher (download and extract pre-built binary)
+            curl -L -o mcp-publisher.tar.gz https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz
+            tar -xzf mcp-publisher.tar.gz
+            chmod +x mcp-publisher
+          displayName: 'Install mcp-publisher'
+
+        - script: |
+            ./mcp-publisher login github --token=$(MCP_REGISTRY_GITHUB_TOKEN)
+          displayName: 'Authenticate with MCP Registry'
+
+        - script: |
+            ./mcp-publisher publish
+          displayName: 'Publish to MCP Registry'

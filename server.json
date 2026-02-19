@@ -1,0 +1,71 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.umbraco/Umbraco-Forms-MCP-Dev",
+  "description": "A developer focused model context protocol (MCP) server for Umbraco Forms",
+  "repository": {
+    "url": "https://github.com/umbraco/Umbraco-Forms-MCP-Dev",
+    "source": "github"
+  },
+  "version": "17.0.0-beta.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "umbraco-forms-mcp-dev",
+      "version": "17.0.0-beta.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Umbraco API user client ID",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true,
+          "name": "UMBRACO_CLIENT_ID"
+        },
+        {
+          "description": "Umbraco API user client secret",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true,
+          "name": "UMBRACO_CLIENT_SECRET"
+        },
+        {
+          "description": "Base URL of your Umbraco instance",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": false,
+          "name": "UMBRACO_BASE_URL"
+        },
+        {
+          "description": "API key for the Umbraco Forms Delivery API (enables form definition retrieval and submissions)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true,
+          "name": "UMBRACO_FORMS_API_KEY"
+        },
+        {
+          "description": "Comma-separated list of tool collections to include (e.g., form,record,data-source)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "UMBRACO_INCLUDE_TOOL_COLLECTIONS"
+        },
+        {
+          "description": "Enable readonly mode to disable all write operations (create, update, delete). Only read and query tools remain available.",
+          "isRequired": false,
+          "format": "boolean",
+          "isSecret": false,
+          "name": "UMBRACO_READONLY"
+        },
+        {
+          "description": "Disable chaining to the Umbraco CMS MCP server",
+          "isRequired": false,
+          "format": "boolean",
+          "isSecret": false,
+          "name": "DISABLE_MCP_CHAINING"
+        }
+      ]
+    }
+  ]
+}

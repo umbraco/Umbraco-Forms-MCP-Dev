@@ -1,11 +1,11 @@
 {
-  "name": "my-commerce-mcp",
-  "version": "1.0.0",
+  "name": "umbraco-forms-mcp-dev",
+  "version": "17.0.0-beta.1",
   "type": "module",
-  "description": "MCP server for My-Commerce-MCP",
+  "description": "Developer MCP server for Umbraco Forms",
   "main": "dist/index.js",
   "bin": {
-    "my-commerce-mcp": "./dist/index.js"
+    "umbraco-forms-mcp-dev": "./dist/index.js"
   },
   "scripts": {
     "clean": "rimraf dist",

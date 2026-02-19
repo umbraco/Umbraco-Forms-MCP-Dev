@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * MCP Server Entry Point
+ * Umbraco Forms MCP Server Entry Point
  *
- * This file sets up and starts the MCP server.
- * Customize this to add your tool collections.
+ * Sets up and starts the MCP server for Umbraco Forms.
  */
 
 import "dotenv/config";
@@ -59,7 +58,7 @@ configureApiClient(() => getUmbracoFormsManagementAPI());
 
 // Create MCP server
 const server = new McpServer({
-  name: "my-umbraco-mcp",
+  name: "umbraco-forms-mcp",
   version: packageJson.version,
 });
 

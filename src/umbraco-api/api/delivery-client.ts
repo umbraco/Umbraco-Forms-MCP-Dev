@@ -11,10 +11,10 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { loadServerConfig } from "../../config/index.js";
 
-const getBaseUrl = () =>
-  process.env.UMBRACO_BASE_URL || "http://localhost:44391";
-const getApiKey = () => process.env.UMBRACO_FORMS_API_KEY || "";
+const getBaseUrl = () => loadServerConfig(true).umbraco.auth.baseUrl;
+const getApiKey = () => loadServerConfig(true).custom.formsApiKey || "";
 
 export const deliveryInstance = async <T>(
   config: AxiosRequestConfig,

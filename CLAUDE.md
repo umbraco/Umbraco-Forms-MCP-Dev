@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the MCP server template.
+This file provides guidance to Claude Code (claude.ai/code) when working with the Umbraco Forms MCP server.
 
-## Template Overview
+## Overview
 
-Starter kit for creating new Umbraco MCP server projects. Copy this folder to start a new project. Not published to npm.
+MCP server for Umbraco Forms. Provides tools for managing forms, records, data sources, prevalue sources, and more via the Umbraco Forms Management and Delivery APIs.
 
 ## Commands
 
@@ -68,6 +68,7 @@ src/
 | `UMBRACO_INCLUDE_SLICES` | `--umbraco-include-slices` | Include only these slices |
 | `UMBRACO_EXCLUDE_SLICES` | `--umbraco-exclude-slices` | Exclude these slices |
 | `UMBRACO_READONLY` | `--umbraco-readonly` | Block write operations |
+| `UMBRACO_FORMS_API_KEY` | `--umbraco-forms-api-key` | Forms Delivery API key |
 | `DISABLE_MCP_CHAINING` | `--disable-mcp-chaining` | Disable MCP server chaining |
 
 Custom fields defined in `config/server-config.ts`.
@@ -80,8 +81,8 @@ Custom fields defined in `config/server-config.ts`.
 - Tools with empty slices array are categorized as `other`
 
 **mode-registry.ts** - Named groups mapping to collections:
-- Example: `example` mode includes `example` collection
-- Users set `UMBRACO_TOOL_MODES=example,content` to enable groups
+- Example: `form-design` mode includes `form`, `field-type`, `folder`, `media` collections
+- Users set `UMBRACO_TOOL_MODES=form-design,submissions` to enable groups
 
 ## Tool Conventions
 
