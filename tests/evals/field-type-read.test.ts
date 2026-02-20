@@ -24,7 +24,7 @@ describe("field-type read eval tests", () => {
 3. Get that specific field type by its ID to see full details
 4. List all validation patterns available for field types
 5. Report what you found (mention the field type name you looked up and how many validation patterns exist)
-6. Say "Read workflow completed successfully"`,
+6. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
       tools: COLLECTION_TOOLS,
       requiredTools: [
         "list-field-types",

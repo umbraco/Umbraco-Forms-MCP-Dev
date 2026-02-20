@@ -1,7 +1,6 @@
 import type { JestConfigWithTsJest } from "ts-jest";
 
-const config: JestConfigWithTsJest = {
-  displayName: "template",
+const shared: Partial<JestConfigWithTsJest> = {
   preset: "ts-jest/presets/js-with-ts-esm",
   testEnvironment: "node",
   maxWorkers: 1,
@@ -18,12 +17,29 @@ const config: JestConfigWithTsJest = {
       },
     ],
   },
-  testMatch: ["**/__tests__/**/*.test.ts"],
   setupFiles: ["<rootDir>/jest.setup.ts"],
   testPathIgnorePatterns: ["/node_modules/"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts"],
-  coverageDirectory: "coverage",
+};
+
+const config: JestConfigWithTsJest = {
+  projects: [
+    {
+      ...shared,
+      displayName: "integration",
+      testMatch: ["**/__tests__/**/*.test.ts"],
+      collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts"],
+      coverageDirectory: "coverage",
+    } as JestConfigWithTsJest,
+    {
+      ...shared,
+      displayName: "evals",
+      testMatch: ["<rootDir>/tests/evals/**/*.test.ts"],
+      testTimeout: 120000,
+      slowTestThreshold: 300,
+      setupFilesAfterEnv: ["<rootDir>/tests/evals/helpers/e2e-setup.ts"],
+    } as JestConfigWithTsJest,
+  ],
 };
 
 export default config;

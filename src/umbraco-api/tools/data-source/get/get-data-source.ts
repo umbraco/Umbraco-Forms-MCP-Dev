@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   withStandardDecorators,
   executeGetApiCall,
@@ -12,12 +13,17 @@ import {
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
+// Relax formDataSourceTypeId from uuid() to string() — the API can return non-UUID type IDs
+const outputSchema = getDataSourceByIdResponse.extend({
+  formDataSourceTypeId: z.string(),
+});
+
 const GetDataSource = {
   name: "get-data-source",
   description:
     "Retrieve a form data source by its unique ID. Returns the data source configuration including name, settings, type, and validity status. Use this when you need details about a specific data source.",
   inputSchema: getDataSourceByIdParams.shape,
-  outputSchema: getDataSourceByIdResponse,
+  outputSchema,
   slices: ["read"],
   annotations: {
     readOnlyHint: true,
@@ -27,6 +33,6 @@ const GetDataSource = {
       (client) => client.getDataSourceById(params.id, CAPTURE_RAW_HTTP_RESPONSE)
     );
   },
-} satisfies ToolDefinition<typeof getDataSourceByIdParams.shape, typeof getDataSourceByIdResponse>;
+} satisfies ToolDefinition<typeof getDataSourceByIdParams.shape, typeof outputSchema>;
 
 export default withStandardDecorators(GetDataSource);

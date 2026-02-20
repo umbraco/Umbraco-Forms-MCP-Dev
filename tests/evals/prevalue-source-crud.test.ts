@@ -29,7 +29,7 @@ describe("prevalue-source CRUD eval tests", () => {
 5. Get the specific prevalue source by its ID using get-prevalue-source
 6. Update the prevalue source name to "Updated-PrevalueSource-{timestamp}" using update-prevalue-source
 7. Delete the prevalue source using delete-prevalue-source
-8. Say "CRUD workflow completed successfully"
+8. ONLY if every step above succeeded without errors, say "CRUD workflow completed successfully". If any step returned an error, say "CRUD workflow failed" and explain which steps failed.
 
 Important:
 - Use the timestamp from step 1 in both create and update steps

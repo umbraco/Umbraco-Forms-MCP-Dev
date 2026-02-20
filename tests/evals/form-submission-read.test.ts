@@ -27,7 +27,7 @@ describe("form-submission read eval tests", () => {
 3. Use get-form-definition with the form ID to get the public delivery API definition
 4. Delete the form using delete-form with the ID from step 1 to clean up
 5. Report the form name and describe the differences between get-form and get-form-definition
-6. Say "Read workflow completed successfully"`,
+6. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
       tools: COLLECTION_TOOLS,
       requiredTools: ["create-form", "get-form", "get-form-definition", "delete-form"],
       successPattern: "Read workflow completed successfully",

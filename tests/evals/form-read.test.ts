@@ -30,7 +30,7 @@ describe("form read eval tests", () => {
 6. Browse the form tree to see the folder hierarchy
 7. Delete the form using delete-form to clean up
 8. Report what you found: confirm the name was updated and describe the tree structure
-9. Say "Read workflow completed successfully"`,
+9. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
       tools: COLLECTION_TOOLS,
       requiredTools: ["create-form", "update-form", "get-form", "get-form-tree", "delete-form"],
       successPattern: "Read workflow completed successfully",

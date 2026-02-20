@@ -22,7 +22,7 @@ describe("data-source-type read eval tests", () => {
 2. Pick the first data source type from the list
 3. Get that specific data source type by its ID to see full details
 4. Report the data source type name and describe its settings schema (what properties it has)
-5. Say "Read workflow completed successfully"`,
+5. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
       tools: COLLECTION_TOOLS,
       requiredTools: ["list-data-source-types", "get-data-source-type"],
       successPattern: "Read workflow completed successfully",

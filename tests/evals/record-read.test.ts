@@ -30,7 +30,7 @@ describe("record read eval tests", () => {
    - Form name and ID
    - Number of records found
    - Available bulk actions (if any)
-7. Say "Read workflow completed successfully"`,
+7. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
       tools: COLLECTION_TOOLS,
       requiredTools: ["create-form", "list-forms", "list-records", "list-record-set-actions", "delete-form"],
       successPattern: "Read workflow completed successfully",

@@ -54,6 +54,11 @@ const CreateDataSource = {
     };
 
     const response = await client.postDataSource(body as any, CAPTURE_RAW_HTTP_RESPONSE);
+    const status = (response as any)?.status;
+    if (status && status >= 400) {
+      const detail = (response as any)?.data?.detail || (response as any)?.data?.title || `HTTP ${status}`;
+      throw new Error(`Failed to create data source: ${detail}`);
+    }
     const locationHeader = (response as any)?.headers?.location || (response as any)?.headers?.Location;
     const createdId = locationHeader ? locationHeader.split("/").pop() : id;
     return createToolResult({ id: createdId, name: params.name });

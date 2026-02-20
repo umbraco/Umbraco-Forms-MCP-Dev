@@ -1,0 +1,6 @@
+{
+  "jest.nodeEnv": {
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  },
+  "jest.jestCommandLine": "node --experimental-vm-modules ./node_modules/.bin/jest"
+}

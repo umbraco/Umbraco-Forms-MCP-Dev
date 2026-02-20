@@ -1,4 +1,4 @@
-import * as zod from "zod";
+import { z } from "zod";
 import {
   withStandardDecorators,
   executeGetApiCall,
@@ -10,14 +10,19 @@ import { getDataSourceScaffoldResponse } from "../../../api/generated/umbracoFor
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const emptyInput = z.object({});
+
+// Relax formDataSourceTypeId from uuid() to string() — the API can return non-UUID type IDs
+const outputSchema = getDataSourceScaffoldResponse.extend({
+  formDataSourceTypeId: z.string(),
+});
 
 const GetDataSourceScaffold = {
   name: "get-data-source-scaffold",
   description:
     "Gets an empty data source scaffold with default values. Returns the structure needed to create a new data source, including default settings and required fields. Use this to understand the data source structure before calling create-data-source.",
   inputSchema: emptyInput.shape,
-  outputSchema: getDataSourceScaffoldResponse,
+  outputSchema,
   slices: ["scaffolding"],
   annotations: {
     readOnlyHint: true,
@@ -27,6 +32,6 @@ const GetDataSourceScaffold = {
       (client) => client.getDataSourceScaffold(CAPTURE_RAW_HTTP_RESPONSE)
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof getDataSourceScaffoldResponse>;
+} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
 
 export default withStandardDecorators(GetDataSourceScaffold);

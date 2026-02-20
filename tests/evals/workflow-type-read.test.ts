@@ -22,7 +22,7 @@ describe("workflow-type read eval tests", () => {
 2. Pick the first workflow type from the list
 3. Get that specific workflow type by its ID to see full details
 4. Report the workflow type name and its settings schema
-5. Say "Read workflow completed successfully"`,
+5. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
       tools: COLLECTION_TOOLS,
       requiredTools: ["list-workflow-types", "get-workflow-type"],
       successPattern: "Read workflow completed successfully",

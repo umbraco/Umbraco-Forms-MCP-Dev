@@ -28,7 +28,7 @@ describe("folder CRUD eval tests", () => {
 4. Check if the folder is empty using check-folder-empty with the same ID. It should be empty since it's a newly created folder.
 5. Update the folder's name to "Updated Eval Folder {timestamp}" using update-folder with the same ID.
 6. Delete the folder using delete-folder with the same ID.
-7. Say "CRUD workflow completed successfully"
+7. ONLY if every step above succeeded without errors, say "CRUD workflow completed successfully". If any step returned an error, say "CRUD workflow failed" and explain which steps failed.
 
 Important: Never hardcode IDs. Always use the ID returned from the create operation in step 2 for all subsequent operations.`,
       tools: COLLECTION_TOOLS,
