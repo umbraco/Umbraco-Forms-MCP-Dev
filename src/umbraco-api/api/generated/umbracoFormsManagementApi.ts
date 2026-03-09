@@ -5,6 +5,96 @@
  * Describes the Umbraco Forms Management API available for managing forms data when authenticated as a backoffice user.
  * OpenAPI spec version: Latest
  */
+import type {
+  BackOfficeConfig,
+  BasicForm,
+  CopyFormModel,
+  CopyFormWorkflowsModel,
+  CreateFolderModel,
+  DataSourceTreeItemResponseModel,
+  DataSourceTypeWithSettings,
+  DataSourceWizard,
+  DataTypeDetail,
+  EntrySearchResultCollection,
+  EntrySearchResultMetadata,
+  ExportType,
+  FieldPreValueSource,
+  FieldTypeWithSettings,
+  File,
+  Folder,
+  FolderItemResponseModel,
+  FormDataSource,
+  FormDesign,
+  FormItemResponseModel,
+  FormSecurityForGroup,
+  FormSecurityForUser,
+  FormTemplateBase,
+  FormTreeItemResponseModel,
+  FormsLicenseModel,
+  GenerateExportResponseModel,
+  GetDataSourceParams,
+  GetExportParams,
+  GetExportTypesParams,
+  GetFormAreReferencedParams,
+  GetFormByFormIdRecordMetadataParams,
+  GetFormByFormIdRecordPageNumberParams,
+  GetFormByFormIdRecordParams,
+  GetFormByIdParams,
+  GetFormByIdReferencedByParams,
+  GetFormByIdReferencedDescendantsParams,
+  GetFormExportParams,
+  GetFormSearchParams,
+  GetItemFolderParams,
+  GetItemFormParams,
+  GetMediaByPathParams,
+  GetPrevalueSourceByIdValuesParams,
+  GetPrevalueSourceParams,
+  GetSecurityUserByIdFormSecurityParams,
+  GetSecurityUserCurrentFormSecurityParams,
+  GetTreeDataSourceAncestorsParams,
+  GetTreeFormAncestorsParams,
+  GetTreeFormChildrenByParentIdParams,
+  GetTreeFormRootParams,
+  GetTreePrevalueSourceAncestorsParams,
+  GetTreeSecurityAncestorsParams,
+  ImportFormModel,
+  MappedDocumentTypeModel,
+  MappedDocumentTypePropertyModel,
+  MediaResponseModel,
+  MoveFolderModel,
+  MoveFormModel,
+  PagedBasicFormModel,
+  PagedDataSourceTreeItemResponseModel,
+  PagedFieldPreValueSourceModel,
+  PagedFileSystemTreeItemPresentationModel,
+  PagedFormDataSourceModel,
+  PagedFormTreeItemResponseModel,
+  PagedIReferenceResponseModel,
+  PagedModelRelationItemModel,
+  PagedPrevalueSourceTreeItemResponseModel,
+  PagedReferenceByIdModel,
+  PagedSecurityTreeItemResponseModel,
+  PickerItem,
+  PostExportParams,
+  PreValue,
+  PreValueSourceTypeWithSettings,
+  PrevalueSourceTreeItemResponseModel,
+  RecordActionExecution,
+  RecordAuditEntry,
+  RecordSetActionType,
+  RecordWorkflowAuditEntry,
+  SecurityTreeItemResponseModel,
+  SystemInfo,
+  Theme,
+  UpdateFolderModel,
+  UpdateRecordField,
+  UserItemResponseModel,
+  ValidateFieldSettingsModel,
+  ValidateWorkflowSettingsModel,
+  ValidationPattern,
+  WorkflowTypeWithSettings
+} from '../schemas/index.js';
+
 import { customInstance } from '../client.js';
 
 // https://stackoverflow.com/questions/49579094/typescript-conditional-types-filter-out-readonly-properties-pick-only-requir/49579497#49579497
@@ -33,1252 +123,7 @@ type NonReadonly<T> = [T] extends [UnionToIntersection<T>] ? {
     : T[P];
 } : DistributeReadOnlyOverUnions<T>;
 
-export interface AllowedUploadType {
-  type: string;
-  name: string;
-  checked: string;
-}
 
-export interface BackOfficeConfig {
-  maxNumberOfColumnsInFormGroup: number;
-  manageSecurityWithUserGroups: boolean;
-  scheduledRecordDeletionEnabled: boolean;
-  mandatoryFieldsetLegends: boolean;
-  disallowedFileUploadExtensions: string;
-  allowedFileUploadExtensions: string;
-  enableMultiPageFormSettings: boolean;
-  enableAdvancedValidationRules: boolean;
-}
-
-export interface BasicForm {
-  id: string;
-  name: string;
-  fields: string;
-  summary: string;
-}
-
-export interface CopyFormModel {
-  /** @nullable */
-  newName?: string | null;
-  copyWorkflows: boolean;
-  /** @nullable */
-  copyToFolderId?: string | null;
-}
-
-export interface CopyFormWorkflowsModel {
-  destinationId: string;
-  workflowIds: string[];
-}
-
-export interface CreateFolderModel {
-  id: string;
-  /** @nullable */
-  parentId?: string | null;
-  /** @minLength 1 */
-  name: string;
-}
-
-/**
- * @nullable
- */
-export type DataSourceTreeItemResponseModelParent = ReferenceByIdModel | null;
-
-export interface DataSourceTreeItemResponseModel {
-  hasChildren: boolean;
-  id: string;
-  /** @nullable */
-  parent?: DataSourceTreeItemResponseModelParent;
-  flags: FlagModel[];
-  name: string;
-  isFolder: boolean;
-  icon: string;
-}
-
-export interface DataSourceTypeWithSettings {
-  id: string;
-  readonly unique: string;
-  readonly entityType: string;
-  alias: string;
-  name: string;
-  description: string;
-  icon: string;
-  settings: Setting[];
-}
-
-export interface DataSourceWizard {
-  dataSourceGuid: string;
-  formName: string;
-  mappings: DataSourceWizardFieldMapping[];
-}
-
-export interface DataSourceWizardFieldMapping {
-  key: string;
-  name: string;
-  include: boolean;
-  prevalueKeyField: string;
-  prevalueValueField: string;
-  prevalueSource: string;
-  availablePrevalueValueFields: string[];
-  isForeignKey: boolean;
-  isMandatory: boolean;
-  dataType: FieldDataType;
-  defaultValue: string;
-  fieldTypeId: string;
-  isPrimaryKey: boolean;
-  allowNulls: boolean;
-}
-
-export type DataTypeDetailConfigurationData = {[key: string]: unknown};
-
-export interface DataTypeDetail {
-  id: number;
-  key: string;
-  name: string;
-  configurationData: DataTypeDetailConfigurationData;
-}
-
-/**
- * @nullable
- */
-export type EntrySearchResultMember = MemberData | null;
-
-/**
- * @nullable
- */
-export type EntrySearchResultUmbracoPage = UmbracoPageDetail | null;
-
-export interface EntrySearchResult {
-  id: number;
-  score: number;
-  form: string;
-  state: string;
-  created: string;
-  updated: string;
-  uniqueId: string;
-  fields: FieldData[];
-  /** @nullable */
-  member?: EntrySearchResultMember;
-  /** @nullable */
-  umbracoPage?: EntrySearchResultUmbracoPage;
-  culture: string;
-  numberOfWorkflowsExecuted: number;
-  numberOfWorkflowsCompleted: number;
-}
-
-export interface EntrySearchResultCollection {
-  totalNumberOfResults: number;
-  totalNumberOfPages: number;
-  schema: EntrySearchResultSchema[];
-  results: EntrySearchResult[];
-}
-
-export interface EntrySearchResultMetadata {
-  count: number;
-  lastSubmittedDate: string;
-}
-
-export interface EntrySearchResultSchema {
-  name: string;
-  alias: string;
-  view: string;
-  editView: string;
-  id: string;
-  containsSensitiveData: boolean;
-  showOnListingScreen: boolean;
-}
-
-export type EventMessageTypeModel = typeof EventMessageTypeModel[keyof typeof EventMessageTypeModel];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EventMessageTypeModel = {
-  Default: 'Default',
-  Info: 'Info',
-  Error: 'Error',
-  Success: 'Success',
-  Warning: 'Warning',
-} as const;
-
-export interface ExportType {
-  id: string;
-  name: string;
-  alias: string;
-  description: string;
-  icon: string;
-  group: string;
-  mimeType: string;
-  fileExtension: string;
-}
-
-/**
- * @nullable
- */
-export type FieldConditionProperty = FieldCondition | null;
-
-export type FieldSettings = {[key: string]: string};
-
-export interface Field {
-  caption: string;
-  /** @nullable */
-  tooltip?: string | null;
-  /** @nullable */
-  cssClass?: string | null;
-  alias: string;
-  id: string;
-  fieldTypeId: string;
-  prevalueSourceId: string;
-  /** @nullable */
-  dataSourceFieldKey?: string | null;
-  containsSensitiveData: boolean;
-  mandatory: boolean;
-  /** @nullable */
-  regex?: string | null;
-  /** @nullable */
-  requiredErrorMessage?: string | null;
-  /** @nullable */
-  invalidErrorMessage?: string | null;
-  /** @nullable */
-  condition?: FieldConditionProperty;
-  settings: FieldSettings;
-  preValues: FieldPrevalue[];
-  /** @nullable */
-  allowedUploadTypes?: AllowedUploadType[] | null;
-  allowMultipleFileUploads: boolean;
-}
-
-export interface FieldCondition {
-  id: string;
-  enabled: boolean;
-  actionType: FieldConditionActionType;
-  logicType: FieldConditionLogicType;
-  rules: FieldConditionRule[];
-}
-
-export type FieldConditionActionType = typeof FieldConditionActionType[keyof typeof FieldConditionActionType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FieldConditionActionType = {
-  Show: 'Show',
-  Hide: 'Hide',
-} as const;
-
-export type FieldConditionLogicType = typeof FieldConditionLogicType[keyof typeof FieldConditionLogicType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FieldConditionLogicType = {
-  All: 'All',
-  Any: 'Any',
-} as const;
-
-export interface FieldConditionRule {
-  id: string;
-  field: string;
-  operator: FieldConditionRuleOperator;
-  value: string;
-}
-
-export type FieldConditionRuleOperator = typeof FieldConditionRuleOperator[keyof typeof FieldConditionRuleOperator];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FieldConditionRuleOperator = {
-  Is: 'Is',
-  IsNot: 'IsNot',
-  GreaterThen: 'GreaterThen',
-  LessThen: 'LessThen',
-  Contains: 'Contains',
-  ContainsIgnoreCase: 'ContainsIgnoreCase',
-  StartsWith: 'StartsWith',
-  StartsWithIgnoreCase: 'StartsWithIgnoreCase',
-  EndsWith: 'EndsWith',
-  EndsWithIgnoreCase: 'EndsWithIgnoreCase',
-  NotContains: 'NotContains',
-  NotContainsIgnoreCase: 'NotContainsIgnoreCase',
-  NotStartsWith: 'NotStartsWith',
-  NotStartsWithIgnoreCase: 'NotStartsWithIgnoreCase',
-  NotEndsWith: 'NotEndsWith',
-  NotEndsWithIgnoreCase: 'NotEndsWithIgnoreCase',
-} as const;
-
-/**
- * @nullable
- */
-export type FieldDataValue = unknown | null;
-
-export interface FieldData {
-  fieldId: string;
-  /** @nullable */
-  value?: FieldDataValue;
-}
-
-export type FieldDataType = typeof FieldDataType[keyof typeof FieldDataType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FieldDataType = {
-  String: 'String',
-  LongString: 'LongString',
-  Integer: 'Integer',
-  DateTime: 'DateTime',
-  Bit: 'Bit',
-} as const;
-
-export type FieldPreValueSourceSettings = {[key: string]: string};
-
-export interface FieldPreValueSource {
-  id: string;
-  readonly unique: string;
-  readonly entityType: string;
-  name: string;
-  created: string;
-  /** @nullable */
-  createdBy?: number | null;
-  /** @nullable */
-  createdByName?: string | null;
-  updated: string;
-  /** @nullable */
-  updatedBy?: number | null;
-  /** @nullable */
-  updatedByName?: string | null;
-  settings: FieldPreValueSourceSettings;
-  fieldPreValueSourceTypeId: string;
-  cachePrevaluesFor: string;
-}
-
-export interface FieldPrevalue {
-  value: string;
-  /** @nullable */
-  caption?: string | null;
-}
-
-/**
- * @nullable
- */
-export type FieldSetCondition = FieldCondition | null;
-
-export interface FieldSet {
-  /** @nullable */
-  caption?: string | null;
-  sortOrder: number;
-  id: string;
-  page: string;
-  containers: FieldsetContainer[];
-  /** @nullable */
-  condition?: FieldSetCondition;
-}
-
-export interface FieldTypeWithSettings {
-  id: string;
-  readonly unique: string;
-  readonly entityType: string;
-  alias: string;
-  name: string;
-  icon: string;
-  group: string;
-  sortOrder: number;
-  description: string;
-  supportsPrevalues: boolean;
-  supportsUploadTypes: boolean;
-  supportsMandatory: boolean;
-  supportsRegex: boolean;
-  hideLabel: boolean;
-  renderInputType: RenderInputType;
-  settings: Setting[];
-  view: string;
-  previewView: string;
-  mandatoryByDefault: boolean;
-  isConfigured: boolean;
-  configurationErrors: string[];
-}
-
-export interface FieldsetContainer {
-  id: string;
-  /** @nullable */
-  caption?: string | null;
-  width: number;
-  fields: Field[];
-}
-
-export interface File { [key: string]: unknown }
-
-export interface FileSystemFolderModel {
-  path: string;
-}
-
-/**
- * @nullable
- */
-export type FileSystemTreeItemPresentationModelParent = FileSystemFolderModel | null;
-
-export interface FileSystemTreeItemPresentationModel {
-  hasChildren: boolean;
-  name: string;
-  path: string;
-  /** @nullable */
-  parent?: FileSystemTreeItemPresentationModelParent;
-  isFolder: boolean;
-}
-
-export interface FlagModel {
-  alias: string;
-}
-
-export interface Folder {
-  id: string;
-  /** @minLength 1 */
-  name: string;
-  created: string;
-  /** @nullable */
-  parentId?: string | null;
-}
-
-export interface FolderItemResponseModel {
-  id: string;
-  flags: FlagModel[];
-  name: string;
-}
-
-export type FormDataSourceSettings = {[key: string]: string};
-
-export interface FormDataSource {
-  id: string;
-  readonly unique: string;
-  readonly entityType: string;
-  name: string;
-  created: string;
-  /** @nullable */
-  createdBy?: number | null;
-  /** @nullable */
-  createdByName?: string | null;
-  updated: string;
-  /** @nullable */
-  updatedBy?: number | null;
-  /** @nullable */
-  updatedByName?: string | null;
-  settings: FormDataSourceSettings;
-  formDataSourceTypeId: string;
-  valid: boolean;
-}
-
-export interface FormDataSourceDefinition {
-  id: string;
-  mappings: FormDataSourceMapping[];
-}
-
-export interface FormDataSourceMapping {
-  formId: string;
-  dataFieldKey: string;
-  prevalueKeyfield: string;
-  prevalueValueField: string;
-  prevalueTable: string;
-  dataType: FieldDataType;
-  defaultValue: string;
-}
-
-/**
- * @nullable
- */
-export type FormDesignDatasource = FormDataSourceDefinition | null;
-
-export interface FormDesign {
-  /** @minLength 1 */
-  name: string;
-  created: string;
-  /** @nullable */
-  createdBy?: number | null;
-  /** @nullable */
-  createdByName?: string | null;
-  updated: string;
-  /** @nullable */
-  updatedBy?: number | null;
-  /** @nullable */
-  updatedByName?: string | null;
-  pages: Page[];
-  validationRules: ValidationRule[];
-  id: string;
-  readonly unique: string;
-  /** @nullable */
-  readonly parentUnique?: string | null;
-  readonly entityType: string;
-  fieldIndicationType: FormFieldIndication;
-  indicator: string;
-  showValidationSummary: boolean;
-  hideFieldValidation: boolean;
-  requiredErrorMessage: string;
-  invalidErrorMessage: string;
-  /** @nullable */
-  messageOnSubmit?: string | null;
-  messageOnSubmitIsHtml: boolean;
-  /** @nullable */
-  goToPageOnSubmit?: string | null;
-  /** @nullable */
-  xPathOnSubmit?: string | null;
-  manualApproval: boolean;
-  storeRecordsLocally: boolean;
-  /** @nullable */
-  autocompleteAttribute?: string | null;
-  displayDefaultFields: boolean;
-  selectedDisplayFields: RecordFieldDisplay[];
-  daysToRetainSubmittedRecordsFor: number;
-  daysToRetainApprovedRecordsFor: number;
-  daysToRetainRejectedRecordsFor: number;
-  /** @nullable */
-  cssClass?: string | null;
-  disableDefaultStylesheet: boolean;
-  /** @nullable */
-  datasource?: FormDesignDatasource;
-  /** @nullable */
-  submitLabel?: string | null;
-  /** @nullable */
-  nextLabel?: string | null;
-  /** @nullable */
-  prevLabel?: string | null;
-  /** @nullable */
-  folderId?: string | null;
-  nodeId: number;
-  showPagingOnMultiPageForms: MultiPageNavigationOption;
-  pagingDetailsFormat: string;
-  pageCaptionFormat: string;
-  showSummaryPageOnMultiPageForms: boolean;
-  /** @nullable */
-  summaryLabel?: string | null;
-  formWorkflows: FormWorkflows;
-  path: string;
-}
-
-export type FormFieldIndication = typeof FormFieldIndication[keyof typeof FormFieldIndication];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FormFieldIndication = {
-  NoIndicator: 'NoIndicator',
-  MarkMandatoryFields: 'MarkMandatoryFields',
-  MarkOptionalFields: 'MarkOptionalFields',
-} as const;
-
-export interface FormItemResponseModel {
-  id: string;
-  flags: FlagModel[];
-  name: string;
-}
-
-export interface FormSecurityForGroup {
-  key: string;
-  name: string;
-  readonly unique: string;
-  readonly entityType: string;
-  userGroupSecurity: UserGroupSecurity;
-  startFolderIds: string[];
-  formsSecurity: UserGroupFormSecurity[];
-}
-
-export interface FormSecurityForUser {
-  key: string;
-  name: string;
-  readonly unique: string;
-  readonly entityType: string;
-  userSecurity: UserSecurity;
-  startFolderIds: string[];
-  formsSecurity: UserFormSecurity[];
-}
-
-export type FormSecurityType = typeof FormSecurityType[keyof typeof FormSecurityType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FormSecurityType = {
-  Full: 'Full',
-  ReadOnlyViewAndExportEntries: 'ReadOnlyViewAndExportEntries',
-  ReadOnlyViewEntries: 'ReadOnlyViewEntries',
-} as const;
-
-export type FormState = typeof FormState[keyof typeof FormState];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FormState = {
-  Opened: 'Opened',
-  Resumed: 'Resumed',
-  PartiallySubmitted: 'PartiallySubmitted',
-  Submitted: 'Submitted',
-  Approved: 'Approved',
-  Deleted: 'Deleted',
-  Rejected: 'Rejected',
-} as const;
-
-export interface FormTemplateBase {
-  alias: string;
-  readonly unique: string;
-  readonly entityType: string;
-  name: string;
-  description: string;
-}
-
-/**
- * @nullable
- */
-export type FormTreeItemResponseModelParent = ReferenceByIdModel | null;
-
-export interface FormTreeItemResponseModel {
-  hasChildren: boolean;
-  id: string;
-  /** @nullable */
-  parent?: FormTreeItemResponseModelParent;
-  flags: FlagModel[];
-  name: string;
-  isFolder: boolean;
-  path: string;
-  icon: string;
-}
-
-export type FormWorkflowWithTypeSettingsSettings = {[key: string]: string};
-
-/**
- * @nullable
- */
-export type FormWorkflowWithTypeSettingsCondition = FieldCondition | null;
-
-export interface FormWorkflowWithTypeSettings {
-  id: string;
-  name: string;
-  form: string;
-  active: boolean;
-  includeSensitiveData: IncludeSensitiveData;
-  isDeleted: boolean;
-  sortOrder: number;
-  workflowTypeId: string;
-  workflowTypeName: string;
-  workflowTypeDescription: string;
-  workflowTypeIcon: string;
-  workflowTypeGroup: string;
-  settings: FormWorkflowWithTypeSettingsSettings;
-  isMandatory: boolean;
-  /** @nullable */
-  condition?: FormWorkflowWithTypeSettingsCondition;
-}
-
-export interface FormWorkflows {
-  onSubmit: FormWorkflowWithTypeSettings[];
-  onApprove: FormWorkflowWithTypeSettings[];
-  onReject: FormWorkflowWithTypeSettings[];
-}
-
-export interface FormsLicenseModel {
-  isTrial: boolean;
-  isValid: boolean;
-  licenseLimitations: string;
-  validDomains: string[];
-}
-
-export interface GenerateExportResponseModel {
-  formId: string;
-  fileName: string;
-}
-
-export interface ImportFormModel {
-  fileKey: string;
-  /** @nullable */
-  folderId?: string | null;
-}
-
-export type IncludeSensitiveData = typeof IncludeSensitiveData[keyof typeof IncludeSensitiveData];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const IncludeSensitiveData = {
-  False: 'False',
-  True: 'True',
-  Undefined: 'Undefined',
-} as const;
-
-export interface MappedDocumentTypeModel {
-  doctypeAlias: string;
-  currentProperties: MappedDocumentTypePropertyModel[];
-}
-
-export interface MappedDocumentTypePropertyModel {
-  id: string;
-  value: string;
-  field: string;
-  staticValue: string;
-}
-
-export interface MediaResponseModel {
-  values: MediaValueResponseModel[];
-  variants: MediaVariantResponseModel[];
-  id: string;
-  flags: FlagModel[];
-  isTrashed: boolean;
-  mediaType: MediaTypeReferenceResponseModel;
-}
-
-/**
- * @nullable
- */
-export type MediaTypeReferenceResponseModelCollection = ReferenceByIdModel | null;
-
-export interface MediaTypeReferenceResponseModel {
-  id: string;
-  icon: string;
-  /** @nullable */
-  collection?: MediaTypeReferenceResponseModelCollection;
-}
-
-/**
- * @nullable
- */
-export type MediaValueResponseModelValue = unknown | null;
-
-export interface MediaValueResponseModel {
-  /** @nullable */
-  culture?: string | null;
-  /** @nullable */
-  segment?: string | null;
-  /** @minLength 1 */
-  alias: string;
-  /** @nullable */
-  value?: MediaValueResponseModelValue;
-  /** @minLength 1 */
-  editorAlias: string;
-}
-
-export interface MediaVariantResponseModel {
-  /** @nullable */
-  culture?: string | null;
-  /** @nullable */
-  segment?: string | null;
-  /** @minLength 1 */
-  name: string;
-  createDate: string;
-  updateDate: string;
-}
-
-export interface MemberData {
-  name: string;
-  email: string;
-  unique: string;
-}
-
-export interface MoveFolderModel {
-  /** @nullable */
-  parentId?: string | null;
-}
-
-export interface MoveFormModel {
-  /** @nullable */
-  parentId?: string | null;
-}
-
-export type MultiPageNavigationOption = typeof MultiPageNavigationOption[keyof typeof MultiPageNavigationOption];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const MultiPageNavigationOption = {
-  None: 'None',
-  ShowAtTop: 'ShowAtTop',
-  ShowAtBottom: 'ShowAtBottom',
-} as const;
-
-export interface NotificationHeaderModel {
-  message: string;
-  category: string;
-  type: EventMessageTypeModel;
-}
-
-/**
- * @nullable
- */
-export type PageButtonCondition = FieldCondition | null;
-
-export interface Page {
-  fieldSets: FieldSet[];
-  /** @nullable */
-  caption?: string | null;
-  sortOrder: number;
-  id: string;
-  form: string;
-  /** @nullable */
-  buttonCondition?: PageButtonCondition;
-}
-
-export interface PagedDataSourceTreeItemResponseModel {
-  total: number;
-  items: DataSourceTreeItemResponseModel[];
-}
-
-export interface PagedFieldPreValueSourceModel {
-  total: number;
-  items: FieldPreValueSource[];
-}
-
-export interface PagedFileSystemTreeItemPresentationModel {
-  total: number;
-  items: FileSystemTreeItemPresentationModel[];
-}
-
-export interface PagedFormDataSourceModel {
-  total: number;
-  items: FormDataSource[];
-}
-
-export interface PagedFormTreeItemResponseModel {
-  total: number;
-  items: FormTreeItemResponseModel[];
-}
-
-export interface PagedModelRelationItemModel {
-  items: RelationItemModel[];
-  total: number;
-}
-
-export interface PagedPrevalueSourceTreeItemResponseModel {
-  total: number;
-  items: PrevalueSourceTreeItemResponseModel[];
-}
-
-export interface PagedSecurityTreeItemResponseModel {
-  total: number;
-  items: SecurityTreeItemResponseModel[];
-}
-
-export interface PickerItem {
-  id: string;
-  value: string;
-}
-
-export interface PreValue {
-  id: string;
-  value: string;
-  /** @nullable */
-  caption?: string | null;
-  sortOrder: number;
-}
-
-export interface PreValueSourceTypeWithSettings {
-  id: string;
-  readonly unique: string;
-  readonly entityType: string;
-  alias: string;
-  name: string;
-  description: string;
-  icon: string;
-  settings: Setting[];
-}
-
-/**
- * @nullable
- */
-export type PrevalueSourceTreeItemResponseModelParent = ReferenceByIdModel | null;
-
-export interface PrevalueSourceTreeItemResponseModel {
-  hasChildren: boolean;
-  id: string;
-  /** @nullable */
-  parent?: PrevalueSourceTreeItemResponseModelParent;
-  flags: FlagModel[];
-  name: string;
-  isFolder: boolean;
-  icon: string;
-}
-
-export interface ProblemDetails {
-  /** @nullable */
-  type?: string | null;
-  /** @nullable */
-  title?: string | null;
-  /** @nullable */
-  status?: number | null;
-  /** @nullable */
-  detail?: string | null;
-  /** @nullable */
-  instance?: string | null;
-  [key: string]: unknown;
-}
-
-export interface RecordActionExecution {
-  recordKeys: string[];
-}
-
-export interface RecordAuditEntry {
-  id: number;
-  updatedOn: string;
-  updatedBy: string;
-}
-
-export interface RecordFieldDisplay {
-  alias: string;
-  caption: string;
-  isSystem: boolean;
-}
-
-export interface RecordSetActionType {
-  id: string;
-  name: string;
-  alias: string;
-  description: string;
-  group: string;
-  icon: string;
-  needsConfirm: boolean;
-  confirmMessage: string;
-  isAvailableForApprovedRecords: boolean;
-}
-
-export type RecordSorting = typeof RecordSorting[keyof typeof RecordSorting];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const RecordSorting = {
-  Ascending: 'Ascending',
-  Descending: 'Descending',
-} as const;
-
-export interface RecordWorkflowAuditEntry {
-  id: number;
-  workflowKey: string;
-  name: string;
-  typeName: string;
-  executedOn: string;
-  executionStage: string;
-  result: string;
-}
-
-export interface ReferenceByIdModel {
-  id: string;
-}
-
-export interface RelationItemModel {
-  nodeKey: string;
-  /** @nullable */
-  nodeAlias?: string | null;
-  /** @nullable */
-  nodeName?: string | null;
-  /** @nullable */
-  nodeType?: string | null;
-  /** @nullable */
-  nodePublished?: boolean | null;
-  contentTypeKey: string;
-  /** @nullable */
-  contentTypeIcon?: string | null;
-  /** @nullable */
-  contentTypeAlias?: string | null;
-  /** @nullable */
-  contentTypeName?: string | null;
-  /** @nullable */
-  relationTypeName?: string | null;
-  relationTypeIsBidirectional: boolean;
-  relationTypeIsDependency: boolean;
-}
-
-export type RenderInputType = typeof RenderInputType[keyof typeof RenderInputType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const RenderInputType = {
-  Single: 'Single',
-  Multiple: 'Multiple',
-  Custom: 'Custom',
-} as const;
-
-/**
- * @nullable
- */
-export type SecurityTreeItemResponseModelParent = ReferenceByIdModel | null;
-
-export interface SecurityTreeItemResponseModel {
-  hasChildren: boolean;
-  id: string;
-  /** @nullable */
-  parent?: SecurityTreeItemResponseModelParent;
-  flags: FlagModel[];
-  name: string;
-  isFolder: boolean;
-  isGroup: boolean;
-  icon: string;
-}
-
-export interface Setting {
-  name: string;
-  alias: string;
-  description: string;
-  prevalues: string[];
-  view: string;
-  displayOrder: number;
-  defaultValue: string;
-  isReadOnly: boolean;
-  isMandatory: boolean;
-}
-
-export interface SystemInfo {
-  isWindows: boolean;
-  isLinux: boolean;
-  isMacOS: boolean;
-  isSqlServer: boolean;
-  isSqlite: boolean;
-}
-
-export interface Theme {
-  name: string;
-}
-
-export interface UmbracoPageDetail {
-  id: number;
-  unique: string;
-  name: string;
-}
-
-export interface UpdateFolderModel {
-  /** @minLength 1 */
-  name: string;
-}
-
-export interface UpdateRecordField {
-  fieldId: string;
-  values: unknown[];
-}
-
-export interface UserFormSecurity {
-  formName: string;
-  formCreated: string;
-  fields: string;
-  hasAccess: boolean;
-  securityType: FormSecurityType;
-  allowInEditor: boolean;
-  securityTypeInt: number;
-  id: number;
-  user: string;
-  form: string;
-}
-
-export interface UserGroupFormSecurity {
-  formName: string;
-  formCreated: string;
-  fields: string;
-  hasAccess: boolean;
-  securityType: FormSecurityType;
-  allowInEditor: boolean;
-  securityTypeInt: number;
-  id: number;
-  userGroupId: number;
-  form: string;
-}
-
-export interface UserGroupSecurity {
-  manageDataSources: boolean;
-  managePreValueSources: boolean;
-  manageWorkflows: boolean;
-  manageForms: boolean;
-  viewEntries: boolean;
-  editEntries: boolean;
-  deleteEntries: boolean;
-  userGroupId: number;
-}
-
-export interface UserItemResponseModel {
-  id: string;
-  flags: FlagModel[];
-  name: string;
-  avatarUrls: string[];
-  kind: UserKindModel;
-}
-
-export type UserKindModel = typeof UserKindModel[keyof typeof UserKindModel];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const UserKindModel = {
-  Default: 'Default',
-  Api: 'Api',
-} as const;
-
-export interface UserSecurity {
-  manageDataSources: boolean;
-  managePreValueSources: boolean;
-  manageWorkflows: boolean;
-  manageForms: boolean;
-  viewEntries: boolean;
-  editEntries: boolean;
-  deleteEntries: boolean;
-  user: string;
-}
-
-export type ValidateFieldSettingsModelSettings = {[key: string]: string};
-
-export interface ValidateFieldSettingsModel {
-  caption: string;
-  alias: string;
-  settings: ValidateFieldSettingsModelSettings;
-  /** @nullable */
-  allowedUploadTypes?: AllowedUploadType[] | null;
-}
-
-export type ValidateWorkflowSettingsModelSettings = {[key: string]: string};
-
-export interface ValidateWorkflowSettingsModel {
-  name: string;
-  settings: ValidateWorkflowSettingsModelSettings;
-}
-
-export interface ValidationPattern {
-  name: string;
-  labelKey: string;
-  pattern: string;
-}
-
-export interface ValidationRule {
-  rule: string;
-  errorMessage: string;
-  fieldId: string;
-}
-
-export interface WorkflowTypeWithSettings {
-  id: string;
-  readonly unique: string;
-  readonly entityType: string;
-  alias: string;
-  name: string;
-  description: string;
-  icon: string;
-  group: string;
-  settings: Setting[];
-}
-
-export type GetDataSourceParams = {
-skip?: number;
-take?: number;
-};
-
-export type GetTreeDataSourceAncestorsParams = {
-descendantId?: string;
-};
-
-export type GetExportParams = {
-formId?: string;
-fileName?: string;
-};
-
-export type PostExportParams = {
-formId?: string;
-exportType?: string;
-skip?: number;
-take?: number;
-memberKey?: string;
-sortBy?: string;
-sortOrder?: RecordSorting;
-startDate?: string;
-endDate?: string;
-filter?: string;
-states?: FormState[];
-localTimeOffset?: number;
-recordId?: string;
-};
-
-export type GetExportTypesParams = {
-formId?: string;
-};
-
-export type GetItemFolderParams = {
-id?: string[];
-};
-
-export type GetFormByIdParams = {
-applyDictionaryTranslations?: boolean;
-};
-
-export type GetFormExportParams = {
-guid?: string;
-};
-
-export type GetItemFormParams = {
-id?: string[];
-};
-
-export type GetTreeFormAncestorsParams = {
-descendantId?: string;
-};
-
-export type GetTreeFormChildrenByParentIdParams = {
-foldersOnly?: boolean;
-ignoreStartFolders?: boolean;
-};
-
-export type GetTreeFormRootParams = {
-foldersOnly?: boolean;
-ignoreStartFolders?: boolean;
-};
-
-export type GetMediaByPathParams = {
-path?: string;
-};
-
-export type GetPrevalueSourceParams = {
-skip?: number;
-take?: number;
-};
-
-export type GetPrevalueSourceByIdValuesParams = {
-formId?: string;
-fieldId?: string;
-};
-
-export type GetTreePrevalueSourceAncestorsParams = {
-descendantId?: string;
-};
-
-export type GetFormByFormIdRecordParams = {
-skip?: number;
-take?: number;
-memberKey?: string;
-sortBy?: string;
-sortOrder?: RecordSorting;
-startDate?: string;
-endDate?: string;
-filter?: string;
-states?: FormState[];
-localTimeOffset?: number;
-recordId?: string;
-};
-
-export type GetFormByFormIdRecordMetadataParams = {
-skip?: number;
-take?: number;
-memberKey?: string;
-sortBy?: string;
-sortOrder?: RecordSorting;
-startDate?: string;
-endDate?: string;
-filter?: string;
-states?: FormState[];
-localTimeOffset?: number;
-recordId?: string;
-};
-
-export type GetFormByFormIdRecordPageNumberParams = {
-skip?: number;
-take?: number;
-memberKey?: string;
-sortBy?: string;
-sortOrder?: RecordSorting;
-startDate?: string;
-endDate?: string;
-filter?: string;
-states?: FormState[];
-localTimeOffset?: number;
-recordId?: string;
-};
-
-export type GetSecurityUserByIdFormSecurityParams = {
-explicitOnly?: boolean;
-};
-
-export type GetSecurityUserCurrentFormSecurityParams = {
-includeFormFieldDetails?: boolean;
-};
-
-export type GetTreeSecurityAncestorsParams = {
-descendantId?: string;
-};
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -1706,11 +551,43 @@ const putFormByIdMove = (
       options);
     }
   
+const getFormByIdReferencedBy = (
+    id: string,
+    params?: GetFormByIdReferencedByParams,
+ options?: SecondParameter<typeof customInstance<PagedIReferenceResponseModel>>,) => {
+      return customInstance<PagedIReferenceResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/referenced-by`, method: 'GET',
+        params
+    },
+      options);
+    }
+  
+const getFormByIdReferencedDescendants = (
+    id: string,
+    params?: GetFormByIdReferencedDescendantsParams,
+ options?: SecondParameter<typeof customInstance<PagedReferenceByIdModel>>,) => {
+      return customInstance<PagedReferenceByIdModel>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/referenced-descendants`, method: 'GET',
+        params
+    },
+      options);
+    }
+  
 const getFormByIdRelations = (
     id: string,
  options?: SecondParameter<typeof customInstance<PagedModelRelationItemModel>>,) => {
       return customInstance<PagedModelRelationItemModel>(
       {url: `/umbraco/forms/management/api/v1/form/${id}/relations`, method: 'GET'
+    },
+      options);
+    }
+  
+const getFormAreReferenced = (
+    params?: GetFormAreReferencedParams,
+ options?: SecondParameter<typeof customInstance<PagedReferenceByIdModel>>,) => {
+      return customInstance<PagedReferenceByIdModel>(
+      {url: `/umbraco/forms/management/api/v1/form/are-referenced`, method: 'GET',
+        params
     },
       options);
     }
@@ -1750,6 +627,16 @@ const getFormScaffoldByTemplate = (
  options?: SecondParameter<typeof customInstance<FormDesign>>,) => {
       return customInstance<FormDesign>(
       {url: `/umbraco/forms/management/api/v1/form/scaffold/${template}`, method: 'GET'
+    },
+      options);
+    }
+  
+const getFormSearch = (
+    params?: GetFormSearchParams,
+ options?: SecondParameter<typeof customInstance<PagedBasicFormModel>>,) => {
+      return customInstance<PagedBasicFormModel>(
+      {url: `/umbraco/forms/management/api/v1/form/search`, method: 'GET',
+        params
     },
       options);
     }
@@ -2228,7 +1115,7 @@ const getWorkflowTypeById = (
       options);
     }
   
-return {getAcceptanceTestsSystemInfo,getConfig,getDataSourceType,getDataSourceTypeById,postDataSource,getDataSource,deleteDataSourceById,getDataSourceById,putDataSourceById,getDataSourceScaffold,getDatasourceWizardByIdScaffold,postDatasourceWizardCreateForm,getTreeDataSourceAncestors,getTreeDataSourceRoot,getTreeEmailTemplateChildrenByParentPath,getTreeEmailTemplateRoot,getExport,postExport,getExportTypes,getFieldType,getFieldTypeById,getFieldTypeRichtextDatatype,getFieldTypeValidationPattern,postFolder,deleteFolderById,getFolderById,putFolderById,getFolderByIdIsEmpty,putFolderByIdMove,getItemFolder,getFormTemplate,postForm,getForm,postFormFieldByIdValidateSettings,postFormWorkflowByIdValidateSettings,deleteFormById,getFormById,putFormById,postFormByIdCopy,postFormByIdCopyWorkflows,getFormByIdHasRelations,putFormByIdMove,getFormByIdRelations,getFormExport,postFormImport,getFormScaffold,getFormScaffoldByTemplate,getItemForm,getTreeFormAncestors,getTreeFormChildrenByParentId,getTreeFormRoot,getLicensingStatus,getMediaByPath,getPickerDataType,getPickerDocumentType,getPickerDocumentTypeByAliasProperties,postPickerDocumentTypeMappingsRefresh,getPrevalueSourceType,getPrevalueSourceTypeById,postPrevalueSource,getPrevalueSource,deletePrevalueSourceById,getPrevalueSourceById,putPrevalueSourceById,getPrevalueSourceByIdValues,getPrevalueSourceScaffold,getTreePrevalueSourceAncestors,getTreePrevalueSourceRoot,getFormByFormIdRecord,putFormByFormIdRecordByRecordId,getFormByFormIdRecordByRecordIdAuditTrail,getFormByFormIdRecordByRecordIdWorkflowAuditTrail,postFormByFormIdRecordByRecordIdWorkflowByWorkflowIdRetry,postFormByFormIdRecordActionsByActionIdExecute,getFormByFormIdRecordMetadata,getFormByFormIdRecordPageNumber,getRecordSetActions,postSecurityUserGroupByIdFormSecurity,deleteSecurityUserGroupByIdFormSecurity,getSecurityUserGroupByIdFormSecurity,putSecurityUserGroupByIdFormSecurity,postSecurityUserByIdFormSecurity,deleteSecurityUserByIdFormSecurity,getSecurityUserByIdFormSecurity,putSecurityUserByIdFormSecurity,getSecurityUserCurrentFormSecurity,getSecurityUserUsersToAssign,getTreeSecurityAncestors,getTreeSecurityChildrenByParentId,getTreeSecurityRoot,getTheme,getUpdatesVersion,getWorkflowType,getWorkflowTypeById}};
+return {getAcceptanceTestsSystemInfo,getConfig,getDataSourceType,getDataSourceTypeById,postDataSource,getDataSource,deleteDataSourceById,getDataSourceById,putDataSourceById,getDataSourceScaffold,getDatasourceWizardByIdScaffold,postDatasourceWizardCreateForm,getTreeDataSourceAncestors,getTreeDataSourceRoot,getTreeEmailTemplateChildrenByParentPath,getTreeEmailTemplateRoot,getExport,postExport,getExportTypes,getFieldType,getFieldTypeById,getFieldTypeRichtextDatatype,getFieldTypeValidationPattern,postFolder,deleteFolderById,getFolderById,putFolderById,getFolderByIdIsEmpty,putFolderByIdMove,getItemFolder,getFormTemplate,postForm,getForm,postFormFieldByIdValidateSettings,postFormWorkflowByIdValidateSettings,deleteFormById,getFormById,putFormById,postFormByIdCopy,postFormByIdCopyWorkflows,getFormByIdHasRelations,putFormByIdMove,getFormByIdReferencedBy,getFormByIdReferencedDescendants,getFormByIdRelations,getFormAreReferenced,getFormExport,postFormImport,getFormScaffold,getFormScaffoldByTemplate,getFormSearch,getItemForm,getTreeFormAncestors,getTreeFormChildrenByParentId,getTreeFormRoot,getLicensingStatus,getMediaByPath,getPickerDataType,getPickerDocumentType,getPickerDocumentTypeByAliasProperties,postPickerDocumentTypeMappingsRefresh,getPrevalueSourceType,getPrevalueSourceTypeById,postPrevalueSource,getPrevalueSource,deletePrevalueSourceById,getPrevalueSourceById,putPrevalueSourceById,getPrevalueSourceByIdValues,getPrevalueSourceScaffold,getTreePrevalueSourceAncestors,getTreePrevalueSourceRoot,getFormByFormIdRecord,putFormByFormIdRecordByRecordId,getFormByFormIdRecordByRecordIdAuditTrail,getFormByFormIdRecordByRecordIdWorkflowAuditTrail,postFormByFormIdRecordByRecordIdWorkflowByWorkflowIdRetry,postFormByFormIdRecordActionsByActionIdExecute,getFormByFormIdRecordMetadata,getFormByFormIdRecordPageNumber,getRecordSetActions,postSecurityUserGroupByIdFormSecurity,deleteSecurityUserGroupByIdFormSecurity,getSecurityUserGroupByIdFormSecurity,putSecurityUserGroupByIdFormSecurity,postSecurityUserByIdFormSecurity,deleteSecurityUserByIdFormSecurity,getSecurityUserByIdFormSecurity,putSecurityUserByIdFormSecurity,getSecurityUserCurrentFormSecurity,getSecurityUserUsersToAssign,getTreeSecurityAncestors,getTreeSecurityChildrenByParentId,getTreeSecurityRoot,getTheme,getUpdatesVersion,getWorkflowType,getWorkflowTypeById}};
 export type GetAcceptanceTestsSystemInfoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getAcceptanceTestsSystemInfo']>>>
 export type GetConfigResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getConfig']>>>
 export type GetDataSourceTypeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getDataSourceType']>>>
@@ -2271,11 +1158,15 @@ export type PostFormByIdCopyResult = NonNullable<Awaited<ReturnType<ReturnType<t
 export type PostFormByIdCopyWorkflowsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postFormByIdCopyWorkflows']>>>
 export type GetFormByIdHasRelationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdHasRelations']>>>
 export type PutFormByIdMoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFormByIdMove']>>>
+export type GetFormByIdReferencedByResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdReferencedBy']>>>
+export type GetFormByIdReferencedDescendantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdReferencedDescendants']>>>
 export type GetFormByIdRelationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdRelations']>>>
+export type GetFormAreReferencedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormAreReferenced']>>>
 export type GetFormExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormExport']>>>
 export type PostFormImportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postFormImport']>>>
 export type GetFormScaffoldResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormScaffold']>>>
 export type GetFormScaffoldByTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormScaffoldByTemplate']>>>
+export type GetFormSearchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormSearch']>>>
 export type GetItemFormResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getItemForm']>>>
 export type GetTreeFormAncestorsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeFormAncestors']>>>
 export type GetTreeFormChildrenByParentIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeFormChildrenByParentId']>>>

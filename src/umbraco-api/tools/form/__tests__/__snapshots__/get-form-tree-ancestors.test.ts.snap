@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-form-tree-ancestors should return ancestors for a form at root 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-autofill",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": false,
+        "name": "_Test Tree Ancestors",
+        "parent": null,
+        "path": "-1,00000000-0000-0000-0000-000000000000",
+      },
+    ],
+  },
+}
+`;
+
+exports[`get-form-tree-ancestors should return empty ancestors for non-existent ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [],
+  },
+}
+`;

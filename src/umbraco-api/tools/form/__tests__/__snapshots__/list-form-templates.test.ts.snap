@@ -4,7 +4,22 @@ exports[`list-form-templates should return list of form templates 1`] = `
 {
   "content": [],
   "structuredContent": {
-    "items": [],
+    "items": [
+      {
+        "alias": "commentform",
+        "description": "Name, Email, Comment",
+        "entityType": "form-template",
+        "name": "Comment form",
+        "unique": "00000000-0000-0000-0000-000000000000",
+      },
+      {
+        "alias": "contactform",
+        "description": "Name, Email, Message",
+        "entityType": "form-template",
+        "name": "Contact form",
+        "unique": "00000000-0000-0000-0000-000000000000",
+      },
+    ],
   },
 }
 `;

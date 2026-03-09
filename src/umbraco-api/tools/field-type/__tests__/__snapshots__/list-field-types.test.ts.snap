@@ -620,7 +620,7 @@ exports[`list-field-types should return all available field types 1`] = `
             "isReadOnly": false,
             "name": "Autocomplete attribute",
             "prevalues": [],
-            "view": "TextField",
+            "view": "Umb.PropertyEditorUi.TextBox",
           },
         ],
         "sortOrder": 60,
@@ -726,7 +726,7 @@ exports[`list-field-types should return all available field types 1`] = `
           {
             "alias": "ScoreThreshold",
             "defaultValue": "",
-            "description": "A reCAPTCHA v3 determined score between 0 and 10, above which form submissions are accepted. A higher value will catch more spam submissions, but also increase the risk of rejections of valid entries. For most sites, 5 is a sensible choice.",
+            "description": "A reCAPTCHA v3 determined score between 0 and 1, above which form submissions are accepted. A higher value will catch more spam submissions, but also increase the risk of rejections of valid entries. For most sites, 0.5 is a sensible choice.",
             "displayOrder": 10,
             "isMandatory": false,
             "isReadOnly": false,

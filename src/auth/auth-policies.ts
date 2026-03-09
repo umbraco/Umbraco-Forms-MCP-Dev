@@ -1,4 +1,4 @@
-import type { UserSecurity } from "../umbraco-api/api/generated/umbracoFormsManagementApi.js";
+import type { UserSecurity } from "../umbraco-api/api/schemas/index.js";
 
 /**
  * User context for Forms-specific permission checks.
