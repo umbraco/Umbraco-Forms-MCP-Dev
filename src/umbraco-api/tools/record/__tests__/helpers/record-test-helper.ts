@@ -1,10 +1,6 @@
 import { getApiClient } from "@umbraco-cms/mcp-server-sdk";
-import type {
-  getUmbracoFormsManagementAPI,
-  BasicForm,
-  EntrySearchResultCollection,
-  EntrySearchResult,
-} from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { BasicForm, EntrySearchResultCollection, EntrySearchResult } from "../../../../api/schemas/index.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 

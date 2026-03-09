@@ -1,8 +1,6 @@
 import { getApiClient } from "@umbraco-cms/mcp-server-sdk";
-import type {
-  getUmbracoFormsManagementAPI,
-  FieldPreValueSource,
-} from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { FieldPreValueSource } from "../../../../api/schemas/index.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 

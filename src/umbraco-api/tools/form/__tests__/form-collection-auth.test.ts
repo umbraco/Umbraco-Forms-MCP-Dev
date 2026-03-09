@@ -50,6 +50,7 @@ describe("form collection auth", () => {
       "create-form",
       "copy-form",
       "update-form",
+      "add-fields-to-form",
       "move-form",
       "delete-form",
       "copy-form-workflows",

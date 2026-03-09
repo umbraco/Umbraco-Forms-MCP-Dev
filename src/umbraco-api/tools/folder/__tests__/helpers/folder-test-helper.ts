@@ -1,8 +1,6 @@
 import { getApiClient } from "@umbraco-cms/mcp-server-sdk";
-import type {
-  getUmbracoFormsManagementAPI,
-  Folder,
-} from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { Folder } from "../../../../api/schemas/index.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 

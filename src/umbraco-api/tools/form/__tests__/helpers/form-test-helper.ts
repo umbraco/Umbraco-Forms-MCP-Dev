@@ -1,8 +1,6 @@
 import { getApiClient } from "@umbraco-cms/mcp-server-sdk";
-import type {
-  getUmbracoFormsManagementAPI,
-  BasicForm,
-} from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { BasicForm } from "../../../../api/schemas/index.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
@@ -70,6 +68,11 @@ export class FormTestHelper {
       if (normalized.form) {
         normalized.form = ZERO_UUID;
       }
+      if (normalized.page && typeof normalized.page === "string" && UUID_REGEX.test(normalized.page)) {
+        normalized.page = ZERO_UUID;
+      }
+      // Reset regex lastIndex after test
+      UUID_REGEX.lastIndex = 0;
       if (normalized.folderId) {
         normalized.folderId = ZERO_UUID;
       }

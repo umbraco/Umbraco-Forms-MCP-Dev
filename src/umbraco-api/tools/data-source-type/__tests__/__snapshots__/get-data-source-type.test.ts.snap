@@ -13,7 +13,7 @@ exports[`get-data-source-type should return data source type by ID 1`] = `
     "settings": [
       {
         "alias": "Connection",
-        "defaultValue": "Server=localhost;Database=test;",
+        "defaultValue": "",
         "description": "SQL Server connection string",
         "displayOrder": 10,
         "isMandatory": true,
@@ -24,7 +24,7 @@ exports[`get-data-source-type should return data source type by ID 1`] = `
       },
       {
         "alias": "Table",
-        "defaultValue": "TestTable",
+        "defaultValue": "",
         "description": "Table name",
         "displayOrder": 20,
         "isMandatory": true,

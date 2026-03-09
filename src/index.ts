@@ -21,7 +21,8 @@ import {
 } from "@umbraco-cms/mcp-server-sdk";
 
 // Import the Orval-generated API client
-import { getUmbracoFormsManagementAPI, type FormSecurityForUser } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
+import { getUmbracoFormsManagementAPI } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
+import type { FormSecurityForUser } from "./umbraco-api/api/schemas/index.js";
 
 // Import auth types
 import type { FormsUserContext } from "./auth/index.js";

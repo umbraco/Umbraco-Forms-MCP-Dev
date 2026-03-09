@@ -8,12 +8,15 @@ import {
 } from "@umbraco-cms/mcp-server-sdk";
 import { v4 as uuid } from "uuid";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { fieldSchema, workflowsSchema, buildField, buildFormWorkflows } from "../field-helpers.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
   name: z.string().describe("Name for the new form"),
   folderId: z.string().uuid().optional().describe("Optional folder ID to place the form in. If omitted, the form is created at the root."),
+  fields: z.array(fieldSchema).optional().describe("Optional fields to add to the form's first page. Saves a separate update-form call."),
+  workflows: workflowsSchema.optional().describe("Optional workflows to attach to the form. Saves a separate update-form call."),
 };
 
 const outputSchema = z.object({
@@ -23,7 +26,7 @@ const outputSchema = z.object({
 
 const CreateForm = {
   name: "create-form",
-  description: "Create a new Umbraco Form with minimal configuration. Creates an empty form with one blank page and sensible defaults. For more control over the form structure, use get-form-scaffold first to see the full schema. The form ID is generated automatically.",
+  description: "Create a new Umbraco Form. Optionally include fields and/or workflows to create the form in one step. If no fields are provided, creates an empty form with one blank page. The form ID is generated automatically.",
   inputSchema,
   outputSchema,
   slices: ["create"],
@@ -36,6 +39,26 @@ const CreateForm = {
     const formId = uuid();
     const pageId = uuid();
     const now = new Date().toISOString();
+
+    const fieldSets = params.fields?.length
+      ? [
+          {
+            id: uuid(),
+            caption: null,
+            sortOrder: 0,
+            page: pageId,
+            containers: [
+              {
+                id: uuid(),
+                caption: null,
+                width: 12,
+                fields: params.fields.map((field, index) => buildField(field, index)),
+              },
+            ],
+            condition: null,
+          },
+        ]
+      : [];
 
     const body = {
       id: formId,
@@ -53,7 +76,7 @@ const CreateForm = {
           id: pageId,
           caption: null,
           sortOrder: 0,
-          fieldSets: [],
+          fieldSets: fieldSets,
           form: formId,
         },
       ],
@@ -89,11 +112,9 @@ const CreateForm = {
       pageCaptionFormat: "",
       showSummaryPageOnMultiPageForms: false,
       summaryLabel: null,
-      formWorkflows: {
-        onSubmit: [],
-        onApprove: [],
-        onReject: [],
-      },
+      formWorkflows: params.workflows
+        ? buildFormWorkflows(params.workflows, formId)
+        : { onSubmit: [], onApprove: [], onReject: [] },
       path: "",
     };
 

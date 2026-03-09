@@ -15,7 +15,7 @@ exports[`list-data-source-types should return all available data source types 1`
         "settings": [
           {
             "alias": "Connection",
-            "defaultValue": "Server=localhost;Database=test;",
+            "defaultValue": "",
             "description": "SQL Server connection string",
             "displayOrder": 10,
             "isMandatory": true,
@@ -26,7 +26,7 @@ exports[`list-data-source-types should return all available data source types 1`
           },
           {
             "alias": "Table",
-            "defaultValue": "TestTable",
+            "defaultValue": "",
             "description": "Table name",
             "displayOrder": 20,
             "isMandatory": true,

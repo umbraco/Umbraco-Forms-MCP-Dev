@@ -7,6 +7,7 @@
  */
 import * as zod from 'zod';
 
+
 export const getAcceptanceTestsSystemInfoResponse = zod.object({
   "isWindows": zod.boolean(),
   "isLinux": zod.boolean(),
@@ -82,10 +83,10 @@ export const postDataSourceBody = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -97,8 +98,8 @@ export const postDataSourceBody = zod.object({
 export const getDataSourceQuerySkipDefault = 0;export const getDataSourceQueryTakeDefault = 2147483647;
 
 export const getDataSourceQueryParams = zod.object({
-  "skip": zod.number().optional(),
-  "take": zod.number().default(getDataSourceQueryTakeDefault)
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().default(getDataSourceQueryTakeDefault)
 })
 
 export const getDataSourceResponse = zod.object({
@@ -108,10 +109,10 @@ export const getDataSourceResponse = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -135,10 +136,10 @@ export const getDataSourceByIdResponse = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -156,10 +157,10 @@ export const putDataSourceByIdBody = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -173,10 +174,10 @@ export const getDataSourceScaffoldResponse = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -314,16 +315,16 @@ export const getExportResponse = zod.instanceof(File)
 export const postExportQueryParams = zod.object({
   "formId": zod.uuid().optional(),
   "exportType": zod.string().optional(),
-  "skip": zod.number().optional(),
-  "take": zod.number().optional(),
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().optional(),
   "memberKey": zod.string().optional(),
   "sortBy": zod.string().optional(),
   "sortOrder": zod.enum(['Ascending', 'Descending']).optional(),
-  "startDate": zod.iso.datetime({}).optional(),
-  "endDate": zod.iso.datetime({}).optional(),
+  "startDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
+  "endDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
-  "localTimeOffset": zod.number().optional(),
+  "localTimeOffset": zod.coerce.number().optional(),
   "recordId": zod.uuid().optional()
 })
 
@@ -466,7 +467,7 @@ export const getFolderByIdParams = zod.object({
 export const getFolderByIdResponse = zod.object({
   "id": zod.uuid(),
   "name": zod.string().min(1),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "parentId": zod.uuid().nullish()
 })
 
@@ -528,10 +529,10 @@ export const getFormTemplateResponse = zod.array(getFormTemplateResponseItem)
 
 export const postFormBody = zod.object({
   "name": zod.string().min(1),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "pages": zod.array(zod.object({
@@ -803,7 +804,7 @@ export const getFormByIdParams = zod.object({
 })
 
 export const getFormByIdQueryParams = zod.object({
-  "applyDictionaryTranslations": zod.boolean().optional()
+  "applyDictionaryTranslations": zod.coerce.boolean().optional()
 })
 
 
@@ -811,10 +812,10 @@ export const getFormByIdQueryParams = zod.object({
 
 export const getFormByIdResponse = zod.object({
   "name": zod.string().min(1),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "pages": zod.array(zod.object({
@@ -1050,10 +1051,10 @@ export const putFormByIdParams = zod.object({
 
 export const putFormByIdBody = zod.object({
   "name": zod.string().min(1),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "pages": zod.array(zod.object({
@@ -1317,6 +1318,121 @@ export const putFormByIdMoveBody = zod.object({
 })
 
 
+export const getFormByIdReferencedByParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const getFormByIdReferencedByQuerySkipDefault = 0;export const getFormByIdReferencedByQueryTakeDefault = 20;
+
+export const getFormByIdReferencedByQueryParams = zod.object({
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().default(getFormByIdReferencedByQueryTakeDefault)
+})
+
+export const getFormByIdReferencedByResponse = zod.object({
+  "total": zod.number(),
+  "items": zod.array(zod.union([zod.object({
+  "$type": zod.enum(['DefaultReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "type": zod.string().nullish(),
+  "icon": zod.string().nullish()
+}),zod.object({
+  "$type": zod.enum(['DocumentReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "published": zod.boolean().nullish(),
+  "documentType": zod.object({
+  "id": zod.uuid(),
+  "icon": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "name": zod.string().nullish()
+}),
+  "variants": zod.array(zod.object({
+  "name": zod.string(),
+  "culture": zod.string().nullish(),
+  "id": zod.uuid(),
+  "flags": zod.array(zod.object({
+  "alias": zod.string()
+})),
+  "state": zod.enum(['NotCreated', 'Draft', 'Published', 'PublishedPendingChanges', 'Trashed'])
+}))
+}),zod.object({
+  "$type": zod.enum(['DocumentTypePropertyTypeReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "documentType": zod.object({
+  "id": zod.uuid(),
+  "icon": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "name": zod.string().nullish()
+})
+}),zod.object({
+  "$type": zod.enum(['MediaReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "mediaType": zod.object({
+  "id": zod.uuid(),
+  "icon": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "name": zod.string().nullish()
+})
+}),zod.object({
+  "$type": zod.enum(['MediaTypePropertyTypeReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "mediaType": zod.object({
+  "id": zod.uuid(),
+  "icon": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "name": zod.string().nullish()
+})
+}),zod.object({
+  "$type": zod.enum(['MemberReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "memberType": zod.object({
+  "id": zod.uuid(),
+  "icon": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "name": zod.string().nullish()
+})
+}),zod.object({
+  "$type": zod.enum(['MemberTypePropertyTypeReferenceResponseModel']),
+  "id": zod.uuid(),
+  "name": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "memberType": zod.object({
+  "id": zod.uuid(),
+  "icon": zod.string().nullish(),
+  "alias": zod.string().nullish(),
+  "name": zod.string().nullish()
+})
+})]))
+})
+
+
+export const getFormByIdReferencedDescendantsParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const getFormByIdReferencedDescendantsQuerySkipDefault = 0;export const getFormByIdReferencedDescendantsQueryTakeDefault = 20;
+
+export const getFormByIdReferencedDescendantsQueryParams = zod.object({
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().default(getFormByIdReferencedDescendantsQueryTakeDefault)
+})
+
+export const getFormByIdReferencedDescendantsResponse = zod.object({
+  "total": zod.number(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid()
+}))
+})
+
+
 export const getFormByIdRelationsParams = zod.object({
   "id": zod.uuid()
 })
@@ -1337,6 +1453,22 @@ export const getFormByIdRelationsResponse = zod.object({
   "relationTypeIsDependency": zod.boolean()
 })),
   "total": zod.number()
+})
+
+
+export const getFormAreReferencedQuerySkipDefault = 0;export const getFormAreReferencedQueryTakeDefault = 20;
+
+export const getFormAreReferencedQueryParams = zod.object({
+  "id": zod.array(zod.uuid()).optional(),
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().default(getFormAreReferencedQueryTakeDefault)
+})
+
+export const getFormAreReferencedResponse = zod.object({
+  "total": zod.number(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid()
+}))
 })
 
 
@@ -1362,10 +1494,10 @@ export const postFormImportResponse = zod.uuid()
 
 export const getFormScaffoldResponse = zod.object({
   "name": zod.string().min(1),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "pages": zod.array(zod.object({
@@ -1601,10 +1733,10 @@ export const getFormScaffoldByTemplateParams = zod.object({
 
 export const getFormScaffoldByTemplateResponse = zod.object({
   "name": zod.string().min(1),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "pages": zod.array(zod.object({
@@ -1831,6 +1963,25 @@ export const getFormScaffoldByTemplateResponse = zod.object({
 })
 
 
+export const getFormSearchQueryQueryDefault = "";export const getFormSearchQuerySkipDefault = 0;export const getFormSearchQueryTakeDefault = 10;
+
+export const getFormSearchQueryParams = zod.object({
+  "query": zod.string().optional(),
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().default(getFormSearchQueryTakeDefault)
+})
+
+export const getFormSearchResponse = zod.object({
+  "total": zod.number(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "fields": zod.string(),
+  "summary": zod.string()
+}))
+})
+
+
 export const getItemFormQueryParams = zod.object({
   "id": zod.array(zod.uuid()).optional()
 })
@@ -1873,8 +2024,8 @@ export const getTreeFormChildrenByParentIdParams = zod.object({
 export const getTreeFormChildrenByParentIdQueryFoldersOnlyDefault = false;export const getTreeFormChildrenByParentIdQueryIgnoreStartFoldersDefault = false;
 
 export const getTreeFormChildrenByParentIdQueryParams = zod.object({
-  "foldersOnly": zod.boolean().optional(),
-  "ignoreStartFolders": zod.boolean().optional()
+  "foldersOnly": zod.coerce.boolean().optional(),
+  "ignoreStartFolders": zod.coerce.boolean().optional()
 })
 
 export const getTreeFormChildrenByParentIdResponse = zod.object({
@@ -1899,8 +2050,8 @@ export const getTreeFormChildrenByParentIdResponse = zod.object({
 export const getTreeFormRootQueryFoldersOnlyDefault = false;export const getTreeFormRootQueryIgnoreStartFoldersDefault = false;
 
 export const getTreeFormRootQueryParams = zod.object({
-  "foldersOnly": zod.boolean().optional(),
-  "ignoreStartFolders": zod.boolean().optional()
+  "foldersOnly": zod.coerce.boolean().optional(),
+  "ignoreStartFolders": zod.coerce.boolean().optional()
 })
 
 export const getTreeFormRootResponse = zod.object({
@@ -1951,8 +2102,8 @@ export const getMediaByPathResponse = zod.object({
   "culture": zod.string().nullish(),
   "segment": zod.string().nullish(),
   "name": zod.string().min(1),
-  "createDate": zod.iso.datetime({}),
-  "updateDate": zod.iso.datetime({})
+  "createDate": zod.iso.datetime({"local":true,"offset":true}),
+  "updateDate": zod.iso.datetime({"local":true,"offset":true})
 })),
   "id": zod.uuid(),
   "flags": zod.array(zod.object({
@@ -2067,10 +2218,10 @@ export const postPrevalueSourceBody = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -2082,8 +2233,8 @@ export const postPrevalueSourceBody = zod.object({
 export const getPrevalueSourceQuerySkipDefault = 0;export const getPrevalueSourceQueryTakeDefault = 2147483647;
 
 export const getPrevalueSourceQueryParams = zod.object({
-  "skip": zod.number().optional(),
-  "take": zod.number().default(getPrevalueSourceQueryTakeDefault)
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().default(getPrevalueSourceQueryTakeDefault)
 })
 
 export const getPrevalueSourceResponse = zod.object({
@@ -2093,10 +2244,10 @@ export const getPrevalueSourceResponse = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -2120,10 +2271,10 @@ export const getPrevalueSourceByIdResponse = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -2141,10 +2292,10 @@ export const putPrevalueSourceByIdBody = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -2176,10 +2327,10 @@ export const getPrevalueSourceScaffoldResponse = zod.object({
   "unique": zod.uuid(),
   "entityType": zod.string(),
   "name": zod.string(),
-  "created": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.number().nullish(),
   "createdByName": zod.string().nullish(),
-  "updated": zod.iso.datetime({}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.number().nullish(),
   "updatedByName": zod.string().nullish(),
   "settings": zod.record(zod.string(), zod.string()),
@@ -2231,16 +2382,16 @@ export const getFormByFormIdRecordParams = zod.object({
 })
 
 export const getFormByFormIdRecordQueryParams = zod.object({
-  "skip": zod.number().optional(),
-  "take": zod.number().optional(),
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().optional(),
   "memberKey": zod.string().optional(),
   "sortBy": zod.string().optional(),
   "sortOrder": zod.enum(['Ascending', 'Descending']).optional(),
-  "startDate": zod.iso.datetime({}).optional(),
-  "endDate": zod.iso.datetime({}).optional(),
+  "startDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
+  "endDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
-  "localTimeOffset": zod.number().optional(),
+  "localTimeOffset": zod.coerce.number().optional(),
   "recordId": zod.uuid().optional()
 })
 
@@ -2261,8 +2412,8 @@ export const getFormByFormIdRecordResponse = zod.object({
   "score": zod.number(),
   "form": zod.string(),
   "state": zod.string(),
-  "created": zod.iso.datetime({}),
-  "updated": zod.iso.datetime({}),
+  "created": zod.iso.datetime({"local":true,"offset":true}),
+  "updated": zod.iso.datetime({"local":true,"offset":true}),
   "uniqueId": zod.uuid(),
   "fields": zod.array(zod.object({
   "fieldId": zod.string(),
@@ -2304,7 +2455,7 @@ export const getFormByFormIdRecordByRecordIdAuditTrailParams = zod.object({
 
 export const getFormByFormIdRecordByRecordIdAuditTrailResponseItem = zod.object({
   "id": zod.number(),
-  "updatedOn": zod.iso.datetime({}),
+  "updatedOn": zod.iso.datetime({"local":true,"offset":true}),
   "updatedBy": zod.string()
 })
 export const getFormByFormIdRecordByRecordIdAuditTrailResponse = zod.array(getFormByFormIdRecordByRecordIdAuditTrailResponseItem)
@@ -2320,7 +2471,7 @@ export const getFormByFormIdRecordByRecordIdWorkflowAuditTrailResponseItem = zod
   "workflowKey": zod.uuid(),
   "name": zod.string(),
   "typeName": zod.string(),
-  "executedOn": zod.iso.datetime({}),
+  "executedOn": zod.iso.datetime({"local":true,"offset":true}),
   "executionStage": zod.string(),
   "result": zod.string()
 })
@@ -2349,16 +2500,16 @@ export const getFormByFormIdRecordMetadataParams = zod.object({
 })
 
 export const getFormByFormIdRecordMetadataQueryParams = zod.object({
-  "skip": zod.number().optional(),
-  "take": zod.number().optional(),
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().optional(),
   "memberKey": zod.string().optional(),
   "sortBy": zod.string().optional(),
   "sortOrder": zod.enum(['Ascending', 'Descending']).optional(),
-  "startDate": zod.iso.datetime({}).optional(),
-  "endDate": zod.iso.datetime({}).optional(),
+  "startDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
+  "endDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
-  "localTimeOffset": zod.number().optional(),
+  "localTimeOffset": zod.coerce.number().optional(),
   "recordId": zod.uuid().optional()
 })
 
@@ -2373,16 +2524,16 @@ export const getFormByFormIdRecordPageNumberParams = zod.object({
 })
 
 export const getFormByFormIdRecordPageNumberQueryParams = zod.object({
-  "skip": zod.number().optional(),
-  "take": zod.number().optional(),
+  "skip": zod.coerce.number().optional(),
+  "take": zod.coerce.number().optional(),
   "memberKey": zod.string().optional(),
   "sortBy": zod.string().optional(),
   "sortOrder": zod.enum(['Ascending', 'Descending']).optional(),
-  "startDate": zod.iso.datetime({}).optional(),
-  "endDate": zod.iso.datetime({}).optional(),
+  "startDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
+  "endDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
-  "localTimeOffset": zod.number().optional(),
+  "localTimeOffset": zod.coerce.number().optional(),
   "recordId": zod.uuid().optional()
 })
 
@@ -2425,7 +2576,7 @@ export const postSecurityUserGroupByIdFormSecurityBody = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2465,7 +2616,7 @@ export const getSecurityUserGroupByIdFormSecurityResponse = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2500,7 +2651,7 @@ export const putSecurityUserGroupByIdFormSecurityBody = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2535,7 +2686,7 @@ export const postSecurityUserByIdFormSecurityBody = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2558,7 +2709,7 @@ export const getSecurityUserByIdFormSecurityParams = zod.object({
 })
 
 export const getSecurityUserByIdFormSecurityQueryParams = zod.object({
-  "explicitOnly": zod.boolean().optional()
+  "explicitOnly": zod.coerce.boolean().optional()
 })
 
 export const getSecurityUserByIdFormSecurityResponse = zod.object({
@@ -2579,7 +2730,7 @@ export const getSecurityUserByIdFormSecurityResponse = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2614,7 +2765,7 @@ export const putSecurityUserByIdFormSecurityBody = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2628,7 +2779,7 @@ export const putSecurityUserByIdFormSecurityBody = zod.object({
 
 
 export const getSecurityUserCurrentFormSecurityQueryParams = zod.object({
-  "includeFormFieldDetails": zod.boolean().optional()
+  "includeFormFieldDetails": zod.coerce.boolean().optional()
 })
 
 export const getSecurityUserCurrentFormSecurityResponse = zod.object({
@@ -2649,7 +2800,7 @@ export const getSecurityUserCurrentFormSecurityResponse = zod.object({
   "startFolderIds": zod.array(zod.uuid()),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
-  "formCreated": zod.iso.datetime({}),
+  "formCreated": zod.iso.datetime({"local":true,"offset":true}),
   "fields": zod.string(),
   "hasAccess": zod.boolean(),
   "securityType": zod.enum(['Full', 'ReadOnlyViewAndExportEntries', 'ReadOnlyViewEntries']),
@@ -2795,3 +2946,5 @@ export const getWorkflowTypeByIdResponse = zod.object({
   "isMandatory": zod.boolean()
 }))
 })
+
+

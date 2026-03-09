@@ -6,7 +6,7 @@ exports[`get-data-source should return data source by ID 1`] = `
   "structuredContent": {
     "created": "NORMALIZED_DATE",
     "createdBy": 1,
-    "createdByName": "MCP API User",
+    "createdByName": "MCP",
     "entityType": "datasource",
     "formDataSourceTypeId": "00000000-0000-0000-0000-000000000000",
     "id": "00000000-0000-0000-0000-000000000000",
@@ -15,7 +15,7 @@ exports[`get-data-source should return data source by ID 1`] = `
     "unique": "00000000-0000-0000-0000-000000000000",
     "updated": "NORMALIZED_DATE",
     "updatedBy": 1,
-    "updatedByName": "MCP API User",
+    "updatedByName": "MCP",
     "valid": true,
   },
 }

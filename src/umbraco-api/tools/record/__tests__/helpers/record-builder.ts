@@ -3,12 +3,8 @@ import {
   getApiClient,
   CAPTURE_RAW_HTTP_RESPONSE,
 } from "@umbraco-cms/mcp-server-sdk";
-import type {
-  getUmbracoFormsManagementAPI,
-  FormDesign,
-  FieldTypeWithSettings,
-  EntrySearchResultCollection,
-} from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type { FormDesign, FieldTypeWithSettings, EntrySearchResultCollection } from "../../../../api/schemas/index.js";
 import { getUmbracoFormsDeliveryAPI } from "../../../../api/generated/umbracoFormsDeliveryApi.js";
 import { deliveryInstance } from "../../../../api/delivery-client.js";
 

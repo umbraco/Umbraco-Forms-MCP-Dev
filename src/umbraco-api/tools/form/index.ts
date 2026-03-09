@@ -12,6 +12,7 @@ import createFormTool from "./post/create-form.js";
 import copyFormTool from "./post/copy-form.js";
 import copyFormWorkflowsTool from "./post/copy-form-workflows.js";
 import updateFormTool from "./put/update-form.js";
+import addFieldsToFormTool from "./put/add-fields-to-form.js";
 import moveFormTool from "./put/move-form.js";
 import deleteFormTool from "./delete/delete-form.js";
 
@@ -30,6 +31,7 @@ const writeTools = [
   createFormTool,
   copyFormTool,
   updateFormTool,
+  addFieldsToFormTool,
   moveFormTool,
   deleteFormTool,
 ];
