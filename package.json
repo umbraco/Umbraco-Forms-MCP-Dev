@@ -4,6 +4,10 @@
   "type": "module",
   "description": "Developer MCP server for Umbraco Forms",
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./collections": "./dist/collections.js"
+  },
   "bin": {
     "umbraco-forms-mcp-dev": "./dist/index.js"
   },
@@ -17,6 +21,8 @@
     "generate:delivery": "orval --config orval.config.ts --project umbracoFormsDeliveryApi && orval --config orval.config.ts --project umbracoFormsDeliveryApiZod",
     "start:umbraco": "bash scripts/start-umbraco.sh",
     "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "dev:worker": "npx wrangler dev",
+    "deploy:worker": "npx wrangler deploy",
     "test": "node --experimental-vm-modules $(npm root)/jest/bin/jest.js --selectProjects integration --runInBand",
     "test:evals": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --selectProjects evals --runInBand --forceExit",
     "test:all": "npm run build && node --experimental-vm-modules $(npm root)/jest/bin/jest.js --runInBand --forceExit"
@@ -36,8 +42,12 @@
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.39",
+    "@cloudflare/workers-oauth-provider": "^0.2.3",
     "@modelcontextprotocol/sdk": "^1.25.1",
-    "@umbraco-cms/mcp-server-sdk": "17.0.0-beta.1",
+    "@umbraco-cms/mcp-dev": "^17.1.0",
+    "@umbraco-cms/mcp-hosted": "^17.0.0-beta.3",
+    "@umbraco-cms/mcp-server-sdk": "^17.0.0-beta.4",
+    "agents": "^0.6.0",
     "axios": "^1.8.4",
     "dotenv": "^16.5.0",
     "uuid": "^11.1.0",
@@ -57,6 +67,7 @@
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "wrangler": "^4.69.0"
   }
 }
