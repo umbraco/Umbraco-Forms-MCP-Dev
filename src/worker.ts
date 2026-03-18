@@ -20,7 +20,6 @@
 
 // Wrangler virtual modules (resolved at wrangler build time)
 import { McpAgent } from "agents/mcp";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import OAuthProvider from "@cloudflare/workers-oauth-provider";
 
 // Hosted MCP building blocks
@@ -28,9 +27,11 @@ import {
   createDefaultHandler,
   createWorkerExport,
   createPerRequestServer,
+  registerChainedTools,
   getServerOptions,
   type HostedMcpEnv,
   type AuthProps,
+  type ChainedServerConsentConfig,
 } from "@umbraco-cms/mcp-hosted";
 
 // Import Forms tool collections
@@ -45,31 +46,21 @@ import {
   allModes as cmsModes,
   allModeNames as cmsModeNames,
   allSliceNames as cmsSliceNames,
+  UmbracoManagementClient as CmsClient,
 } from "@umbraco-cms/mcp-dev/collections";
-
-// MCP chaining
-import { createMcpClientManager, discoverProxiedTools, parseProxiedToolName } from "@umbraco-cms/mcp-server-sdk";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-
-// ============================================================================
-// MCP Chaining — CMS tools via in-process transport
-// ============================================================================
-
-const mcpClientManager = createMcpClientManager();
-
-mcpClientManager.registerServer({
-  transport: "in-process",
-  name: "cms",
-  collections: cmsCollections,
-  modeRegistry: cmsModes,
-  allModeNames: cmsModeNames,
-  allSliceNames: cmsSliceNames,
-  proxyTools: true,
-});
 
 // ============================================================================
 // Server Configuration
 // ============================================================================
+
+const cmsChainedServer: ChainedServerConsentConfig = {
+  name: "cms",
+  displayName: "umbraco-cms-mcp",
+  modeRegistry: cmsModes,
+  collections: cmsCollections,
+  allModeNames: cmsModeNames,
+  allSliceNames: cmsSliceNames,
+};
 
 const options = {
   name: "umbraco-forms-mcp",
@@ -79,7 +70,9 @@ const options = {
   allModeNames,
   allSliceNames,
   clientFactory: () => getUmbracoFormsManagementAPI(),
+  enableConsentToolSelection: true,
   authOptions: { showReauthButton: true },
+  chainedServers: [cmsChainedServer],
 };
 
 const serverOptions = getServerOptions(options);
@@ -94,7 +87,7 @@ const serverOptions = getServerOptions(options);
  * Wrangler resolves `McpAgent` from the `agents/mcp` virtual module.
  */
 export class UmbracoFormsMcpAgent extends McpAgent<HostedMcpEnv, unknown, AuthProps> {
-  server!: McpServer;
+  server!: any;
 
   async init() {
     this.server = await createPerRequestServer(
@@ -103,26 +96,13 @@ export class UmbracoFormsMcpAgent extends McpAgent<HostedMcpEnv, unknown, AuthPr
       this.props!
     );
 
-    // Register proxied CMS tools on this server instance
-    try {
-      const proxiedTools = await discoverProxiedTools(mcpClientManager);
-
-      for (const pt of proxiedTools) {
-        this.server.registerTool(
-          pt.prefixedName,
-          {
-            description: `[Proxied from ${pt.serverName}] ${pt.originalTool.description || "No description"}`,
-          },
-          async (args: Record<string, unknown>): Promise<CallToolResult> => {
-            const { serverName, toolName } = parseProxiedToolName(pt.prefixedName);
-            const result = await mcpClientManager.callTool(serverName, toolName, args);
-            return result as CallToolResult;
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Warning: Failed to discover proxied CMS tools:", error);
-    }
+    // Register proxied CMS tools via in-process chaining
+    await registerChainedTools({
+      server: this.server,
+      env: this.env,
+      props: this.props!,
+      chainedServer: { ...cmsChainedServer, clientFactory: () => CmsClient.getClient() },
+    });
   }
 }
 

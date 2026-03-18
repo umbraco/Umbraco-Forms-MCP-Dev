@@ -12,6 +12,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import {
   configureApiClient,
+  initializeUmbracoFetch,
   createToolAnnotations,
   discoverProxiedTools,
   parseProxiedToolName,
@@ -47,6 +48,14 @@ import { mcpServers } from "./config/mcp-servers.js";
 
 // Import registries for tool filtering
 import { allModes, allModeNames, allSliceNames, loadServerConfig, clearConfigCache } from "./config/index.js";
+
+// Initialize the SDK fetch client for stdio mode (reads from env vars).
+// This powers UmbracoManagementClient which customInstance delegates to.
+initializeUmbracoFetch({
+  baseUrl: process.env.UMBRACO_BASE_URL || "http://localhost:44391",
+  clientId: process.env.UMBRACO_CLIENT_ID || "",
+  clientSecret: process.env.UMBRACO_CLIENT_SECRET || "",
+});
 
 // Configure the API client for use with toolkit helpers
 // This connects your generated Orval client to executeGetApiCall, executeVoidApiCall, etc.
@@ -94,7 +103,7 @@ const filterConfig: CollectionConfiguration = configLoader.loadFromConfig(server
 async function fetchFormsUserContext(): Promise<FormsUserContext> {
   try {
     const api = getUmbracoFormsManagementAPI();
-    // The custom client returns data directly (not AxiosResponse) when called without CAPTURE_RAW_HTTP_RESPONSE
+    // The custom client returns data directly (not HttpResponse) when called without CAPTURE_RAW_HTTP_RESPONSE
     const response = await api.getSecurityUserCurrentFormSecurity() as unknown as FormSecurityForUser;
     return { security: response.userSecurity };
   } catch (error) {

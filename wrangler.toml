@@ -16,6 +16,12 @@ main = "src/worker.ts"
 compatibility_date = "2025-02-24"
 compatibility_flags = ["nodejs_compat"]
 
+# Alias Node.js-only modules that are pulled in transitively
+# but not used at runtime (yargs uses createRequire at init time).
+[alias]
+"yargs" = "./src/stubs/empty.js"
+"yargs/helpers" = "./src/stubs/empty.js"
+
 # KV Namespaces for token storage
 # Run: npx wrangler kv namespace create OAUTH_KV
 # Then replace the id below with the output

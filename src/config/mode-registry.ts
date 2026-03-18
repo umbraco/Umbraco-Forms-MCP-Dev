@@ -31,12 +31,6 @@ export const toolModes: ToolModeDefinition[] = [
     collections: ['data-source']
   },
     {
-    name: 'all',
-    displayName: 'All',
-    description: 'All Umbraco Forms management tools',
-    collections: ['data-source']
-  },
-    {
     name: 'form-design',
     displayName: 'Form Design',
     description: 'Create and manage forms, fields, folders, and media',

@@ -7,6 +7,7 @@
  */
 import * as zod from 'zod';
 
+
 export const getAcceptanceTestsSystemInfoResponse = zod.object({
   "isWindows": zod.boolean(),
   "isLinux": zod.boolean(),
@@ -2795,3 +2796,5 @@ export const getWorkflowTypeByIdResponse = zod.object({
   "isMandatory": zod.boolean()
 }))
 })
+
+

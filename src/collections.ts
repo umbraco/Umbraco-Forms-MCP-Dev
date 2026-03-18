@@ -19,7 +19,6 @@
  * ```
  */
 
-import chainedCollection from "./umbraco-api/tools/chained/index.js";
 import dataSourceCollection from "./umbraco-api/tools/data-source/index.js";
 import dataSourceTypeCollection from "./umbraco-api/tools/data-source-type/index.js";
 import fieldTypeCollection from "./umbraco-api/tools/field-type/index.js";
@@ -31,8 +30,11 @@ import prevalueSourceTypeCollection from "./umbraco-api/tools/prevalue-source-ty
 import recordCollection from "./umbraco-api/tools/record/index.js";
 import workflowTypeCollection from "./umbraco-api/tools/workflow-type/index.js";
 
+// Note: chainedCollection is excluded here because it imports mcp-client.ts
+// which uses Node.js-only APIs (fileURLToPath). The worker.ts has its own
+// in-process chaining setup instead.
+
 export const collections = [
-  chainedCollection,
   dataSourceCollection,
   dataSourceTypeCollection,
   fieldTypeCollection,
