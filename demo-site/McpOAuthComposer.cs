@@ -36,7 +36,7 @@ public class RegisterMcpClientHandler
         UmbracoApplicationStartingNotification notification,
         CancellationToken cancellationToken)
     {
-        const string clientId = "umbraco-mcp-hosted";
+        const string clientId = "umbraco-mcp-forms-hosted";
 
         var existing = await _applicationManager.FindByClientIdAsync(clientId, cancellationToken);
         if (existing is not null)

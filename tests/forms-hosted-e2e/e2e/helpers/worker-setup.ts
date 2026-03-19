@@ -1,97 +1,43 @@
 /**
  * Worker lifecycle for Forms hosted MCP E2E tests.
  *
- * Spawns `npx wrangler dev` as a child process rather than using
- * unstable_dev, because OAuthProvider-wrapped workers hang when
- * accessed via unstable_dev's internal fetch mechanism.
+ * Starts the real Forms worker (src/worker.ts) which includes
+ * both Forms tool collections and in-process CMS chaining.
  */
 
-import { spawn, type ChildProcess } from "node:child_process";
+import { unstable_dev, type Unstable_DevWorker } from "wrangler";
 
-const WORKER_PORT = 8789;
-
-let workerProcess: ChildProcess | undefined;
+let worker: Unstable_DevWorker | undefined;
 let workerUrl: string | undefined;
 
-export async function startWorker(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error("Timed out waiting for wrangler dev to start"));
-    }, 60000);
+const BASE_VARS = {
+  UMBRACO_BASE_URL: "https://localhost:44374",
+  UMBRACO_SERVER_URL: "http://localhost:17813",
+  UMBRACO_OAUTH_CLIENT_ID: "umbraco-mcp-forms-hosted",
+  COOKIE_ENCRYPTION_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  ENABLE_INFO_ENDPOINT: "true",
+};
 
-    workerProcess = spawn(
-      "npx",
-      [
-        "wrangler", "dev",
-        "--config", "tests/forms-hosted-e2e/wrangler.e2e.toml",
-        "--port", String(WORKER_PORT),
-      ],
-      {
-        cwd: process.cwd(),
-        stdio: ["ignore", "pipe", "pipe"],
-        detached: true,
-        env: process.env as NodeJS.ProcessEnv,
-      },
-    );
-
-    let output = "";
-
-    workerProcess.stdout?.on("data", (data: Buffer) => {
-      output += data.toString();
-      if (output.includes("Ready on")) {
-        clearTimeout(timer);
-        workerUrl = `http://localhost:${WORKER_PORT}`;
-        resolve(workerUrl);
-      }
-    });
-
-    workerProcess.stderr?.on("data", (data: Buffer) => {
-      output += data.toString();
-      // wrangler prints ready message to stderr sometimes
-      if (output.includes("Ready on")) {
-        clearTimeout(timer);
-        workerUrl = `http://localhost:${WORKER_PORT}`;
-        resolve(workerUrl);
-      }
-    });
-
-    workerProcess.on("error", (err) => {
-      clearTimeout(timer);
-      reject(new Error(`Wrangler dev failed to start: ${err.message}`));
-    });
-
-    workerProcess.on("exit", (code) => {
-      if (!workerUrl) {
-        clearTimeout(timer);
-        reject(
-          new Error(
-            `Wrangler dev exited with code ${code} before ready.\nOutput: ${output}`,
-          ),
-        );
-      }
-    });
+export async function startWorker(varsOverride?: Record<string, string>): Promise<string> {
+  worker = await unstable_dev("src/worker.ts", {
+    config: "tests/forms-hosted-e2e/wrangler.e2e.toml",
+    port: 8789,
+    experimental: { disableExperimentalWarning: true },
+    vars: { ...BASE_VARS, ...varsOverride },
+    logLevel: "error",
   });
+
+  const address = worker.address;
+  const port = worker.port;
+  workerUrl = `http://${address}:${port}`;
+  return workerUrl;
 }
 
 export async function stopWorker(): Promise<void> {
-  if (workerProcess) {
-    const proc = workerProcess;
-    workerProcess = undefined;
+  if (worker) {
+    await worker.stop();
+    worker = undefined;
     workerUrl = undefined;
-
-    try {
-      process.kill(-proc.pid!, "SIGTERM");
-    } catch {
-      proc.kill("SIGTERM");
-    }
-
-    await new Promise<void>((resolve) => {
-      const timeout = setTimeout(() => {
-        try { process.kill(-proc.pid!, "SIGKILL"); } catch { /* ignore */ }
-        resolve();
-      }, 5000);
-      proc.on("exit", () => { clearTimeout(timeout); resolve(); });
-    });
   }
 }
 
