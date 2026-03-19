@@ -1,0 +1,32 @@
+# Wrangler config for Forms hosted MCP E2E tests.
+# Points at the real Forms worker (src/worker.ts) with CMS chaining.
+
+name = "umbraco-forms-mcp-e2e-test"
+main = "../../src/worker.ts"
+compatibility_date = "2025-02-24"
+compatibility_flags = ["nodejs_compat"]
+
+# Alias Node.js-only modules that are pulled in transitively
+[alias]
+"yargs" = "../../src/stubs/empty.js"
+"yargs/helpers" = "../../src/stubs/empty.js"
+
+[[kv_namespaces]]
+binding = "OAUTH_KV"
+id = "forms-e2e-test-kv"
+
+[durable_objects]
+bindings = [
+  { name = "MCP_AGENT", class_name = "UmbracoFormsMcpAgent" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["UmbracoFormsMcpAgent"]
+
+[vars]
+UMBRACO_BASE_URL = "https://localhost:44374"
+UMBRACO_SERVER_URL = "http://localhost:17813"
+UMBRACO_OAUTH_CLIENT_ID = "umbraco-mcp-hosted"
+COOKIE_ENCRYPTION_KEY = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+ENABLE_INFO_ENDPOINT = "true"
