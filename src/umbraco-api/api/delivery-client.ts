@@ -13,8 +13,8 @@
 import type { HttpResponse } from "@umbraco-cms/mcp-server-sdk";
 import { loadServerConfig } from "../../config/index.js";
 
-const getBaseUrl = () => loadServerConfig(true).umbraco.auth.baseUrl;
-const getApiKey = () => loadServerConfig(true).custom.formsApiKey || "";
+const getBaseUrl = async () => (await loadServerConfig(true)).umbraco.auth.baseUrl;
+const getApiKey = async () => (await loadServerConfig(true)).custom.formsApiKey || "";
 
 /**
  * Serializes params for API calls.
@@ -52,7 +52,7 @@ export const deliveryInstance = async <T>(
   const returnFullResponse =
     (mergedConfig as any).returnFullResponse === true;
 
-  const apiKey = getApiKey();
+  const apiKey = await getApiKey();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -63,7 +63,7 @@ export const deliveryInstance = async <T>(
   }
 
   const queryString = serializeParams(mergedConfig.params);
-  const fullUrl = `${getBaseUrl()}${mergedConfig.url || ""}${queryString}`;
+  const fullUrl = `${await getBaseUrl()}${mergedConfig.url || ""}${queryString}`;
 
   const fetchOptions: RequestInit = {
     method: mergedConfig.method || "GET",

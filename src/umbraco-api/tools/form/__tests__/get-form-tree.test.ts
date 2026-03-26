@@ -11,6 +11,10 @@ const TEST_NAME = "_Test Get Form Tree";
 describe("get-form-tree", () => {
   setupTestEnvironment();
 
+  beforeEach(async () => {
+    await FormTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     await FormTestHelper.cleanup(TEST_NAME);
   });
@@ -21,8 +25,13 @@ describe("get-form-tree", () => {
 
     const result = await getFormTreeTool.handler({ parentId: undefined }, context);
 
-    expect(
-      FormTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    expect(result.isError).toBeUndefined();
+    const items = (result.structuredContent as any)?.items;
+    expect(Array.isArray(items)).toBe(true);
+    const createdItem = items.find((item: any) => item.name === TEST_NAME);
+    expect(createdItem).toBeDefined();
+    expect(createdItem.isFolder).toBe(false);
+    expect(createdItem.hasChildren).toBe(false);
+    expect(createdItem.icon).toBe("icon-autofill");
   });
 });

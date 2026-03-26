@@ -12,6 +12,10 @@ const TEST_NAME = "_Test Get Form Definition";
 describe("get-form-definition", () => {
   setupTestEnvironment();
 
+  beforeEach(async () => {
+    await RecordTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

@@ -11,6 +11,10 @@ const TEST_NAME = "_Test List Forms";
 describe("list-forms", () => {
   setupTestEnvironment();
 
+  beforeEach(async () => {
+    await FormTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     await FormTestHelper.cleanup(TEST_NAME);
   });
@@ -21,8 +25,12 @@ describe("list-forms", () => {
 
     const result = await listFormsTool.handler({}, context);
 
-    expect(
-      FormTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    expect(result.isError).toBeUndefined();
+    const items = (result.structuredContent as any)?.items;
+    expect(Array.isArray(items)).toBe(true);
+    const createdItem = items.find((item: any) => item.name === TEST_NAME);
+    expect(createdItem).toBeDefined();
+    expect(createdItem.id).toBeDefined();
+    expect(createdItem.summary).toContain("1 page form");
   });
 });

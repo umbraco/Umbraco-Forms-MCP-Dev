@@ -44,12 +44,22 @@ export class PrevalueSourceTestHelper {
   }
 
   /**
-   * Clean up test prevalue sources by name prefix
+   * Clean up test prevalue sources by name prefix.
+   * Retries on transient errors (e.g. 500s under parallel load).
    */
   static async cleanup(namePrefix: string): Promise<void> {
     const client = getApiClient<ApiClient>();
-    const response = await client.getPrevalueSource({ take: 100 });
-    const pagedResult = response as any;
+    let pagedResult: any;
+    try {
+      pagedResult = await client.getPrevalueSource({ take: 100 }) as any;
+    } catch {
+      await new Promise((r) => setTimeout(r, 500));
+      try {
+        pagedResult = await client.getPrevalueSource({ take: 100 }) as any;
+      } catch {
+        return;
+      }
+    }
     if (!pagedResult.items) return;
     const toDelete = pagedResult.items.filter((item: FieldPreValueSource) =>
       item.name.startsWith(namePrefix)

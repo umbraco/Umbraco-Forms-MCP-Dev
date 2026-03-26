@@ -1,3 +1,9 @@
+// Polyfill Symbol.dispose/asyncDispose with Symbol.for() so they are shared
+// across Jest VM contexts (Node 22 creates distinct well-known symbols per
+// vm.createContext, which breaks the claude-agent-sdk's `using` declarations).
+(Symbol as any).dispose = Symbol.for("Symbol.dispose");
+(Symbol as any).asyncDispose = Symbol.for("Symbol.asyncDispose");
+
 // Must be set before any TLS connections
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 

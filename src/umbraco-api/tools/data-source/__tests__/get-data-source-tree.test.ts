@@ -1,7 +1,6 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  createSnapshotResult,
   DataSourceBuilder,
   DataSourceTestHelper,
 } from "./setup.js";
@@ -12,13 +11,17 @@ const TEST_NAME = "_Test Get Data Source Tree";
 describe("get-data-source-tree", () => {
   setupTestEnvironment();
 
+  beforeEach(async () => {
+    await DataSourceTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     await DataSourceTestHelper.cleanup(TEST_NAME);
   });
 
   it("should return data source tree", async () => {
     const context = createMockRequestHandlerExtra();
-    const builder = await new DataSourceBuilder()
+    await new DataSourceBuilder()
       .withName(TEST_NAME)
       .create();
 
@@ -27,8 +30,13 @@ describe("get-data-source-tree", () => {
       context
     );
 
-    expect(
-      DataSourceTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    expect(result.isError).toBeUndefined();
+    const items = (result.structuredContent as any)?.items;
+    expect(Array.isArray(items)).toBe(true);
+    const createdItem = items.find((item: any) => item.name === TEST_NAME);
+    expect(createdItem).toBeDefined();
+    expect(createdItem.isFolder).toBe(false);
+    expect(createdItem.hasChildren).toBe(false);
+    expect(createdItem.icon).toBe("icon-database");
   });
 });

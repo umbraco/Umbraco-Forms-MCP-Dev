@@ -13,3 +13,4 @@ appsettings.local.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.last-run.json

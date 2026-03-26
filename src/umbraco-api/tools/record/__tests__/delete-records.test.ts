@@ -11,6 +11,10 @@ const TEST_NAME = "_Test Delete Records";
 describe("delete-records", () => {
   setupTestEnvironment();
 
+  beforeEach(async () => {
+    await RecordTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

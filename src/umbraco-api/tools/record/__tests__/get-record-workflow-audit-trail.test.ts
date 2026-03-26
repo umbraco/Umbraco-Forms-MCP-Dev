@@ -11,6 +11,10 @@ const TEST_NAME = "_Test Get Record Workflow Audit Trail";
 describe("get-record-workflow-audit-trail", () => {
   setupTestEnvironment();
 
+  beforeEach(async () => {
+    await RecordTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

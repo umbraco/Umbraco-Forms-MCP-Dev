@@ -20,6 +20,8 @@ npm run test:all       # Both unit and eval tests
 
 **Single test:** `npm test -- --testPathPattern=src/path/__tests__/file.test.ts`
 
+**E2E tests:** `npm run test:e2e` (see [E2E Tests](#e2e-tests-hosted-mcp) for prerequisites)
+
 **Always use npm scripts** (`npm run compile`, `npm test`, `npm run build`) — never run `node`, `npx tsc`, or `jest` directly.
 
 ## Source Structure
@@ -106,6 +108,12 @@ Custom fields defined in `config/server-config.ts`.
 - Require `ANTHROPIC_API_KEY` environment variable
 - Use `runScenarioTest` with prompt, tools, requiredTools, successPattern
 - Run with `--runInBand` to avoid parallel API calls
+
+## E2E Tests (Hosted MCP)
+
+Use `/run-e2e` to run the Playwright E2E tests. The skill handles starting Umbraco as a background subprocess and running the tests.
+
+**Manual run:** `npm run test:e2e`
 
 ## API User Setup
 

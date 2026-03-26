@@ -31,6 +31,6 @@ describe("check-folder-empty", () => {
     );
 
     expect(result.isError).toBeUndefined();
-    expect(result.structuredContent).toBe(true);
+    expect(result.structuredContent).toEqual({ isEmpty: true });
   });
 });

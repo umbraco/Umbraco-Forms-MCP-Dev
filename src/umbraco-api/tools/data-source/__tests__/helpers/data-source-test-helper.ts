@@ -23,14 +23,22 @@ export class DataSourceTestHelper {
   }
 
   /**
-   * Clean up test data sources by name prefix
+   * Clean up test data sources by name prefix.
+   * Retries on transient errors (e.g. 500s under parallel load).
    */
   static async cleanup(namePrefix: string): Promise<void> {
     const client = getApiClient<ApiClient>();
-    const response = await client.getDataSource({ take: 100 });
-
-    // The response is directly the paged result, not wrapped in .data
-    const pagedResult = response as any;
+    let pagedResult: any;
+    try {
+      pagedResult = await client.getDataSource({ take: 100 }) as any;
+    } catch {
+      await new Promise((r) => setTimeout(r, 500));
+      try {
+        pagedResult = await client.getDataSource({ take: 100 }) as any;
+      } catch {
+        return;
+      }
+    }
 
     if (!pagedResult.items) {
       return;

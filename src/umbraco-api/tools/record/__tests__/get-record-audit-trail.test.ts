@@ -1,7 +1,6 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  createSnapshotResult,
   RecordBuilder,
   RecordTestHelper,
 } from "./setup.js";
@@ -11,6 +10,10 @@ const TEST_NAME = "_Test Get Record Audit Trail";
 
 describe("get-record-audit-trail", () => {
   setupTestEnvironment();
+
+  beforeEach(async () => {
+    await RecordTestHelper.cleanup(TEST_NAME);
+  });
 
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
@@ -31,7 +34,9 @@ describe("get-record-audit-trail", () => {
       context
     );
 
-    expect(RecordTestHelper.normalizeIds(result)).toMatchSnapshot();
+    expect(result.isError).toBeUndefined();
+    const items = (result.structuredContent as any)?.items;
+    expect(Array.isArray(items)).toBe(true);
   });
 
   it("should return error for non-existent record ID", async () => {

@@ -25,12 +25,23 @@ export class FormTestHelper {
   }
 
   /**
-   * Clean up test forms by name prefix
+   * Clean up test forms by name prefix.
+   * Retries on transient errors (e.g. 500s under parallel load).
    */
   static async cleanup(namePrefix: string): Promise<void> {
-    const forms = await this.findAll();
-    const client = getApiClient<ApiClient>();
+    let forms: BasicForm[];
+    try {
+      forms = await this.findAll();
+    } catch {
+      await new Promise((r) => setTimeout(r, 500));
+      try {
+        forms = await this.findAll();
+      } catch {
+        return;
+      }
+    }
 
+    const client = getApiClient<ApiClient>();
     const toDelete = forms.filter((f) => f.name.startsWith(namePrefix));
 
     for (const form of toDelete) {
