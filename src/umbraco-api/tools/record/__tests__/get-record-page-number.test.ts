@@ -12,10 +12,6 @@ const TEST_NAME = "_Test Get Record Page Number";
 describe("get-record-page-number", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

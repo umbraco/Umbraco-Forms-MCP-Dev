@@ -12,10 +12,6 @@ const TEST_NAME = "_Test List Records";
 describe("list-records", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

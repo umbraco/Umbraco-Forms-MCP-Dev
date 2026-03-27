@@ -12,10 +12,6 @@ const TEST_NAME = "_Test Get Record Metadata";
 describe("get-record-metadata", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

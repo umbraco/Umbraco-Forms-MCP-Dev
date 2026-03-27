@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`list-prevalue-sources should list prevalue sources 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "cachePrevaluesFor": "00:00:00",
+        "created": "NORMALIZED_DATE",
+        "createdBy": 1,
+        "createdByName": null,
+        "entityType": "prevaluesource",
+        "fieldPreValueSourceTypeId": "00000000-0000-0000-0000-000000000000",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "_Test List Prevalue Sources",
+        "settings": {},
+        "unique": "00000000-0000-0000-0000-000000000000",
+        "updated": "NORMALIZED_DATE",
+        "updatedBy": 1,
+        "updatedByName": null,
+      },
+    ],
+    "total": 1,
+  },
+}
+`;

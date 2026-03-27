@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get-folder should return folder by ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "created": "NORMALIZED_DATE",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "_Test Get Folder",
+    "parentId": null,
+  },
+}
+`;

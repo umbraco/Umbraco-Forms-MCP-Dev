@@ -11,10 +11,6 @@ const TEST_NAME = "_Test Update Record";
 describe("update-record", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

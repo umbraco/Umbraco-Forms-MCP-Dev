@@ -12,10 +12,6 @@ const TEST_NAME = "_Test Submit Form Entry";
 describe("submit-form-entry", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

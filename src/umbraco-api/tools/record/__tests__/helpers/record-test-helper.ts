@@ -41,24 +41,12 @@ export class RecordTestHelper {
 
   /**
    * Clean up test forms (and their records) by name prefix
-   * Records are automatically deleted when their parent form is deleted.
-   * Retries on transient errors (e.g. 500s under parallel load).
+   * Records are automatically deleted when their parent form is deleted
    */
   static async cleanup(formNamePrefix: string): Promise<void> {
-    let forms: BasicForm[];
-    try {
-      forms = await this.findAllForms();
-    } catch {
-      // Retry once — getForm() can 500 under parallel load
-      await new Promise((r) => setTimeout(r, 500));
-      try {
-        forms = await this.findAllForms();
-      } catch {
-        return; // Give up silently — cleanup is best-effort
-      }
-    }
-
+    const forms = await this.findAllForms();
     const client = getApiClient<ApiClient>();
+
     const toDelete = forms.filter((f) => f.name.startsWith(formNamePrefix));
 
     for (const form of toDelete) {

@@ -181,23 +181,13 @@ export class RecordBuilder {
     );
 
     // Step 4: List records to get the created record's uniqueId
-    // Retry on 404 — the records endpoint may not be ready immediately after form creation
-    let collection: EntrySearchResultCollection | undefined;
-    for (let attempt = 0; attempt < 5; attempt++) {
-      try {
-        const recordsResponse = await client.getFormByFormIdRecord(
-          this.createdFormId,
-          { take: 10 }
-        );
-        collection = recordsResponse as any as EntrySearchResultCollection;
-        if (collection.results && collection.results.length > 0) break;
-      } catch {
-        // transient error — retry
-      }
-      await new Promise((r) => setTimeout(r, 1000));
-    }
+    const recordsResponse = await client.getFormByFormIdRecord(
+      this.createdFormId,
+      { take: 10 }
+    );
 
-    if (!collection?.results || collection.results.length === 0) {
+    const collection = recordsResponse as any as EntrySearchResultCollection;
+    if (!collection.results || collection.results.length === 0) {
       throw new Error("Record was not created");
     }
 

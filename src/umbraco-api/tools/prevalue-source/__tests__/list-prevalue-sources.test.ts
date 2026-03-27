@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   PrevalueSourceBuilder,
   PrevalueSourceTestHelper,
 } from "./setup.js";
@@ -27,29 +28,21 @@ describe("list-prevalue-sources", () => {
     prevalueSourceTypeId = typeList[0].id;
   });
 
-  beforeEach(async () => {
-    await PrevalueSourceTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await PrevalueSourceTestHelper.cleanup(TEST_NAME);
   });
 
   it("should list prevalue sources", async () => {
     const context = createMockRequestHandlerExtra();
-    await new PrevalueSourceBuilder()
+    const builder = await new PrevalueSourceBuilder()
       .withName(TEST_NAME)
       .withFieldPreValueSourceTypeId(prevalueSourceTypeId)
       .create();
 
     const result = await listPrevalueSourcesTool.handler({ skip: 0, take: 100 }, context);
 
-    expect(result.isError).toBeUndefined();
-    const items = (result.structuredContent as any)?.items;
-    expect(Array.isArray(items)).toBe(true);
-    const createdItem = items.find((item: any) => item.name === TEST_NAME);
-    expect(createdItem).toBeDefined();
-    expect(createdItem.entityType).toBe("prevaluesource");
-    expect(createdItem.fieldPreValueSourceTypeId).toBeDefined();
+    expect(
+      PrevalueSourceTestHelper.normalizeIds(result)
+    ).toMatchSnapshot();
   });
 });

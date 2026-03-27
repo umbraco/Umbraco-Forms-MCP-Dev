@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   PrevalueSourceBuilder,
   PrevalueSourceTestHelper,
 } from "./setup.js";
@@ -27,30 +28,21 @@ describe("get-prevalue-source-tree", () => {
     prevalueSourceTypeId = typeList[0].id;
   });
 
-  beforeEach(async () => {
-    await PrevalueSourceTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await PrevalueSourceTestHelper.cleanup(TEST_NAME);
   });
 
   it("should return prevalue source tree", async () => {
     const context = createMockRequestHandlerExtra();
-    await new PrevalueSourceBuilder()
+    const builder = await new PrevalueSourceBuilder()
       .withName(TEST_NAME)
       .withFieldPreValueSourceTypeId(prevalueSourceTypeId)
       .create();
 
     const result = await getPrevalueSourceTreeTool.handler({}, context);
 
-    expect(result.isError).toBeUndefined();
-    const items = (result.structuredContent as any)?.items;
-    expect(Array.isArray(items)).toBe(true);
-    const createdItem = items.find((item: any) => item.name === TEST_NAME);
-    expect(createdItem).toBeDefined();
-    expect(createdItem.isFolder).toBe(false);
-    expect(createdItem.hasChildren).toBe(false);
-    expect(createdItem.icon).toBe("icon-box");
+    expect(
+      PrevalueSourceTestHelper.normalizeIds(result)
+    ).toMatchSnapshot();
   });
 });

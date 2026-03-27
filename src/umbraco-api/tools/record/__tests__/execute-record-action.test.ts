@@ -12,10 +12,6 @@ const TEST_NAME = "_Test Execute Record Action";
 describe("execute-record-action", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });

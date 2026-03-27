@@ -9,10 +9,6 @@ const TEST_NAME = "_Test Builder Record";
 describe("RecordBuilder", () => {
   setupTestEnvironment();
 
-  beforeEach(async () => {
-    await RecordTestHelper.cleanup(TEST_NAME);
-  });
-
   afterEach(async () => {
     await RecordTestHelper.cleanup(TEST_NAME);
   });
