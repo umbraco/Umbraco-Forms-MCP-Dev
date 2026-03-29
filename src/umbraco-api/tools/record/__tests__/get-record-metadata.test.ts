@@ -28,9 +28,11 @@ describe("get-record-metadata", () => {
       context
     );
 
-    expect(
-      createSnapshotResult(result, builder.getFormId())
-    ).toMatchSnapshot();
+    const normalized = createSnapshotResult(result, builder.getFormId());
+    if (normalized?.structuredContent?.lastSubmittedDate) {
+      normalized.structuredContent.lastSubmittedDate = "NORMALIZED_DATE";
+    }
+    expect(normalized).toMatchSnapshot();
   });
 
   it("should handle non-existent form ID gracefully", async () => {
