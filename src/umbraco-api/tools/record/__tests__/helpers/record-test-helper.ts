@@ -105,11 +105,16 @@ export class RecordTestHelper {
         normalized.score = 0;
       }
 
-      // Normalize date fields
+      // Normalize date fields (ISO format)
       for (const field of ["created", "updated"]) {
         if (typeof normalized[field] === "string" && this.ISO_DATE_REGEX.test(normalized[field])) {
           normalized[field] = "NORMALIZED_DATE";
         }
+      }
+
+      // Normalize formatted date fields (e.g., "Friday, March 27, 2026")
+      if (typeof normalized.lastSubmittedDate === "string" && normalized.lastSubmittedDate.length > 0) {
+        normalized.lastSubmittedDate = "NORMALIZED_DATE";
       }
 
       // Normalize record field values (handles { fieldId: "created", value: "2026-..." } pattern)

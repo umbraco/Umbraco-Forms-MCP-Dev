@@ -1,6 +1,16 @@
 node_modules/
 dist/
 .env
+.dev.vars
 *.tsbuildinfo
 appsettings.local.json
 .claude/settings.local.json
+.wrangler
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+.last-run.json

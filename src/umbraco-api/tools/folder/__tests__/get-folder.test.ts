@@ -14,11 +14,16 @@ describe("get-folder", () => {
 
   const createdIds: string[] = [];
 
+  beforeEach(async () => {
+    await FolderTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     for (const id of [...createdIds].reverse()) {
       await FolderTestHelper.deleteById(id);
     }
     createdIds.length = 0;
+    await FolderTestHelper.cleanup(TEST_NAME);
   });
 
   it("should return folder by ID", async () => {
