@@ -2,5 +2,8 @@
   "jest.nodeEnv": {
     "NODE_TLS_REJECT_UNAUTHORIZED": "0"
   },
-  "jest.jestCommandLine": "node --experimental-vm-modules ./node_modules/.bin/jest"
+  "jest.jestCommandLine": "node --experimental-vm-modules ./node_modules/.bin/jest",
+  "playwright.configs": [
+    "tests/forms-hosted-e2e/e2e/playwright.config.ts"
+  ]
 }

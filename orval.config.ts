@@ -6,9 +6,6 @@ import { orvalImportFixer } from "@umbraco-cms/mcp-server-sdk";
  *
  * This generates TypeScript API clients from OpenAPI specs.
  *
- * The template includes a sample OpenAPI spec (src/umbraco-api/api/openapi.yaml) that
- * demonstrates the patterns. Replace it with your add-on's spec.
- *
  * Example OpenAPI spec sources:
  * - Local file: "./src/umbraco-api/api/openapi.yaml"
  * - Local Umbraco: "http://localhost:44391/umbraco/swagger/management/swagger.json"
@@ -18,16 +15,15 @@ export default defineConfig({
   // Main API client generation
   umbracoFormsManagementApi: {
     input: {
-      // Use the included example OpenAPI spec
-      // Replace with your add-on's spec path or URL
       target: "./src/umbraco-api/api/forms-management-swagger.json",
       validation: false,
     },
     output: {
-      target: "./src/umbraco-api/api/generated/umbracoFormsManagementApi.ts",
+      mode: "split",
+      clean: true,
+      target: "./src/umbraco-api/api/generated/api",
+      schemas: "./src/umbraco-api/api/generated/schemas",
       client: "axios",
-      mode: "single",
-      clean: false,
       override: {
         mutator: {
           path: "./src/umbraco-api/api/client.ts",
@@ -47,10 +43,10 @@ export default defineConfig({
       validation: false,
     },
     output: {
-      target: "./src/umbraco-api/api/generated/umbracoFormsManagementApi.zod.ts",
+      mode: "split",
       client: "zod",
-      mode: "single",
-      clean: false,
+      target: "./src/umbraco-api/api/generated/",
+      fileExtension: ".zod.ts",
     },
   },
 
@@ -61,10 +57,11 @@ export default defineConfig({
       validation: false,
     },
     output: {
-      target: "./src/umbraco-api/api/generated/umbracoFormsDeliveryApi.ts",
+      mode: "split",
+      clean: true,
+      target: "./src/umbraco-api/api/delivery/api",
+      schemas: "./src/umbraco-api/api/delivery/schemas",
       client: "axios",
-      mode: "single",
-      clean: false,
       override: {
         mutator: {
           path: "./src/umbraco-api/api/delivery-client.ts",
@@ -84,10 +81,10 @@ export default defineConfig({
       validation: false,
     },
     output: {
-      target: "./src/umbraco-api/api/generated/umbracoFormsDeliveryApi.zod.ts",
+      mode: "split",
       client: "zod",
-      mode: "single",
-      clean: false,
+      target: "./src/umbraco-api/api/delivery/",
+      fileExtension: ".zod.ts",
     },
   },
 });

@@ -1,5 +1,10 @@
 import type { JestConfigWithTsJest } from "ts-jest";
 
+// Allow self-signed certificates for local Umbraco dev instances.
+// Must be set here (before any modules load) because Jest's VM modules
+// may initialize TLS before setupFiles run.
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 const shared: Partial<JestConfigWithTsJest> = {
   preset: "ts-jest/presets/js-with-ts-esm",
   testEnvironment: "node",

@@ -13,11 +13,16 @@ describe("check-folder-empty", () => {
 
   const createdIds: string[] = [];
 
+  beforeEach(async () => {
+    await FolderTestHelper.cleanup(TEST_NAME);
+  });
+
   afterEach(async () => {
     for (const id of [...createdIds].reverse()) {
       await FolderTestHelper.deleteById(id);
     }
     createdIds.length = 0;
+    await FolderTestHelper.cleanup(TEST_NAME);
   });
 
   it("should return true for empty folder", async () => {
@@ -31,6 +36,6 @@ describe("check-folder-empty", () => {
     );
 
     expect(result.isError).toBeUndefined();
-    expect(result.structuredContent).toBe(true);
+    expect(result.structuredContent).toEqual({ isEmpty: true });
   });
 });

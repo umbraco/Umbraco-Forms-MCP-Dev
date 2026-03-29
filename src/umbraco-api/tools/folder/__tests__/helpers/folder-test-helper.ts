@@ -33,6 +33,28 @@ export class FolderTestHelper {
   }
 
   /**
+   * Clean up test folders by name prefix using the form tree endpoint
+   */
+  static async cleanup(namePrefix: string): Promise<void> {
+    const client = getApiClient<ApiClient>();
+    try {
+      const tree = await client.getTreeFormRoot({ foldersOnly: true });
+      const items = (tree as any)?.items || (Array.isArray(tree) ? tree : []);
+      for (const item of items) {
+        if (item.name?.startsWith(namePrefix)) {
+          try {
+            await client.deleteFolderById(item.id);
+          } catch {
+            // Ignore errors during cleanup
+          }
+        }
+      }
+    } catch {
+      // Ignore errors during cleanup
+    }
+  }
+
+  /**
    * Normalize IDs and dates for snapshot testing
    */
   static normalizeIds(data: any): any {
