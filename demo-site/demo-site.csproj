@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Clean" Version="7.0.5" />
-    <PackageReference Include="Umbraco.Cms" Version="17.1.0" />
+    <PackageReference Include="Umbraco.Cms" Version="17.2.2" />
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.1.0" />
     <PackageReference Include="Umbraco.Forms" Version="17.1.2" />
   </ItemGroup>
