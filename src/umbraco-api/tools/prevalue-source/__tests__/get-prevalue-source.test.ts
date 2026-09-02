@@ -1,59 +1,43 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   PrevalueSourceBuilder,
   PrevalueSourceTestHelper,
 } from "./setup.js";
 import getPrevalueSourceTool from "../get/get-prevalue-source.js";
-import { getApiClient } from "@umbraco-cms/mcp-server-sdk";
-import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-
-type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const TEST_NAME = "_Test Get Prevalue Source";
 
 describe("get-prevalue-source", () => {
   setupTestEnvironment();
 
-  let prevalueSourceTypeId: string;
-
-  beforeAll(async () => {
-    const client = getApiClient<ApiClient>();
-    const response = await client.getPrevalueSourceType();
-    const typeList = (response as any).data || response;
-    if (!Array.isArray(typeList) || typeList.length === 0) {
-      throw new Error("No prevalue source types found");
-    }
-    prevalueSourceTypeId = typeList[0].id;
-  });
+  let builder: PrevalueSourceBuilder;
 
   afterEach(async () => {
-    await PrevalueSourceTestHelper.cleanup(TEST_NAME);
+    if (builder) await builder.delete();
   });
 
-  it("should return prevalue source by ID", async () => {
+  it("should return a prevalue source by id", async () => {
     const context = createMockRequestHandlerExtra();
-    const builder = await new PrevalueSourceBuilder()
-      .withName(TEST_NAME)
-      .withFieldPreValueSourceTypeId(prevalueSourceTypeId)
-      .create();
+    builder = await new PrevalueSourceBuilder().withName(TEST_NAME).create();
 
-    const result = await getPrevalueSourceTool.handler(
-      { id: builder.getId() },
-      context
-    );
+    const result = await getPrevalueSourceTool.handler({ id: builder.getId() }, context);
 
+    const snapshot = createSnapshotResult(result, builder.getId());
     expect(
-      PrevalueSourceTestHelper.normalizeIds(result)
+      PrevalueSourceTestHelper.normalizeVolatileFields(snapshot),
     ).toMatchSnapshot();
   });
 
-  it("should return error for non-existent ID", async () => {
+  it("should return error for non-existent id", async () => {
     const context = createMockRequestHandlerExtra();
+
     const result = await getPrevalueSourceTool.handler(
       { id: "00000000-0000-0000-0000-000000000000" },
-      context
+      context,
     );
+
     expect(result.isError).toBe(true);
   });
 });

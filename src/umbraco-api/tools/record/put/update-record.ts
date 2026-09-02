@@ -1,47 +1,59 @@
-import * as zod from "zod";
+/**
+ * Update Record Tool
+ *
+ * Overwrites the values of one or more fields on an existing submitted record.
+ */
+
 import {
   withStandardDecorators,
   executeVoidApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
+import { z } from "zod";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  putFormByFormIdRecordByRecordIdParams,
+  putFormByFormIdRecordByRecordIdBodyItem,
+} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  formId: zod.string().uuid().describe("The form ID the record belongs to"),
-  recordId: zod.string().uuid().describe("The record ID to update. Use the uniqueId from list-records."),
-  fields: zod.array(zod.object({
-    fieldId: zod.string().uuid().describe("The field ID to update"),
-    values: zod.array(zod.string()).describe("New values for the field"),
-  })).describe("Array of field updates. Each entry specifies a fieldId and its new values."),
+  formId: putFormByFormIdRecordByRecordIdParams.shape.formId.describe(
+    "ID of the form the record belongs to.",
+  ),
+  recordId: putFormByFormIdRecordByRecordIdParams.shape.recordId.describe(
+    "ID of the existing record (submitted entry) to update.",
+  ),
+  fields: z
+    .array(putFormByFormIdRecordByRecordIdBodyItem)
+    .min(1)
+    .describe(
+      "Field values to overwrite. Each entry is { fieldId, values }, where fieldId is the " +
+        "existing field's ID and values is the new array of value(s) for that field " +
+        "(a single-value field still uses a one-element array). Only listed fields are " +
+        "changed; fields not included are left untouched.",
+    ),
 };
-
-const outputSchema = zod.object({
-  success: zod.boolean(),
-});
 
 const UpdateRecordTool = {
   name: "update-record",
   description:
-    "Update field values on an existing form submission record. Provide the form ID, record ID, and an array of field updates. Each field update needs the field ID and new values. Use list-records to find record and field IDs.",
+    "Updates the values of one or more fields on an existing form submission (record). " +
+    "Only affects the fields you list — other field values on the record are left as-is. " +
+    "Requires the field IDs and record ID to already exist; does not create new records or " +
+    "add new fields. Use search-records first to find the recordId and field IDs.",
   inputSchema,
-  outputSchema,
   slices: ["update"],
   annotations: {
     idempotentHint: true,
   },
-  handler: async (params) => {
-    return executeVoidApiCall<ApiClient>(
-      (client) => client.putFormByFormIdRecordByRecordId(
-        params.formId,
-        params.recordId,
-        params.fields,
-        CAPTURE_RAW_HTTP_RESPONSE
-      )
+  handler: async ({ formId, recordId, fields }) => {
+    return executeVoidApiCall<ApiClient>((client) =>
+      client.putFormByFormIdRecordByRecordId(formId, recordId, fields, CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+} satisfies ToolDefinition<typeof inputSchema>;
 
 export default withStandardDecorators(UpdateRecordTool);

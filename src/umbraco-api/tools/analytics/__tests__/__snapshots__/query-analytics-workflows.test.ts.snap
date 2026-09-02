@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`query-analytics-workflows should return workflow run analytics using default metrics and dimensions 1`] = `
+{
+  "content": [],
+  "isError": true,
+  "structuredContent": {
+    "detail": "A form identifier is required for the workflows overview.",
+    "status": 400,
+    "title": "Invalid query",
+    "type": "Error",
+  },
+}
+`;

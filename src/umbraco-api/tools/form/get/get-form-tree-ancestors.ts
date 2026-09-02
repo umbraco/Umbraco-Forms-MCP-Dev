@@ -1,48 +1,42 @@
+/**
+ * Get Form Tree Ancestors Tool
+ *
+ * Lists the folder ancestors of a form/folder in the forms tree, from root down.
+ */
+
 import { z } from "zod";
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-import { getTreeFormAncestorsResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  getTreeFormAncestorsQueryParams,
+  getTreeFormAncestorsResponse,
+} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const inputSchema = z.object({
-  descendantId: z
-    .string()
-    .uuid()
-    .describe(
-      "The ID of a form or folder to get ancestors for. Returns all parent folders up to the root."
-    ),
-});
-
+const inputSchema = getTreeFormAncestorsQueryParams.shape;
 const outputSchema = z.object({ items: getTreeFormAncestorsResponse });
 
-const GetFormTreeAncestors = {
+const GetFormTreeAncestorsTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "get-form-tree-ancestors",
   description:
-    "Get the ancestor tree path for a form or folder. Returns all parent folders from the given item up to the root. Useful for understanding where a form sits in the folder hierarchy.",
-  inputSchema: inputSchema.shape,
-  outputSchema: outputSchema,
+    "Lists the ancestor folders of a form or folder in the Forms tree, ordered from the root down to (but not including) the item itself. Pass the ID of the form or folder as descendantId. Use this to build a breadcrumb path.",
+  inputSchema,
+  outputSchema,
   slices: ["tree"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async (params) => {
-    return executeGetItemsApiCall<
-      ReturnType<ApiClient["getTreeFormAncestors"]>,
-      ApiClient
-    >(
-      (client) =>
-        client.getTreeFormAncestors(
-          { descendantId: params.descendantId },
-          CAPTURE_RAW_HTTP_RESPONSE
-        )
+  handler: async ({ descendantId }) => {
+    return executeGetItemsApiCall<ReturnType<ApiClient["getTreeFormAncestors"]>, ApiClient>(
+      (client) => client.getTreeFormAncestors({ descendantId }, CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof inputSchema.shape, typeof outputSchema>;
+};
 
-export default withStandardDecorators(GetFormTreeAncestors);
+export default withStandardDecorators(GetFormTreeAncestorsTool);

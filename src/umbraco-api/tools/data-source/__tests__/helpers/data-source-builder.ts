@@ -1,53 +1,47 @@
-import { v4 as uuid } from "uuid";
+import { randomUUID } from "node:crypto";
 import {
   getApiClient,
   CAPTURE_RAW_HTTP_RESPONSE,
+  type HttpResponse,
+  type ProblemDetails,
 } from "@umbraco-cms/mcp-server-sdk";
-import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import type {
+  getUmbracoFormsManagementAPI,
+  FormDataSource,
+  FormDataSourceSettings,
+} from "../../../../api/generated/umbracoFormsManagementApi.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const TEST_DATA_SOURCE_NAME = "_Test Data Source";
-const TEST_DATA_SOURCE_TYPE_ID = "12345678-0000-0000-0000-000000000001";
+export const TEST_DATA_SOURCE_NAME = "_Test Data Source";
+
+// The "SQL Database" data source type is the only built-in type on this instance.
+// It validates connectivity live against the settings it's given, so — rather than
+// fabricating fake external infra — these tests point it at the same real SQL Server
+// that already backs this Umbraco instance (see demo-site/appsettings.local.json),
+// against a stock Umbraco system table with only basic column types.
+export const SQL_DATA_SOURCE_TYPE_ID = "f19506f3-efea-4b13-a308-89348f69df91";
+
+export const DEFAULT_DATA_SOURCE_SETTINGS: FormDataSourceSettings = {
+  Connection:
+    "Server=localhost,1433;Database=FormsMcpDb;User Id=sa;Password=MyStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False",
+  Table: "umbracoLock",
+};
 
 interface DataSourceModel {
-  id: string;
-  unique: string;
-  entityType: string;
   name: string;
-  created: string;
-  createdBy?: number | null;
-  createdByName?: string | null;
-  updated: string;
-  updatedBy?: number | null;
-  updatedByName?: string | null;
-  settings: { [key: string]: string };
   formDataSourceTypeId: string;
-  valid: boolean;
+  settings: FormDataSourceSettings;
 }
 
 export class DataSourceBuilder {
-  private model: DataSourceModel;
-  private createdId?: string;
+  private model: DataSourceModel = {
+    name: TEST_DATA_SOURCE_NAME,
+    formDataSourceTypeId: SQL_DATA_SOURCE_TYPE_ID,
+    settings: { ...DEFAULT_DATA_SOURCE_SETTINGS },
+  };
 
-  constructor() {
-    const now = new Date().toISOString();
-    this.model = {
-      id: uuid(),
-      unique: uuid(),
-      entityType: "FormDataSource",
-      name: TEST_DATA_SOURCE_NAME,
-      created: now,
-      createdBy: null,
-      createdByName: null,
-      updated: now,
-      updatedBy: null,
-      updatedByName: null,
-      settings: {},
-      formDataSourceTypeId: TEST_DATA_SOURCE_TYPE_ID,
-      valid: true,
-    };
-  }
+  private createdId?: string;
 
   withName(name: string): this {
     this.model.name = name;
@@ -59,45 +53,71 @@ export class DataSourceBuilder {
     return this;
   }
 
-  withSettings(settings: { [key: string]: string }): this {
+  withSettings(settings: FormDataSourceSettings): this {
     this.model.settings = settings;
     return this;
   }
 
   build(): DataSourceModel {
-    return { ...this.model };
+    return { ...this.model, settings: { ...this.model.settings } };
   }
 
   async create(): Promise<this> {
     const client = getApiClient<ApiClient>();
 
-    // Call API to create data source
-    const response = await client.postDataSource(
-      this.model as any,
-      CAPTURE_RAW_HTTP_RESPONSE
-    );
+    const scaffoldResponse = (await client.getDataSourceScaffold(
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<FormDataSource | ProblemDetails>;
 
-    // Extract ID from Location header
-    const locationHeader =
-      (response as any)?.headers?.location ||
-      (response as any)?.headers?.Location;
-    this.createdId = locationHeader
-      ? locationHeader.split("/").pop()
-      : this.model.id;
+    if (scaffoldResponse.status < 200 || scaffoldResponse.status >= 300) {
+      throw new Error(
+        `Failed to fetch data source scaffold: HTTP ${scaffoldResponse.status} ${JSON.stringify(scaffoldResponse.data)}`,
+      );
+    }
+
+    const scaffold = scaffoldResponse.data as FormDataSource;
+    const newId = randomUUID();
+
+    const payload: FormDataSource = {
+      ...scaffold,
+      id: newId,
+      unique: newId,
+      name: this.model.name,
+      formDataSourceTypeId: this.model.formDataSourceTypeId,
+      settings: this.model.settings,
+    };
+
+    const response = (await client.postDataSource(
+      payload,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<ProblemDetails | void>;
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error(
+        `Failed to create data source: HTTP ${response.status} ${JSON.stringify(response.data)}`,
+      );
+    }
+
+    this.createdId = newId;
 
     return this;
   }
 
-  getId(): string {
-    if (!this.createdId) {
-      throw new Error(
-        "Data source not created yet. Call create() first."
-      );
+  async delete(): Promise<void> {
+    if (!this.createdId) return;
+    const client = getApiClient<ApiClient>();
+    try {
+      await client.deleteDataSourceById(this.createdId, CAPTURE_RAW_HTTP_RESPONSE);
+    } catch {
+      // Ignore delete failures in cleanup
     }
-    return this.createdId;
+    this.createdId = undefined;
   }
 
-  getItem(): DataSourceModel {
-    return this.build();
+  getId(): string {
+    if (!this.createdId) {
+      throw new Error("Data source not created yet. Call create() first.");
+    }
+    return this.createdId;
   }
 }

@@ -1,49 +1,55 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  FolderTestHelper,
+  createSnapshotResult,
+  validateToolResponse,
+  FolderBuilder,
 } from "./setup.js";
-import createFolderTool from "../post/create-folder.js";
 import moveFolderTool from "../put/move-folder.js";
+import getFolderByIdTool from "../get/get-folder-by-id.js";
+
+const TEST_PARENT_NAME = "_Test Move Folder Parent";
+const TEST_CHILD_NAME = "_Test Move Folder Child";
 
 describe("move-folder", () => {
   setupTestEnvironment();
 
-  const createdIds: string[] = [];
+  let parentBuilder: FolderBuilder;
+  let childBuilder: FolderBuilder;
 
   afterEach(async () => {
-    // Delete children first, then parents
-    for (const id of [...createdIds].reverse()) {
-      await FolderTestHelper.deleteById(id);
-    }
-    createdIds.length = 0;
+    if (childBuilder) await childBuilder.delete();
+    if (parentBuilder) await parentBuilder.delete();
   });
 
-  it("should move folder to a new parent", async () => {
+  // Verifies the parentId -> { parentId } flattened body is actually sent —
+  // a root-only test would pass even if this were broken, since the API
+  // accepts parentId: null happily either way.
+  it("should move a folder under a real parent folder", async () => {
     const context = createMockRequestHandlerExtra();
-    const suffix = Date.now();
-
-    const parentResult = await createFolderTool.handler(
-      { name: `_Test Move Folder Parent ${suffix}`, parentId: undefined },
-      context
-    );
-    expect(parentResult.isError).toBeUndefined();
-    const parentId = (parentResult.structuredContent as any).id;
-    createdIds.push(parentId);
-
-    const childResult = await createFolderTool.handler(
-      { name: `_Test Move Folder Child ${suffix}`, parentId: undefined },
-      context
-    );
-    expect(childResult.isError).toBeUndefined();
-    const childId = (childResult.structuredContent as any).id;
-    createdIds.push(childId);
+    parentBuilder = await new FolderBuilder().withName(TEST_PARENT_NAME).create();
+    childBuilder = await new FolderBuilder().withName(TEST_CHILD_NAME).create();
 
     const result = await moveFolderTool.handler(
-      { id: childId, parentId },
-      context
+      { id: childBuilder.getId(), parentId: parentBuilder.getId() },
+      context,
     );
 
-    expect(result.isError).toBeUndefined();
+    expect(createSnapshotResult(result)).toMatchSnapshot();
+
+    const getResult = await getFolderByIdTool.handler({ id: childBuilder.getId() }, context);
+    const data = validateToolResponse(getFolderByIdTool, getResult);
+    expect(data.parentId).toBe(parentBuilder.getId());
+  });
+
+  it("should return an error for a non-existent ID", async () => {
+    const context = createMockRequestHandlerExtra();
+
+    const result = await moveFolderTool.handler(
+      { id: "00000000-0000-0000-0000-000000000000", parentId: undefined },
+      context,
+    );
+
+    expect(result.isError).toBe(true);
   });
 });

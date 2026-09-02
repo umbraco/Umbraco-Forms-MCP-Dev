@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-prevalue-source-ancestors should return an empty list of ancestors for the tree root 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [],
+  },
+}
+`;
+
+exports[`get-prevalue-source-ancestors should return ancestors for a root-level prevalue source 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "flags": [],
+        "hasChildren": false,
+        "icon": "icon-box",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isFolder": false,
+        "name": "_Test Get Prevalue Source Ancestors",
+        "noAccess": false,
+        "parent": null,
+      },
+    ],
+  },
+}
+`;

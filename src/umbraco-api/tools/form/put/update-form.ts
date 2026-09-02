@@ -1,54 +1,51 @@
-import { z } from "zod";
+/**
+ * Update Form Tool
+ *
+ * Replaces an existing form's entire design (name, pages, fields, workflows,
+ * settings). Fetch the current design with get-form-by-id first, edit only
+ * what needs to change, and submit the full object back — this is a full
+ * replace, not a partial patch.
+ */
+
 import {
   withStandardDecorators,
-  getApiClient,
-  createToolResult,
+  executeVoidApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type {
+  getUmbracoFormsManagementAPI,
+  FormDesign,
+} from "../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  putFormByIdParams,
+  putFormByIdBody,
+} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  id: z.string().uuid().describe("The ID of the form to update. Use list-forms or get-form-tree to find form IDs."),
-  name: z.string().optional().describe("New name for the form"),
-  messageOnSubmit: z.string().optional().describe("Message shown after form submission"),
-  submitLabel: z.string().optional().describe("Label for the submit button"),
+  ...putFormByIdParams.shape,
+  ...putFormByIdBody.shape,
 };
 
-const outputSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-
-const UpdateFormTool = {
+const UpdateFormTool: ToolDefinition<typeof inputSchema> = {
   name: "update-form",
-  description: "Update basic form properties (name, submit message, submit button label). Fetches the current form state, applies your changes, and saves. Only provide fields you want to modify. Does not modify form structure (pages, fields, workflows). Use get-form first to see current values.",
+  description:
+    "Replaces an existing form's entire design — this is a full replace, not a partial patch. Always call get-form-by-id first, change only the fields/pages/settings you need, and pass the resulting object (including its unchanged id and unique values) back here. Do not invent GUIDs for any new pages/fields you add; reuse existing ones from the fetched design for anything you keep. Any field that is null in the fetched design (e.g. autocompleteAttribute, cssClass, tooltip, dataSourceFieldKey, folderId) is optional — omit it entirely rather than retyping it as null; only required fields and the ones you're actually changing need to be present.",
   inputSchema,
-  outputSchema,
   slices: ["update"],
   annotations: {
     idempotentHint: true,
   },
-  handler: async (params) => {
-    const client = getApiClient<ApiClient>();
-
-    // Fetch existing form
-    const existing = await client.getFormById(params.id);
-
-    // Merge changes
-    const updated = {
-      ...existing,
-      ...(params.name !== undefined ? { name: params.name } : {}),
-      ...(params.messageOnSubmit !== undefined ? { messageOnSubmit: params.messageOnSubmit } : {}),
-      ...(params.submitLabel !== undefined ? { submitLabel: params.submitLabel } : {}),
-      updated: new Date().toISOString(),
-    };
-
-    await client.putFormById(params.id, updated as any, CAPTURE_RAW_HTTP_RESPONSE);
-    return createToolResult({ id: params.id, name: updated.name });
+  handler: async (formDesign) => {
+    // The form's own "id" is both the path segment and a required field
+    // inside the FormDesign body — keep it in both places rather than
+    // stripping it out.
+    return executeVoidApiCall<ApiClient>((client) =>
+      client.putFormById(formDesign.id, formDesign as FormDesign, CAPTURE_RAW_HTTP_RESPONSE),
+    );
   },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+};
 
 export default withStandardDecorators(UpdateFormTool);

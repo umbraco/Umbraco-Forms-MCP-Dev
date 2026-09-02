@@ -1,15 +1,19 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-record-page-number should handle non-existent form ID gracefully 1`] = `
+exports[`get-record-page-number should return no page number for a non-existent form (does not error) 1`] = `
 {
   "content": [],
-  "structuredContent": null,
+  "structuredContent": {
+    "pageNumber": undefined,
+  },
 }
 `;
 
-exports[`get-record-page-number should return page number for a record 1`] = `
+exports[`get-record-page-number should return no page number for a record that doesn't exist 1`] = `
 {
   "content": [],
-  "structuredContent": null,
+  "structuredContent": {
+    "pageNumber": undefined,
+  },
 }
 `;

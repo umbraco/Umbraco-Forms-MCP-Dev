@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-user-form-security should return the Forms security configuration for a real backoffice user 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "entityType": "forms-security-user",
+    "formsSecurity": "NORMALIZED_FORMS_SECURITY_LIST",
+    "key": "38a3d8f0-e030-46d8-9498-914f463f4c24",
+    "name": "MCP API User",
+    "startFolderIds": [],
+    "unique": "38a3d8f0-e030-46d8-9498-914f463f4c24",
+    "userSecurity": {
+      "deleteEntries": false,
+      "editEntries": true,
+      "manageDataSources": true,
+      "manageForms": true,
+      "managePreValueSources": true,
+      "manageWorkflows": true,
+      "user": "1",
+      "viewEntries": true,
+    },
+  },
+}
+`;

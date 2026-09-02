@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "umbraco": {
+      "command": "node",
+      "args": ["--env-file=.env", "./dist/index.js"],
+      "env": {
+        "DISABLE_MCP_CHAINING": "true"
+      }
+    }
+  }
+}

@@ -1,8 +1,11 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  FolderTestHelper,
+  createSnapshotResult,
+  validateToolResponse,
 } from "./setup.js";
+import { CAPTURE_RAW_HTTP_RESPONSE } from "@umbraco-cms/mcp-server-sdk";
+import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import createFolderTool from "../post/create-folder.js";
 
 const TEST_NAME = "_Test Create Folder";
@@ -10,26 +13,44 @@ const TEST_NAME = "_Test Create Folder";
 describe("create-folder", () => {
   setupTestEnvironment();
 
-  const createdIds: string[] = [];
+  let createdId: string | undefined;
 
   afterEach(async () => {
-    for (const id of [...createdIds].reverse()) {
-      await FolderTestHelper.deleteById(id);
+    if (createdId) {
+      const client = getUmbracoFormsManagementAPI();
+      try {
+        await client.deleteFolderById(createdId, CAPTURE_RAW_HTTP_RESPONSE);
+      } catch {
+        // Ignore cleanup failures
+      }
+      createdId = undefined;
     }
-    createdIds.length = 0;
   });
 
-  it("should create a folder", async () => {
+  it("should create a folder at the root", async () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await createFolderTool.handler(
       { name: TEST_NAME, parentId: undefined },
-      context
+      context,
     );
 
-    createdIds.push((result.structuredContent as any).id);
-    expect(
-      FolderTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    const data = validateToolResponse(createFolderTool, result);
+    expect(data.success).toBe(true);
+    createdId = data.id;
+
+    expect(createSnapshotResult(result, data.id)).toMatchSnapshot();
+  });
+
+  it("should report failure for a non-existent parentId", async () => {
+    const context = createMockRequestHandlerExtra();
+
+    const result = await createFolderTool.handler(
+      { name: TEST_NAME, parentId: "00000000-0000-0000-0000-000000000000" },
+      context,
+    );
+
+    const data = validateToolResponse(createFolderTool, result);
+    expect(data.success).toBe(false);
   });
 });

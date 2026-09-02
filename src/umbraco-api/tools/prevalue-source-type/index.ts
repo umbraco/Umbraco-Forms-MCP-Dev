@@ -1,16 +1,22 @@
-import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
-import type { FormsUserContext } from "../../../auth/index.js";
-import getPrevalueSourceTypeTool from "./get/get-prevalue-source-type.js";
-import listPrevalueSourceTypesTool from "./get/list-prevalue-source-types.js";
+/**
+ * Prevalue Source Type Tool Collection
+ *
+ * Read-only lookup tools for the prevalue source types built into Umbraco Forms
+ * (fixed system definitions describing where a prevalue source's values come from).
+ */
 
-const collection: ToolCollectionExport<FormsUserContext> = {
+import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
+import listPrevalueSourceTypesTool from "./get/list-prevalue-source-types.js";
+import getPrevalueSourceTypeByIdTool from "./get/get-prevalue-source-type-by-id.js";
+
+const collection: ToolCollectionExport = {
   metadata: {
     name: "prevalue-source-type",
-    displayName: "Prevalue Source Type Tools",
+    displayName: "Prevalue Source Types",
     description:
-      "Tools for discovering available prevalue source type definitions and their configuration settings",
+      "Read-only reference lookups for the prevalue source types built into Umbraco Forms.",
   },
-  tools: (_user: FormsUserContext) => [getPrevalueSourceTypeTool, listPrevalueSourceTypesTool],
+  tools: () => [listPrevalueSourceTypesTool, getPrevalueSourceTypeByIdTool],
 };
 
 export default collection;

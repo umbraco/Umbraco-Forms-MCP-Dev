@@ -1,23 +1,26 @@
-import { jest } from "@jest/globals";
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  validateToolResponse,
 } from "@umbraco-cms/mcp-server-sdk/testing";
-import { configureApiClient } from "@umbraco-cms/mcp-server-sdk";
+import { configureApiClient, initializeUmbracoFetch } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-import { RecordBuilder } from "./helpers/record-builder.js";
-import { RecordTestHelper } from "./helpers/record-test-helper.js";
+import { RecordTestFormHelper } from "./helpers/record-test-form-helper.js";
+
+// Initialize fetch with credentials — required for integration tests hitting the real API
+initializeUmbracoFetch({
+  baseUrl: process.env.UMBRACO_BASE_URL!,
+  clientId: process.env.UMBRACO_CLIENT_ID!,
+  clientSecret: process.env.UMBRACO_CLIENT_SECRET!,
+});
 
 configureApiClient(() => getUmbracoFormsManagementAPI());
-
-// Record operations involve form creation + submission + querying, so allow extra time
-jest.setTimeout(60000);
 
 export {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
-  RecordBuilder,
-  RecordTestHelper,
+  validateToolResponse,
+  RecordTestFormHelper,
 };

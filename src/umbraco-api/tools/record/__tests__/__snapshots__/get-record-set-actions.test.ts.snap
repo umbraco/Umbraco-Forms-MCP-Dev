@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-record-set-actions should list the record-set actions available on this instance 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "alias": "approve",
+        "confirmMessage": "",
+        "description": "Approves a set of records",
+        "group": "",
+        "icon": "icon-check",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isAvailableForApprovedRecords": false,
+        "name": "Approve",
+        "needsConfirm": false,
+      },
+      {
+        "alias": "reject",
+        "confirmMessage": "",
+        "description": "Rejects a set of records",
+        "group": "",
+        "icon": "icon-wrong",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "isAvailableForApprovedRecords": false,
+        "name": "Reject",
+        "needsConfirm": false,
+      },
+    ],
+  },
+}
+`;

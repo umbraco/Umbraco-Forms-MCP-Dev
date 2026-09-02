@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-prevalue-source-scaffold should return prevalue source scaffold 1`] = `
+exports[`get-prevalue-source-scaffold should return a blank prevalue source scaffold 1`] = `
 {
   "content": [],
   "structuredContent": {

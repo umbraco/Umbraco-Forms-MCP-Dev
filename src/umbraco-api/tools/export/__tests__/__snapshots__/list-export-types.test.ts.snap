@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`list-export-types should list export types available for a form 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "alias": "csvSubmittedValues",
+        "description": "Exports all submitted values to a CSV file.",
+        "fileExtension": "csv",
+        "group": "",
+        "icon": "icon-document-spreadsheet",
+        "id": "e5da2f3c-4e54-4646-aab9-2a265a6c5800",
+        "mimeType": "text/csv",
+        "name": "CSV file (submitted values)",
+      },
+      {
+        "alias": "csvDisplayValues",
+        "description": "Exports all display values to a CSV file. Captions are used for prevalue data where available.",
+        "fileExtension": "csv",
+        "group": "",
+        "icon": "icon-document-spreadsheet",
+        "id": "9f195c75-10a1-4285-8d6c-a73cda3293d4",
+        "mimeType": "text/csv",
+        "name": "CSV file (display values)",
+      },
+    ],
+  },
+}
+`;

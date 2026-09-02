@@ -18,42 +18,20 @@ export const toolSliceNames = [
   // Base slices from toolkit (create, read, update, delete, list)
   ...baseSliceNames,
 
-  // Navigation
-  'tree',
-  'folders',
-
   // Query
   'search',
-  'references',
 
-  // Workflow
-  'publish',
-  'recycle-bin',
+  // Extended slices used by the Forms Management tool collections
+  'tree',
   'move',
   'copy',
-  'sort',
+  'scaffold',
+  'export',
+  'import',
   'validate',
-  'rename',
-
-  // Information
-  'configuration',
-  'audit',
-  'urls',
-  'domains',
+  'action',
   'permissions',
-  'user-status',
-  'current-user',
-
-  // Entity Management
-  'notifications',
-  'public-access',
-  'scaffolding',
-  'blueprints',
-
-  // System
-  'server-info',
-  'diagnostics',
-  'templates',
+  'workflow',
 ] as const;
 
 /**

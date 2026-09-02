@@ -1,32 +1,37 @@
-import * as zod from "zod";
+/**
+ * Get Form Scaffold Tool
+ *
+ * Returns a blank, ready-to-edit form design with all required IDs already
+ * generated — the recommended starting point for creating a new form.
+ */
+
 import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getFormScaffoldResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const outputSchema = getFormScaffoldResponse;
 
-const GetFormScaffold = {
+const GetFormScaffoldTool: ToolDefinition<undefined, typeof outputSchema> = {
   name: "get-form-scaffold",
   description:
-    "Gets an empty form scaffold showing the default structure with pre-populated IDs and settings. Use this to understand the Umbraco Forms schema and its default values. Useful for inspecting what fields, pages, and workflows a form contains by default.",
-  inputSchema: emptyInput.shape,
-  outputSchema: getFormScaffoldResponse,
-  slices: ["scaffolding"],
+    "Gets a blank form design template with default settings and all GUIDs already generated (form ID, page ID, etc.) — the starting point for creating a new form. Edit the name, pages and fields on the returned object, then pass the whole thing to create-form. Never invent your own GUIDs; reuse the ones in this scaffold. Use get-form-scaffold-by-template instead if you want to start from a named template (e.g. a contact form).",
+  outputSchema,
+  slices: ["read"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
     return executeGetApiCall<ReturnType<ApiClient["getFormScaffold"]>, ApiClient>(
-      (client) => client.getFormScaffold(CAPTURE_RAW_HTTP_RESPONSE)
+      (client) => client.getFormScaffold(CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof getFormScaffoldResponse>;
+};
 
-export default withStandardDecorators(GetFormScaffold);
+export default withStandardDecorators(GetFormScaffoldTool);

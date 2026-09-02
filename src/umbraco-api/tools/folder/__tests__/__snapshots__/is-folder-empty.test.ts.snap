@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`is-folder-empty should report false for a non-existent ID (real API behavior) 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "isEmpty": false,
+  },
+}
+`;
+
+exports[`is-folder-empty should report true for a newly created, empty folder 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "isEmpty": true,
+  },
+}
+`;

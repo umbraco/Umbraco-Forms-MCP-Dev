@@ -1,32 +1,47 @@
+/**
+ * Get Prevalue Source Tool
+ *
+ * Fetches a single prevalue source (a reusable provider that resolves a
+ * dropdown/list field's options at render or submit time, e.g. from a REST
+ * endpoint, SQL query, or Umbraco members) by its ID.
+ */
+
 import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-import {
-  getPrevalueSourceByIdParams,
-  getPrevalueSourceByIdResponse,
-} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
+import { z } from "zod";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { getPrevalueSourceByIdResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const GetPrevalueSource = {
+const inputSchema = {
+  id: z.uuid().describe("ID of the prevalue source to fetch."),
+};
+
+const outputSchema = getPrevalueSourceByIdResponse;
+
+const getPrevalueSourceTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "get-prevalue-source",
   description:
-    "Retrieve a prevalue source by its unique ID. Returns the prevalue source configuration including name, settings, type, cache duration, and validity status. Use this when you need details about a specific prevalue source.",
-  inputSchema: getPrevalueSourceByIdParams.shape,
-  outputSchema: getPrevalueSourceByIdResponse,
+    "Gets a single prevalue source by ID, including its name, provider type " +
+    "(fieldPreValueSourceTypeId), settings, and cache duration. Use this to " +
+    "inspect an existing prevalue source before updating it. Use " +
+    "list-prevalue-sources to find the ID first if you don't have it.",
+  inputSchema,
+  outputSchema,
   slices: ["read"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async (params) => {
+  handler: async ({ id }) => {
     return executeGetApiCall<ReturnType<ApiClient["getPrevalueSourceById"]>, ApiClient>(
-      (client) => client.getPrevalueSourceById(params.id, CAPTURE_RAW_HTTP_RESPONSE)
+      (client) => client.getPrevalueSourceById(id, CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof getPrevalueSourceByIdParams.shape, typeof getPrevalueSourceByIdResponse>;
+};
 
-export default withStandardDecorators(GetPrevalueSource);
+export default withStandardDecorators(getPrevalueSourceTool);

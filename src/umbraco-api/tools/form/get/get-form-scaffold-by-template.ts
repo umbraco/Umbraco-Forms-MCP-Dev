@@ -1,10 +1,17 @@
+/**
+ * Get Form Scaffold By Template Tool
+ *
+ * Returns a ready-to-edit form design pre-populated from a named form
+ * template (e.g. "Contact us"), with all required IDs already generated.
+ */
+
 import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import {
   getFormScaffoldByTemplateParams,
   getFormScaffoldByTemplateResponse,
@@ -12,21 +19,25 @@ import {
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const GetFormScaffoldByTemplate = {
+const inputSchema = getFormScaffoldByTemplateParams.shape;
+const outputSchema = getFormScaffoldByTemplateResponse;
+
+const GetFormScaffoldByTemplateTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "get-form-scaffold-by-template",
   description:
-    "Gets a form scaffold pre-populated from a named template. Returns a full form structure with fields, pages, and settings configured by the template. Use this instead of get-form-scaffold when you want to start from a template rather than a blank form. Use list-form-templates to discover available template names.",
-  inputSchema: getFormScaffoldByTemplateParams.shape,
-  outputSchema: getFormScaffoldByTemplateResponse,
-  slices: ["scaffolding"],
+    "Gets a pre-populated form design based on a named form template (e.g. 'Contact us', 'Newsletter signup') with all GUIDs already generated. Edit the returned design as needed, then pass it to create-form. Never invent your own GUIDs; reuse the ones in this scaffold. Use get-form-scaffold instead for a blank form with no template.",
+  inputSchema,
+  outputSchema,
+  slices: ["read"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async (params) => {
-    return executeGetApiCall<ReturnType<ApiClient["getFormScaffoldByTemplate"]>, ApiClient>(
-      (client) => client.getFormScaffoldByTemplate(params.template, CAPTURE_RAW_HTTP_RESPONSE)
-    );
+  handler: async ({ template }) => {
+    return executeGetApiCall<
+      ReturnType<ApiClient["getFormScaffoldByTemplate"]>,
+      ApiClient
+    >((client) => client.getFormScaffoldByTemplate(template, CAPTURE_RAW_HTTP_RESPONSE));
   },
-} satisfies ToolDefinition<typeof getFormScaffoldByTemplateParams.shape, typeof getFormScaffoldByTemplateResponse>;
+};
 
-export default withStandardDecorators(GetFormScaffoldByTemplate);
+export default withStandardDecorators(GetFormScaffoldByTemplateTool);

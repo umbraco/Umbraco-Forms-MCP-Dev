@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`query-analytics-origins-overview should return a per-form origins summary using default metrics and dimensions 1`] = `
+{
+  "content": [],
+  "isError": true,
+  "structuredContent": {
+    "detail": "A form identifier is required for the origins overview.",
+    "status": 400,
+    "title": "Invalid query",
+    "type": "Error",
+  },
+}
+`;

@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   DataSourceBuilder,
   DataSourceTestHelper,
 } from "./setup.js";
@@ -17,26 +18,22 @@ describe("delete-data-source", () => {
 
   it("should delete a data source", async () => {
     const context = createMockRequestHandlerExtra();
-    const builder = await new DataSourceBuilder()
-      .withName(TEST_NAME)
-      .create();
+    const builder = await new DataSourceBuilder().withName(TEST_NAME).create();
 
-    const result = await deleteDataSourceTool.handler(
-      { id: builder.getId() },
-      context
-    );
+    const result = await deleteDataSourceTool.handler({ id: builder.getId() }, context);
 
-    expect(
-      DataSourceTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    expect(createSnapshotResult(result, builder.getId())).toMatchSnapshot();
+
+    const found = await DataSourceTestHelper.findByName(TEST_NAME);
+    expect(found).toBeUndefined();
   });
 
-  it("should return error for non-existent ID", async () => {
+  it("should return error for a non-existent id", async () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await deleteDataSourceTool.handler(
       { id: "00000000-0000-0000-0000-000000000000" },
-      context
+      context,
     );
 
     expect(result.isError).toBe(true);

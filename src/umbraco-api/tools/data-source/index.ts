@@ -1,45 +1,40 @@
 /**
- * Data Source Tools Collection
+ * Data Source Tool Collection
  *
- * Tools for managing Umbraco Forms data sources.
- * Includes CRUD operations and tree browsing.
+ * Tools for managing Umbraco Forms data sources — connections to external
+ * data (SQL, Umbraco members, XML, etc.) used for prevalue lists, workflows,
+ * and generating forms from existing data structures.
  */
 
 import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
-import { FormsAuthorizationPolicies, type FormsUserContext } from "../../../auth/index.js";
 import getDataSourceTool from "./get/get-data-source.js";
 import listDataSourcesTool from "./get/list-data-sources.js";
-import getDataSourceTreeTool from "./get/get-data-source-tree.js";
-import getDataSourceTreeAncestorsTool from "./get/get-data-source-tree-ancestors.js";
 import getDataSourceScaffoldTool from "./get/get-data-source-scaffold.js";
+import getDataSourceWizardScaffoldTool from "./get/get-data-source-wizard-scaffold.js";
+import getDataSourceAncestorsTool from "./get/get-data-source-ancestors.js";
+import getDataSourceTreeRootTool from "./get/get-data-source-tree-root.js";
 import createDataSourceTool from "./post/create-data-source.js";
+import createFormFromDataSourceTool from "./post/create-form-from-data-source.js";
 import updateDataSourceTool from "./put/update-data-source.js";
 import deleteDataSourceTool from "./delete/delete-data-source.js";
 
-const readTools = [
-  getDataSourceTool,
-  listDataSourcesTool,
-  getDataSourceTreeTool,
-  getDataSourceTreeAncestorsTool,
-  getDataSourceScaffoldTool,
-];
-
-const writeTools = [
-  createDataSourceTool,
-  updateDataSourceTool,
-  deleteDataSourceTool,
-];
-
-const collection: ToolCollectionExport<FormsUserContext> = {
+const collection: ToolCollectionExport = {
   metadata: {
     name: "data-source",
     displayName: "Data Source",
-    description:
-      "Manage Umbraco Forms data sources - create, read, update, delete, and browse",
+    description: "Manage Umbraco Forms data sources and generate forms from them.",
   },
-  tools: (user: FormsUserContext) => [
-    ...(FormsAuthorizationPolicies.HasFormsAccess(user) ? readTools : []),
-    ...(FormsAuthorizationPolicies.ManageDataSources(user) ? writeTools : []),
+  tools: () => [
+    getDataSourceTool,
+    listDataSourcesTool,
+    getDataSourceScaffoldTool,
+    getDataSourceWizardScaffoldTool,
+    getDataSourceAncestorsTool,
+    getDataSourceTreeRootTool,
+    createDataSourceTool,
+    createFormFromDataSourceTool,
+    updateDataSourceTool,
+    deleteDataSourceTool,
   ],
 };
 

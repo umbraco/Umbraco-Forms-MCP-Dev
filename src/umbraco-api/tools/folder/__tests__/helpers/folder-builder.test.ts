@@ -9,46 +9,22 @@ const TEST_NAME = "_Test Builder Folder";
 describe("FolderBuilder", () => {
   setupTestEnvironment();
 
-  const createdIds: string[] = [];
+  let builder: FolderBuilder;
 
   afterEach(async () => {
-    for (const id of createdIds) {
-      await FolderTestHelper.deleteById(id);
-    }
-    createdIds.length = 0;
+    // Always clean up created folders to prevent conflicts with other test files
+    if (builder) await builder.delete();
+    await FolderTestHelper.cleanup(TEST_NAME);
   });
 
-  it("should create folder with builder", async () => {
-    const builder = await new FolderBuilder()
-      .withName(TEST_NAME)
-      .create();
+  it("should create a folder with the builder", async () => {
+    builder = await new FolderBuilder().withName(TEST_NAME).create();
 
-    const id = builder.getId();
-    createdIds.push(id);
+    expect(builder.getId()).toBeDefined();
 
-    expect(id).toBeDefined();
-    expect(id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    );
-  });
-
-  it("should create folder with parent", async () => {
-    const parentBuilder = await new FolderBuilder()
-      .withName(TEST_NAME + " Parent")
-      .create();
-
-    const parentId = parentBuilder.getId();
-    createdIds.push(parentId);
-
-    const childBuilder = await new FolderBuilder()
-      .withName(TEST_NAME + " Child")
-      .withParentId(parentId)
-      .create();
-
-    const childId = childBuilder.getId();
-    createdIds.push(childId);
-
-    expect(childId).toBeDefined();
-    expect(childId).not.toBe(parentId);
+    const found = await FolderTestHelper.findByName(TEST_NAME);
+    expect(found).toBeDefined();
+    expect(found?.name).toBe(TEST_NAME);
+    expect(found?.id).toBe(builder.getId());
   });
 });

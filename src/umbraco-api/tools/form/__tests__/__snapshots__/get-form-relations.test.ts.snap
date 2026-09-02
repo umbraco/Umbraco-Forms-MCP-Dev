@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-form-relations should return form relations 1`] = `
+exports[`get-form-relations should return an empty relations list for a form with no relations 1`] = `
 {
   "content": [],
   "structuredContent": {

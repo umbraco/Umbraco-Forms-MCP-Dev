@@ -1,31 +1,73 @@
-import { z } from "zod";
+/**
+ * Create Prevalue Source Tool
+ *
+ * Creates a new prevalue source — a reusable provider that resolves a
+ * dropdown/list field's options at render or submit time (e.g. from a REST
+ * endpoint, SQL query, or Umbraco members).
+ *
+ * Uses manual handling because the underlying API requires a fully-formed
+ * entity (including a server-issued ID and audit timestamps) as the POST
+ * body. Rather than asking the LLM to invent those values, this tool first
+ * fetches a fresh scaffold from the server, then overlays the caller's
+ * name/type/settings on top of it before posting.
+ */
+
 import {
   withStandardDecorators,
-  getApiClient,
   createToolResult,
+  getApiClient,
+  UmbracoApiError,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
+  type HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
-import { v4 as uuid } from "uuid";
-import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { z } from "zod";
+import type {
+  getUmbracoFormsManagementAPI,
+  FieldPreValueSource,
+} from "../../../api/generated/umbracoFormsManagementApi.js";
+import { postPrevalueSourceBodyCachePrevaluesForRegExp } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  name: z.string().describe("Name for the new prevalue source"),
-  fieldPreValueSourceTypeId: z.string().describe("The UUID of the prevalue source type. Use list-prevalue-source-types or check available types first."),
-  settings: z.record(z.string(), z.string()).optional().describe("Key-value settings for the prevalue source configuration. Depends on the prevalue source type."),
-  cachePrevaluesFor: z.string().optional().default("0").describe("Duration to cache prevalue results (e.g., '0' for no cache, '60' for 60 seconds)"),
+  name: z.string().min(1).max(255).describe("Display name of the new prevalue source."),
+  fieldPreValueSourceTypeId: z
+    .uuid()
+    .describe(
+      "ID of the prevalue source type/provider (e.g. REST, SQL, Umbraco members) this source " +
+        "uses. Look up available provider type IDs with the prevalue-source-type list tool.",
+    ),
+  settings: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe(
+      "Provider-specific settings as key/value pairs (e.g. endpoint URL, connection string). " +
+        "Omit for provider types that need no settings.",
+    ),
+  cachePrevaluesFor: z
+    .string()
+    .regex(postPrevalueSourceBodyCachePrevaluesForRegExp)
+    .optional()
+    .describe(
+      "How long to cache resolved prevalues before refreshing, as a .NET TimeSpan string " +
+        "'dd.hh:mm:ss' (e.g. '01:00:00' for one hour, '00:00:00' for no caching). Omit to use " +
+        "the server default.",
+    ),
 };
 
 const outputSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  success: z.boolean(),
+  id: z.string().optional(),
 });
 
-const CreatePrevalueSource = {
+const createPrevalueSourceTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "create-prevalue-source",
-  description: "Create a new prevalue source for form field options. Requires a name and prevalue source type ID. Optionally provide settings as key-value pairs and cache duration. The ID is generated automatically.",
+  description:
+    "Creates a new prevalue source that resolves a dropdown/list field's options from a " +
+    "provider such as a REST endpoint, SQL query, or Umbraco members. Requires the target " +
+    "provider type's ID (fieldPreValueSourceTypeId) — look this up first with the " +
+    "prevalue-source-type list tool. Returns the new source's ID on success.",
   inputSchema,
   outputSchema,
   slices: ["create"],
@@ -33,33 +75,54 @@ const CreatePrevalueSource = {
     destructiveHint: false,
     idempotentHint: false,
   },
-  handler: async (params) => {
+  handler: async ({ name, fieldPreValueSourceTypeId, settings, cachePrevaluesFor }) => {
     const client = getApiClient<ApiClient>();
-    const id = uuid();
-    const now = new Date().toISOString();
 
-    const body = {
-      id,
-      unique: uuid(),
-      entityType: "FieldPreValueSource",
-      name: params.name,
-      created: now,
-      createdBy: null,
-      createdByName: null,
-      updated: now,
-      updatedBy: null,
-      updatedByName: null,
-      settings: params.settings || {},
-      fieldPreValueSourceTypeId: params.fieldPreValueSourceTypeId,
-      cachePrevaluesFor: params.cachePrevaluesFor || "0",
-      valid: true,
+    // Fetch a fresh scaffold to get server-generated defaults (id, unique,
+    // audit fields, default cache duration) so the LLM never has to invent them.
+    const scaffoldResponse = (await client.getPrevalueSourceScaffold(
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<FieldPreValueSource>;
+
+    if (scaffoldResponse.status < 200 || scaffoldResponse.status >= 300) {
+      throw new UmbracoApiError(
+        (scaffoldResponse.data as unknown as Record<string, unknown>) || {
+          status: scaffoldResponse.status,
+          detail: scaffoldResponse.statusText,
+        },
+      );
+    }
+
+    const scaffold = scaffoldResponse.data;
+
+    const payload: FieldPreValueSource = {
+      ...scaffold,
+      name,
+      fieldPreValueSourceTypeId,
+      settings: settings ?? scaffold.settings,
+      cachePrevaluesFor: cachePrevaluesFor ?? scaffold.cachePrevaluesFor,
     };
 
-    const response = await client.postPrevalueSource(body as any, CAPTURE_RAW_HTTP_RESPONSE);
-    const locationHeader = (response as any)?.headers?.location || (response as any)?.headers?.Location;
-    const createdId = locationHeader ? locationHeader.split("/").pop() : id;
-    return createToolResult({ id: createdId, name: params.name });
-  },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+    const response = (await client.postPrevalueSource(
+      payload,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse;
 
-export default withStandardDecorators(CreatePrevalueSource);
+    if (response.status < 200 || response.status >= 300) {
+      const errorData = response.data as Record<string, unknown> | undefined;
+      throw new UmbracoApiError(
+        errorData || {
+          status: response.status,
+          detail: response.statusText,
+        },
+      );
+    }
+
+    const location = response.headers?.Location || response.headers?.location;
+    const id = location?.split("/").pop() ?? payload.id;
+
+    return createToolResult({ success: true, id });
+  },
+};
+
+export default withStandardDecorators(createPrevalueSourceTool);

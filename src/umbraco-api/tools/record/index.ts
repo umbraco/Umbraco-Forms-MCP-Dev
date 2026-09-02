@@ -1,50 +1,38 @@
+/**
+ * Record Tool Collection
+ *
+ * Tools for searching, updating, and managing submitted form entries
+ * (records), including audit trails, workflow retries, and bulk actions.
+ */
+
 import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
-import { FormsAuthorizationPolicies, type FormsUserContext } from "../../../auth/index.js";
-import listRecordsTool from "./get/list-records.js";
-import getRecordMetadataTool from "./get/get-record-metadata.js";
+import searchRecordsTool from "./get/search-records.js";
 import getRecordAuditTrailTool from "./get/get-record-audit-trail.js";
 import getRecordWorkflowAuditTrailTool from "./get/get-record-workflow-audit-trail.js";
+import getRecordMetadataTool from "./get/get-record-metadata.js";
 import getRecordPageNumberTool from "./get/get-record-page-number.js";
-import listRecordSetActionsTool from "./get/list-record-set-actions.js";
+import getRecordSetActionsTool from "./get/get-record-set-actions.js";
 import updateRecordTool from "./put/update-record.js";
-import executeRecordActionTool from "./post/execute-record-action.js";
 import retryRecordWorkflowTool from "./post/retry-record-workflow.js";
-import deleteRecordsTool from "./delete/delete-records.js";
+import executeRecordActionTool from "./post/execute-record-action.js";
 
-const readTools = [
-  listRecordsTool,
-  getRecordMetadataTool,
-  getRecordAuditTrailTool,
-  getRecordWorkflowAuditTrailTool,
-  getRecordPageNumberTool,
-  listRecordSetActionsTool,
-];
-
-const editTools = [
-  updateRecordTool,
-  executeRecordActionTool,
-];
-
-const deleteTools = [
-  deleteRecordsTool,
-];
-
-const workflowTools = [
-  retryRecordWorkflowTool,
-];
-
-const collection: ToolCollectionExport<FormsUserContext> = {
+const collection: ToolCollectionExport = {
   metadata: {
     name: "record",
-    displayName: "Record Tools",
+    displayName: "Records",
     description:
-      "Tools for managing form submission records - list, filter, update, audit, and execute bulk actions on form entries",
+      "Search, update, and manage submitted form entries (records): audit trails, workflow retries, and bulk record actions.",
   },
-  tools: (user: FormsUserContext) => [
-    ...(FormsAuthorizationPolicies.ViewEntries(user) ? readTools : []),
-    ...(FormsAuthorizationPolicies.EditEntries(user) ? editTools : []),
-    ...(FormsAuthorizationPolicies.DeleteEntries(user) ? deleteTools : []),
-    ...(FormsAuthorizationPolicies.ManageWorkflows(user) ? workflowTools : []),
+  tools: () => [
+    searchRecordsTool,
+    getRecordAuditTrailTool,
+    getRecordWorkflowAuditTrailTool,
+    getRecordMetadataTool,
+    getRecordPageNumberTool,
+    getRecordSetActionsTool,
+    updateRecordTool,
+    retryRecordWorkflowTool,
+    executeRecordActionTool,
   ],
 };
 

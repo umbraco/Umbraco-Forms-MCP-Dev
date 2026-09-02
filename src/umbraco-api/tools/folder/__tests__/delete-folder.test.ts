@@ -1,46 +1,37 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
-  FolderTestHelper,
+  createSnapshotResult,
+  FolderBuilder,
 } from "./setup.js";
-import createFolderTool from "../post/create-folder.js";
 import deleteFolderTool from "../delete/delete-folder.js";
+import getFolderByIdTool from "../get/get-folder-by-id.js";
+
+const TEST_NAME = "_Test Delete Folder";
 
 describe("delete-folder", () => {
   setupTestEnvironment();
 
-  const createdIds: string[] = [];
-
-  afterEach(async () => {
-    for (const id of [...createdIds].reverse()) {
-      await FolderTestHelper.deleteById(id);
-    }
-    createdIds.length = 0;
-  });
-
-  it("should delete a folder", async () => {
+  it("should delete an existing folder", async () => {
     const context = createMockRequestHandlerExtra();
-    const uniqueName = `_Test Delete Folder ${Date.now()}`;
-
-    const createResult = await createFolderTool.handler(
-      { name: uniqueName, parentId: undefined },
-      context
-    );
-    expect(createResult.isError).toBeUndefined();
-    const id = (createResult.structuredContent as any).id;
-    createdIds.push(id);
+    const builder = await new FolderBuilder().withName(TEST_NAME).create();
+    const id = builder.getId();
 
     const result = await deleteFolderTool.handler({ id }, context);
 
-    expect(result.isError).toBeUndefined();
+    expect(createSnapshotResult(result)).toMatchSnapshot();
+
+    // Confirm the folder is actually gone rather than just trusting the response.
+    const getResult = await getFolderByIdTool.handler({ id }, context);
+    expect(getResult.isError).toBe(true);
   });
 
-  it("should return error for non-existent ID", async () => {
+  it("should return an error for a non-existent ID", async () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await deleteFolderTool.handler(
       { id: "00000000-0000-0000-0000-000000000000" },
-      context
+      context,
     );
 
     expect(result.isError).toBe(true);

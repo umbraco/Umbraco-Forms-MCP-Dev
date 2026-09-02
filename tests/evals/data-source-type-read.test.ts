@@ -1,3 +1,15 @@
+/**
+ * Data Source Type Read Eval Test
+ *
+ * Verifies an LLM agent can chain the "data-source-type" collection's two
+ * read-only tools: list the fixed, system-defined data source types, then
+ * fetch the full settings-schema details for one of them by its real id.
+ * Data source types are not user-created content (defined by Umbraco Forms
+ * core and installed packages), so this is a read-only smoke test against
+ * the real, live Umbraco instance (no mocks exist for the Forms Management
+ * API).
+ */
+
 import { describe, it } from "@jest/globals";
 import {
   runScenarioTest,
@@ -5,27 +17,27 @@ import {
   getDefaultTimeoutMs,
 } from "@umbraco-cms/mcp-server-sdk/evals";
 
-const COLLECTION_TOOLS = [
+const DATA_SOURCE_TYPE_TOOLS = [
   "list-data-source-types",
-  "get-data-source-type",
+  "get-data-source-type-by-id",
 ] as const;
 
-describe("data-source-type read eval tests", () => {
+describe("Data Source Type Read Operations", () => {
   setupConsoleMock();
+
   const timeout = getDefaultTimeoutMs();
 
   it(
-    "should complete read-only workflow for data source types",
+    "should list data source types then get details for one by its id",
     runScenarioTest({
       prompt: `Complete these tasks in order:
-1. List all data source types to see what's available
-2. Pick the first data source type from the list
-3. Get that specific data source type by its ID to see full details
-4. Report the data source type name and describe its settings schema (what properties it has)
-5. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
-      tools: COLLECTION_TOOLS,
-      requiredTools: ["list-data-source-types", "get-data-source-type"],
-      successPattern: "Read workflow completed successfully",
+1. List all Umbraco Forms data source types.
+2. From that list, pick the first data source type and note its real "id" field. Never invent or guess an id — use only the exact id value returned by the list call.
+3. Get the full details for that data source type by its id.
+4. Say "DATA SOURCE TYPE DETAILS RETRIEVED" followed by the alias and name of the data source type you looked up.`,
+      tools: [...DATA_SOURCE_TYPE_TOOLS],
+      requiredTools: [...DATA_SOURCE_TYPE_TOOLS],
+      successPattern: "DATA SOURCE TYPE DETAILS RETRIEVED",
       verbose: true,
     }),
     timeout

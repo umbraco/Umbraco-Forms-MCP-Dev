@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-email-template-tree-root should return the root-level items of the email template tree 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "hasChildren": false,
+        "isFolder": false,
+        "name": "Example-Template.cshtml",
+        "parent": null,
+        "path": "/Example-Template.cshtml",
+      },
+    ],
+    "total": 1,
+  },
+}
+`;

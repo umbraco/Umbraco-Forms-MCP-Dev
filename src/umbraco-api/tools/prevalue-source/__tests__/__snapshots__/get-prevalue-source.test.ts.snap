@@ -1,15 +1,15 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-prevalue-source should return prevalue source by ID 1`] = `
+exports[`get-prevalue-source should return a prevalue source by id 1`] = `
 {
   "content": [],
   "structuredContent": {
-    "cachePrevaluesFor": "00:00:00",
+    "cachePrevaluesFor": "-00:00:00.0010000",
     "created": "NORMALIZED_DATE",
     "createdBy": 1,
     "createdByName": "MCP API User",
     "entityType": "prevaluesource",
-    "fieldPreValueSourceTypeId": "00000000-0000-0000-0000-000000000000",
+    "fieldPreValueSourceTypeId": "cc9f9b2a-a746-11de-9e17-681b56d89593",
     "id": "00000000-0000-0000-0000-000000000000",
     "name": "_Test Get Prevalue Source",
     "settings": {},

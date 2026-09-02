@@ -1,32 +1,44 @@
-import * as zod from "zod";
+/**
+ * Get Prevalue Source Scaffold Tool
+ *
+ * Returns a blank prevalue source template with server-generated defaults
+ * (ID, audit fields, default cache duration, etc.) already filled in. Use
+ * this to inspect the default shape of a new prevalue source before
+ * creating one — create-prevalue-source already fetches this internally,
+ * so you only need this tool if you want to see the defaults directly
+ * (e.g. the default cachePrevaluesFor value).
+ */
+
 import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getPrevalueSourceScaffoldResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const outputSchema = getPrevalueSourceScaffoldResponse;
 
-const GetPrevalueSourceScaffold = {
+const getPrevalueSourceScaffoldTool: ToolDefinition<undefined, typeof outputSchema> = {
   name: "get-prevalue-source-scaffold",
   description:
-    "Gets an empty prevalue source scaffold with default values. Returns the structure needed to create a new prevalue source, including default settings and required fields. Use this to understand the prevalue source structure before calling create-prevalue-source.",
-  inputSchema: emptyInput.shape,
-  outputSchema: getPrevalueSourceScaffoldResponse,
-  slices: ["scaffolding"],
+    "Gets a blank prevalue source template with server-generated defaults " +
+    "(ID and default cache duration). Informational only — " +
+    "create-prevalue-source already fetches a fresh scaffold internally, " +
+    "so you don't need to call this before creating a source.",
+  outputSchema,
+  slices: ["scaffold"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
     return executeGetApiCall<ReturnType<ApiClient["getPrevalueSourceScaffold"]>, ApiClient>(
-      (client) => client.getPrevalueSourceScaffold(CAPTURE_RAW_HTTP_RESPONSE)
+      (client) => client.getPrevalueSourceScaffold(CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof getPrevalueSourceScaffoldResponse>;
+};
 
-export default withStandardDecorators(GetPrevalueSourceScaffold);
+export default withStandardDecorators(getPrevalueSourceScaffoldTool);

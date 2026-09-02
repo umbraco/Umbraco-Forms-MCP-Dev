@@ -1,35 +1,64 @@
-import * as zod from "zod";
+/**
+ * Get Record Workflow Audit Trail Tool
+ *
+ * Retrieves the workflow execution history (which workflows ran, when, and
+ * with what result) for a single submitted record.
+ */
+
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { z } from "zod";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import {
   getFormByFormIdRecordByRecordIdWorkflowAuditTrailParams,
-  getFormByFormIdRecordByRecordIdWorkflowAuditTrailResponse,
+  getFormByFormIdRecordByRecordIdWorkflowAuditTrailResponseItem,
 } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const outputSchema = zod.object({ items: getFormByFormIdRecordByRecordIdWorkflowAuditTrailResponse });
+const inputSchema = {
+  formId: getFormByFormIdRecordByRecordIdWorkflowAuditTrailParams.shape.formId.describe(
+    "ID of the form the record belongs to.",
+  ),
+  recordId: getFormByFormIdRecordByRecordIdWorkflowAuditTrailParams.shape.recordId.describe(
+    "ID of the record (submitted entry) to get the workflow audit trail for.",
+  ),
+};
+
+const outputSchema = z.object({
+  items: z.array(getFormByFormIdRecordByRecordIdWorkflowAuditTrailResponseItem),
+});
 
 const GetRecordWorkflowAuditTrailTool = {
   name: "get-record-workflow-audit-trail",
   description:
-    "Get the workflow execution history for a specific form submission record. Shows which workflows ran, when they executed, at what stage, and their result. Use list-records first to find record IDs.",
-  inputSchema: getFormByFormIdRecordByRecordIdWorkflowAuditTrailParams.shape,
+    "Gets the workflow execution history for a single form record: which workflows ran " +
+    "against it (name, workflowId), when they executed, at what stage, and their result " +
+    "(e.g. success or error). Use this to diagnose whether a record's workflows (email " +
+    "notifications, integrations, etc.) ran correctly, and to find the workflowId needed " +
+    "for retry-record-workflow on a failed workflow.",
+  inputSchema,
   outputSchema,
-  slices: ["read"],
+  slices: ["read", "workflow"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async (params) => {
-    return executeGetItemsApiCall<ReturnType<ApiClient["getFormByFormIdRecordByRecordIdWorkflowAuditTrail"]>, ApiClient>(
-      (client) => client.getFormByFormIdRecordByRecordIdWorkflowAuditTrail(params.formId, params.recordId, CAPTURE_RAW_HTTP_RESPONSE)
+  handler: async ({ formId, recordId }) => {
+    return executeGetItemsApiCall<
+      ReturnType<ApiClient["getFormByFormIdRecordByRecordIdWorkflowAuditTrail"]>,
+      ApiClient
+    >((client) =>
+      client.getFormByFormIdRecordByRecordIdWorkflowAuditTrail(
+        formId,
+        recordId,
+        CAPTURE_RAW_HTTP_RESPONSE,
+      ),
     );
   },
-} satisfies ToolDefinition<typeof getFormByFormIdRecordByRecordIdWorkflowAuditTrailParams.shape, typeof outputSchema>;
+} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
 
 export default withStandardDecorators(GetRecordWorkflowAuditTrailTool);

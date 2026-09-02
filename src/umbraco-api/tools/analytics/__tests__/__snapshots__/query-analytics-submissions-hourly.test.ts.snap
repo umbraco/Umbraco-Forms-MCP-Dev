@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`query-analytics-submissions-hourly should return a submissions-by-hour breakdown using default metrics and dimensions 1`] = `
+{
+  "content": [],
+  "isError": true,
+  "structuredContent": {
+    "detail": "",
+    "status": 500,
+  },
+}
+`;

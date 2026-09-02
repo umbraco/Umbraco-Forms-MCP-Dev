@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-data-source should return data source by ID 1`] = `
+exports[`get-data-source should return a data source by id 1`] = `
 {
   "content": [],
   "structuredContent": {
@@ -8,10 +8,13 @@ exports[`get-data-source should return data source by ID 1`] = `
     "createdBy": 1,
     "createdByName": "MCP API User",
     "entityType": "datasource",
-    "formDataSourceTypeId": "00000000-0000-0000-0000-000000000000",
+    "formDataSourceTypeId": "f19506f3-efea-4b13-a308-89348f69df91",
     "id": "00000000-0000-0000-0000-000000000000",
     "name": "_Test Get Data Source",
-    "settings": {},
+    "settings": {
+      "Connection": "**redacted**",
+      "Table": "**redacted**",
+    },
     "unique": "00000000-0000-0000-0000-000000000000",
     "updated": "NORMALIZED_DATE",
     "updatedBy": 1,

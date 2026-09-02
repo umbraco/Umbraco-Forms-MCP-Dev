@@ -1,45 +1,62 @@
-import * as zod from "zod";
+/**
+ * Execute Record Action Tool
+ *
+ * Runs a bulk record-set action (e.g. approve, reject, delete) against one
+ * or more submitted records for a form.
+ */
+
 import {
   withStandardDecorators,
   executeVoidApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
+import { z } from "zod";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { postFormByFormIdRecordActionsByActionIdExecuteParams } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  formId: zod.string().uuid().describe("The form ID the records belong to"),
-  actionId: zod.string().uuid().describe("The action ID to execute. Use list-record-set-actions to find available actions."),
-  recordKeys: zod.array(zod.string().uuid()).describe("Array of record unique IDs to execute the action on"),
+  formId: postFormByFormIdRecordActionsByActionIdExecuteParams.shape.formId.describe(
+    "ID of the form the records belong to.",
+  ),
+  actionId: postFormByFormIdRecordActionsByActionIdExecuteParams.shape.actionId.describe(
+    "ID of the record-set action to run, from get-record-set-actions (e.g. approve, " +
+      "reject, or delete). Check that action's needsConfirm/confirmMessage before calling.",
+  ),
+  recordKeys: z
+    .array(z.guid())
+    .min(1)
+    .describe("IDs of the existing records to run the action against."),
 };
-
-const outputSchema = zod.object({
-  success: zod.boolean(),
-});
 
 const ExecuteRecordActionTool = {
   name: "execute-record-action",
   description:
-    "Execute a bulk action on a set of form submission records. Use list-record-set-actions first to discover available actions and their IDs. Common actions include approve, reject, and delete. Provide the record unique IDs from list-records.",
+    "Executes a record-set action (such as approve, reject, or delete — see " +
+    "get-record-set-actions for the available actions and their IDs) against one or more " +
+    "existing records of a form. Some actions are destructive or irreversible (e.g. " +
+    "delete); always check the action's needsConfirm and confirmMessage first and confirm " +
+    "with the user before calling this for a destructive action. Not idempotent — running " +
+    "the same action twice re-applies it and may error if the records are no longer in a " +
+    "valid state for it.",
   inputSchema,
-  outputSchema,
-  slices: [],
+  slices: ["action"],
   annotations: {
     destructiveHint: true,
     idempotentHint: false,
   },
-  handler: async (params) => {
-    return executeVoidApiCall<ApiClient>(
-      (client) => client.postFormByFormIdRecordActionsByActionIdExecute(
-        params.formId,
-        params.actionId,
-        { recordKeys: params.recordKeys },
-        CAPTURE_RAW_HTTP_RESPONSE
-      )
+  handler: async ({ formId, actionId, recordKeys }) => {
+    return executeVoidApiCall<ApiClient>((client) =>
+      client.postFormByFormIdRecordActionsByActionIdExecute(
+        formId,
+        actionId,
+        { recordKeys },
+        CAPTURE_RAW_HTTP_RESPONSE,
+      ),
     );
   },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+} satisfies ToolDefinition<typeof inputSchema>;
 
 export default withStandardDecorators(ExecuteRecordActionTool);

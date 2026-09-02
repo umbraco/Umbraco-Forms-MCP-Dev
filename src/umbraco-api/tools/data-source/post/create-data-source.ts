@@ -1,30 +1,59 @@
-import { z } from "zod";
+/**
+ * Create Data Source Tool
+ *
+ * Creates a new Umbraco Forms data source of a given type, with a name and
+ * optional settings. Fetches the server's scaffold first so unfamiliar/audit
+ * fields (timestamps, entity type) are filled in exactly as Umbraco expects,
+ * then generates the new id itself — never ask the caller for a UUID.
+ */
+
 import {
   withStandardDecorators,
-  getApiClient,
   createToolResult,
+  getApiClient,
+  UmbracoApiError,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
+  type HttpResponse,
+  type ProblemDetails,
 } from "@umbraco-cms/mcp-server-sdk";
-import { v4 as uuid } from "uuid";
-import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
+import type {
+  getUmbracoFormsManagementAPI,
+  FormDataSource,
+} from "../../../api/generated/umbracoFormsManagementApi.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  name: z.string().describe("Name for the new data source"),
-  formDataSourceTypeId: z.string().describe("The UUID of the data source type. Use list-data-source-types or check available types first."),
-  settings: z.record(z.string(), z.string()).optional().describe("Key-value settings for the data source configuration. Depends on the data source type."),
+  name: z.string().min(1).describe("Name for the new data source."),
+  formDataSourceTypeId: z
+    .uuid()
+    .describe("Id of the data source type this data source is an instance of (e.g. SQL, Umbraco Members, XML)."),
+  settings: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe(
+      "Settings map for the data source, specific to its type (e.g. connection string, query). " +
+        "Omit to create with empty/default settings.",
+    ),
 };
 
 const outputSchema = z.object({
-  id: z.string(),
+  success: z.boolean(),
+  id: z.string().describe("The generated id of the new data source."),
   name: z.string(),
+  formDataSourceTypeId: z.string(),
 });
 
-const CreateDataSource = {
+const CreateDataSourceTool = {
   name: "create-data-source",
-  description: "Create a new form data source. Requires a name and data source type ID. Optionally provide settings as key-value pairs specific to the chosen type. The ID is generated automatically.",
+  description:
+    "Creates a new Umbraco Forms data source connecting a data source type (e.g. SQL, " +
+    "Umbraco Members, XML) to a name and settings. Use list-data-sources or a data source " +
+    "type lookup to find a valid formDataSourceTypeId first — this tool does not create " +
+    "new types. The new data source's id is generated automatically; do not invent one.",
   inputSchema,
   outputSchema,
   slices: ["create"],
@@ -32,37 +61,45 @@ const CreateDataSource = {
     destructiveHint: false,
     idempotentHint: false,
   },
-  handler: async (params) => {
+  handler: async ({ name, formDataSourceTypeId, settings }) => {
     const client = getApiClient<ApiClient>();
-    const id = uuid();
-    const now = new Date().toISOString();
 
-    const body = {
-      id,
-      unique: uuid(),
-      entityType: "FormDataSource",
-      name: params.name,
-      created: now,
-      createdBy: null,
-      createdByName: null,
-      updated: now,
-      updatedBy: null,
-      updatedByName: null,
-      settings: params.settings || {},
-      formDataSourceTypeId: params.formDataSourceTypeId,
-      valid: true,
+    const scaffoldResponse = (await client.getDataSourceScaffold(
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<FormDataSource | ProblemDetails>;
+
+    if (scaffoldResponse.status < 200 || scaffoldResponse.status >= 300) {
+      throw new UmbracoApiError(scaffoldResponse.data as ProblemDetails);
+    }
+
+    const scaffold = scaffoldResponse.data as FormDataSource;
+    const newId = randomUUID();
+
+    const payload: FormDataSource = {
+      ...scaffold,
+      id: newId,
+      unique: newId,
+      name,
+      formDataSourceTypeId,
+      settings: settings ?? scaffold.settings,
     };
 
-    const response = await client.postDataSource(body as any, CAPTURE_RAW_HTTP_RESPONSE);
-    const status = (response as any)?.status;
-    if (status && status >= 400) {
-      const detail = (response as any)?.data?.detail || (response as any)?.data?.title || `HTTP ${status}`;
-      throw new Error(`Failed to create data source: ${detail}`);
+    const response = (await client.postDataSource(
+      payload,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<ProblemDetails | void>;
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new UmbracoApiError(response.data as ProblemDetails);
     }
-    const locationHeader = (response as any)?.headers?.location || (response as any)?.headers?.Location;
-    const createdId = locationHeader ? locationHeader.split("/").pop() : id;
-    return createToolResult({ id: createdId, name: params.name });
+
+    return createToolResult({
+      success: true,
+      id: newId,
+      name,
+      formDataSourceTypeId,
+    });
   },
 } satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
 
-export default withStandardDecorators(CreateDataSource);
+export default withStandardDecorators(CreateDataSourceTool);

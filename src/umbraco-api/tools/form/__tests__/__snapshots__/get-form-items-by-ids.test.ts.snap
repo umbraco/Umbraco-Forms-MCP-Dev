@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-form-items-by-ids should resolve a batch of form ids to their basic info 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "flags": [],
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "_Test Get Form Items By Ids",
+      },
+    ],
+  },
+}
+`;
+
+exports[`get-form-items-by-ids should return an empty items array for an unknown id 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [],
+  },
+}
+`;

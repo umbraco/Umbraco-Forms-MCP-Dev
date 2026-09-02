@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`query-analytics-origins should return submission origins broken down by page/URL using default metrics and dimensions 1`] = `
+{
+  "content": [],
+  "isError": true,
+  "structuredContent": {
+    "detail": "",
+    "status": 500,
+  },
+}
+`;

@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   FormBuilder,
   FormTestHelper,
 } from "./setup.js";
@@ -11,28 +12,24 @@ const TEST_NAME = "_Test Delete Form";
 describe("delete-form", () => {
   setupTestEnvironment();
 
-  afterEach(async () => {
-    await FormTestHelper.cleanup(TEST_NAME);
-  });
-
-  it("should delete a form", async () => {
+  it("should delete an existing form", async () => {
     const context = createMockRequestHandlerExtra();
     const builder = await new FormBuilder().withName(TEST_NAME).create();
 
-    const result = await deleteFormTool.handler(
-      { id: builder.getId() },
-      context
-    );
+    const result = await deleteFormTool.handler({ id: builder.getId() }, context);
 
-    expect(result.isError).toBeUndefined();
+    expect(createSnapshotResult(result)).toMatchSnapshot();
+
+    const found = await FormTestHelper.findByName(TEST_NAME);
+    expect(found).toBeUndefined();
   });
 
-  it("should return error for non-existent ID", async () => {
+  it("should return an error for a non-existent id", async () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await deleteFormTool.handler(
       { id: "00000000-0000-0000-0000-000000000000" },
-      context
+      context,
     );
 
     expect(result.isError).toBe(true);

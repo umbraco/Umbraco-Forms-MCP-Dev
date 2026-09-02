@@ -1,17 +1,19 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`list-workflow-types should return all available workflow types 1`] = `
+exports[`list-workflow-types should list registered workflow types 1`] = `
 {
   "content": [],
   "structuredContent": {
     "items": [
       {
         "alias": "changeRecordState",
+        "configurationErrors": [],
         "description": "Changes the state of the record being processed when it matches a word",
         "entityType": "workflow-type",
-        "group": "Legacy",
+        "group": "Common",
         "icon": "icon-autofill",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Change Record State",
         "settings": [
           {
@@ -34,22 +36,24 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "isReadOnly": false,
             "name": "Action",
             "prevalues": [
-              "Delete Record",
-              "Approve Record",
-              "Reject Record",
+              "Delete Record|#formProviderWorkflows_changeRecordStateActionDeleteRecord",
+              "Approve Record|#formProviderWorkflows_changeRecordStateActionApproveRecord",
+              "Reject Record|#formProviderWorkflows_changeRecordStateActionRejectRecord",
             ],
             "view": "Umb.PropertyEditorUi.Dropdown",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "4c40a092-0cb5-481d-96a7-a02d8e7cdb2f",
       },
       {
         "alias": "postAsXml",
+        "configurationErrors": [],
         "description": "Posts the form as XML to a URL",
         "entityType": "workflow-type",
-        "group": "Legacy",
+        "group": "Common",
         "icon": "icon-code",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Post as XML",
         "settings": [
           {
@@ -88,7 +92,7 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "isReadOnly": false,
             "name": "XSLT File",
             "prevalues": [],
-            "view": "Umb.PropertyEditorUi.MediaEntityPicker",
+            "view": "Umb.PropertyEditorUi.MediaPicker",
           },
           {
             "alias": "Fields",
@@ -138,15 +142,17 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Forms.PropertyEditorUi.Password",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "470eeb3a-cb15-4b08-9fc0-a2f091583332",
       },
       {
         "alias": "saveAsAnXmlFile",
+        "configurationErrors": [],
         "description": "Saves the result of the form as an XML file via XSLT",
         "entityType": "workflow-type",
-        "group": "Legacy",
+        "group": "Common",
         "icon": "icon-download-alt",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Save as an XML file",
         "settings": [
           {
@@ -184,18 +190,20 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "isReadOnly": false,
             "name": "XSLT File",
             "prevalues": [],
-            "view": "File",
+            "view": "Umb.PropertyEditorUi.MediaPicker",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "9cc5854d-61a2-48f6-9f4a-8f3bdfafb521",
       },
       {
         "alias": "saveAsUmbracoContentNode",
+        "configurationErrors": [],
         "description": "Saves the form values as an content node using a specified document type",
         "entityType": "workflow-type",
-        "group": "Legacy",
+        "group": "Common",
         "icon": "icon-documents",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Save as Umbraco content node",
         "settings": [
           {
@@ -232,15 +240,17 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Umb.PropertyEditorUi.ContentPicker.Source",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "89fb1e31-9f36-4e08-9d1b-af1180d340db",
       },
       {
         "alias": "sendEmail",
+        "configurationErrors": [],
         "description": "Send the result of the form to an email address",
         "entityType": "workflow-type",
         "group": "Email",
         "icon": "icon-message",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Send email",
         "settings": [
           {
@@ -332,15 +342,17 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Umb.PropertyEditorUi.Toggle",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "e96badd7-05be-4978-b8d9-b3d733de70a5",
       },
       {
         "alias": "sendEmailWithRazorTemplate",
+        "configurationErrors": [],
         "description": "Send the result of the form to an email address/addresses using a Razor .cshtml template",
         "entityType": "workflow-type",
         "group": "Email",
         "icon": "icon-message",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Send email with template (Razor)",
         "settings": [
           {
@@ -465,15 +477,17 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Umb.PropertyEditorUi.Toggle",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "17c61629-d984-4e86-b43b-a8407b3efea9",
       },
       {
         "alias": "sendFormToUrl",
+        "configurationErrors": [],
         "description": "Sends the form to a URL, either as a HTTP POST or GET",
         "entityType": "workflow-type",
-        "group": "Legacy",
+        "group": "Common",
         "icon": "icon-terminal",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Send form to URL",
         "settings": [
           {
@@ -562,15 +576,17 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Forms.PropertyEditorUi.Password",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "fd02c929-4e7d-4f90-b9fa-13d074a76688",
       },
       {
         "alias": "sendEmailWithXsltTemplate",
+        "configurationErrors": [],
         "description": "Send the result of the form to an email address",
         "entityType": "workflow-type",
         "group": "Email",
         "icon": "icon-message",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Send XSLT transformed email",
         "settings": [
           {
@@ -648,18 +664,20 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "isReadOnly": false,
             "name": "XSLT File",
             "prevalues": [],
-            "view": "Umb.PropertyEditorUi.MediaEntityPicker",
+            "view": "Umb.PropertyEditorUi.MediaPicker",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "616edfeb-badf-414b-89dc-d8655eb85998",
       },
       {
         "alias": "slack",
+        "configurationErrors": [],
         "description": "Posts the form data to a specific channel on Slack using a webhook",
         "entityType": "workflow-type",
         "group": "Services",
         "icon": "icon-chat-active",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Slack",
         "settings": [
           {
@@ -674,15 +692,17 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Umb.PropertyEditorUi.TextBox",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "bc52ab28-d3ff-42ee-af75-a5d49be83040",
       },
       {
         "alias": "slackLegacy",
+        "configurationErrors": [],
         "description": "Posts the form data to a specific channel on Slack using legacy tokens",
         "entityType": "workflow-type",
         "group": "Services",
         "icon": "icon-chat-active",
         "id": "00000000-0000-0000-0000-000000000000",
+        "isConfigured": true,
         "name": "Slack (Legacy)",
         "settings": [
           {
@@ -730,7 +750,7 @@ exports[`list-workflow-types should return all available workflow types 1`] = `
             "view": "Umb.PropertyEditorUi.TextBox",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "ccbfb0d5-adaa-4729-8b4c-4bb439dc0202",
       },
     ],
   },

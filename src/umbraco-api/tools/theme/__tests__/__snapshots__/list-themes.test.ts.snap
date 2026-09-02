@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`list-themes should list available themes 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "name": "bootstrap3-horizontal",
+      },
+      {
+        "name": "default",
+      },
+    ],
+  },
+}
+`;

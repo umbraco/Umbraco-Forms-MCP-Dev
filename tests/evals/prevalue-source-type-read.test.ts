@@ -1,3 +1,14 @@
+/**
+ * Prevalue Source Type Read Eval Test
+ *
+ * Verifies an LLM agent can chain the "prevalue-source-type" collection's two
+ * read-only tools: list the fixed, system-defined prevalue source types, then
+ * fetch the full settings-schema details for one of them by its real id.
+ * Prevalue source types are not user-created content (fixed system definitions
+ * built into Umbraco Forms), so this is a read-only smoke test against the
+ * real, live Umbraco instance (no mocks exist for the Forms Management API).
+ */
+
 import { describe, it } from "@jest/globals";
 import {
   runScenarioTest,
@@ -5,27 +16,27 @@ import {
   getDefaultTimeoutMs,
 } from "@umbraco-cms/mcp-server-sdk/evals";
 
-const COLLECTION_TOOLS = [
+const PREVALUE_SOURCE_TYPE_TOOLS = [
   "list-prevalue-source-types",
-  "get-prevalue-source-type",
+  "get-prevalue-source-type-by-id",
 ] as const;
 
-describe("prevalue-source-type read eval tests", () => {
+describe("Prevalue Source Type Read Operations", () => {
   setupConsoleMock();
+
   const timeout = getDefaultTimeoutMs();
 
   it(
-    "should list and get prevalue source type details",
+    "should list prevalue source types then get details for one by its id",
     runScenarioTest({
       prompt: `Complete these tasks in order:
-1. List all prevalue source types to see what's available
-2. Pick the first prevalue source type from the list
-3. Get that specific prevalue source type by its ID to see full details
-4. Report the type name and describe its settings schema (mention key fields if available)
-5. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
-      tools: COLLECTION_TOOLS,
-      requiredTools: ["list-prevalue-source-types", "get-prevalue-source-type"],
-      successPattern: "Read workflow completed successfully",
+1. List all Umbraco Forms prevalue source types.
+2. From that list, pick the first prevalue source type and note its real "id" field. Never invent or guess an id — use only the exact id value returned by the list call.
+3. Get the full details for that prevalue source type by its id.
+4. Say "PREVALUE SOURCE TYPE DETAILS RETRIEVED" followed by the alias and name of the prevalue source type you looked up.`,
+      tools: [...PREVALUE_SOURCE_TYPE_TOOLS],
+      requiredTools: [...PREVALUE_SOURCE_TYPE_TOOLS],
+      successPattern: "PREVALUE SOURCE TYPE DETAILS RETRIEVED",
       verbose: true,
     }),
     timeout

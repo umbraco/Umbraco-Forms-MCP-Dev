@@ -1,16 +1,22 @@
-import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
-import type { FormsUserContext } from "../../../auth/index.js";
-import getWorkflowTypeTool from "./get/get-workflow-type.js";
-import listWorkflowTypesTool from "./get/list-workflow-types.js";
+/**
+ * Workflow Type Tool Collection
+ *
+ * Read-only reference/lookup tools for Umbraco Forms workflow types. Workflow types
+ * are fixed system/package definitions (e.g. Send Email, Send to URL, Add to Umbraco
+ * Members Group) — they are not created or edited by users.
+ */
 
-const collection: ToolCollectionExport<FormsUserContext> = {
+import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
+import listWorkflowTypesTool from "./get/list-workflow-types.js";
+import getWorkflowTypeByIdTool from "./get/get-workflow-type-by-id.js";
+
+const collection: ToolCollectionExport = {
   metadata: {
     name: "workflow-type",
-    displayName: "Workflow Type Tools",
-    description:
-      "Tools for discovering available workflow type definitions and their configuration settings",
+    displayName: "Workflow Type",
+    description: "Reference lookups for the workflow types available in Umbraco Forms.",
   },
-  tools: (_user: FormsUserContext) => [getWorkflowTypeTool, listWorkflowTypesTool],
+  tools: () => [listWorkflowTypesTool, getWorkflowTypeByIdTool],
 };
 
 export default collection;
