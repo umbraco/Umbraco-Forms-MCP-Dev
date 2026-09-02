@@ -1,54 +1,83 @@
-import { z } from "zod";
+/**
+ * Update Data Source Tool
+ *
+ * Updates the name, data source type, or settings of an existing Umbraco Forms
+ * data source. Reads the current record first and only overwrites the fields
+ * that are supplied, leaving everything else (audit fields, validity) untouched.
+ */
+
 import {
   withStandardDecorators,
+  executeVoidApiCall,
   getApiClient,
-  createToolResult,
+  UmbracoApiError,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
+  type HttpResponse,
+  type ProblemDetails,
 } from "@umbraco-cms/mcp-server-sdk";
-import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { z } from "zod";
+import type {
+  getUmbracoFormsManagementAPI,
+  FormDataSource,
+} from "../../../api/generated/umbracoFormsManagementApi.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  id: z.string().describe("The unique ID of the data source to update"),
-  name: z.string().optional().describe("New name for the data source"),
-  formDataSourceTypeId: z.string().optional().describe("New data source type ID"),
-  settings: z.record(z.string(), z.string()).optional().describe("Updated settings as key-value pairs. Replaces existing settings."),
+  id: z.uuid().describe("The id of the data source to update. Use list-data-sources to find valid ids."),
+  name: z.string().min(1).optional().describe("New name for the data source. Omit to leave unchanged."),
+  formDataSourceTypeId: z
+    .uuid()
+    .optional()
+    .describe("Id of a different data source type to switch this data source to. Omit to leave unchanged."),
+  settings: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe(
+      "Replacement settings map for the data source (keys/values depend on the data source " +
+        "type, e.g. connection strings or query text). Omit to leave settings unchanged. When " +
+        "provided, this fully replaces the existing settings map.",
+    ),
 };
-
-const outputSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
 
 const UpdateDataSourceTool = {
   name: "update-data-source",
-  description: "Update an existing form data source. Provide the data source ID and any fields to change. Fetches the current state first, then applies your changes. Only provide fields you want to modify.",
+  description:
+    "Updates an existing Umbraco Forms data source's name, data source type, and/or " +
+    "settings. Only the fields you supply are changed; anything omitted keeps its " +
+    "current value. Use get-data-source first if unsure what the current settings are, " +
+    "since a supplied settings map fully replaces the existing one rather than merging.",
   inputSchema,
-  outputSchema,
   slices: ["update"],
   annotations: {
     idempotentHint: true,
   },
-  handler: async (params) => {
+  handler: async ({ id, name, formDataSourceTypeId, settings }) => {
     const client = getApiClient<ApiClient>();
 
-    // Fetch existing data source
-    const existing = await client.getDataSourceById(params.id);
+    const existingResponse = (await client.getDataSourceById(
+      id,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<FormDataSource | ProblemDetails>;
 
-    // Merge changes
-    const updated = {
+    if (existingResponse.status < 200 || existingResponse.status >= 300) {
+      throw new UmbracoApiError(existingResponse.data as ProblemDetails);
+    }
+
+    const existing = existingResponse.data as FormDataSource;
+
+    const payload: FormDataSource = {
       ...existing,
-      ...(params.name !== undefined ? { name: params.name } : {}),
-      ...(params.formDataSourceTypeId !== undefined ? { formDataSourceTypeId: params.formDataSourceTypeId } : {}),
-      ...(params.settings !== undefined ? { settings: params.settings } : {}),
-      updated: new Date().toISOString(),
+      name: name ?? existing.name,
+      formDataSourceTypeId: formDataSourceTypeId ?? existing.formDataSourceTypeId,
+      settings: settings ?? existing.settings,
     };
 
-    await client.putDataSourceById(params.id, updated as any, CAPTURE_RAW_HTTP_RESPONSE);
-    return createToolResult({ id: params.id, name: updated.name });
+    return executeVoidApiCall<ApiClient>((client) =>
+      client.putDataSourceById(id, payload, CAPTURE_RAW_HTTP_RESPONSE),
+    );
   },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+} satisfies ToolDefinition<typeof inputSchema>;
 
 export default withStandardDecorators(UpdateDataSourceTool);

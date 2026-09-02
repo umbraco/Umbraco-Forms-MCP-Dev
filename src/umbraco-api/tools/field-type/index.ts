@@ -1,17 +1,31 @@
+/**
+ * Field Type Tool Collection
+ *
+ * Read-only reference/lookup tools for Umbraco Forms field types. Field types
+ * (Short Answer, Long Answer, Checkbox, Dropdown, Date Picker, File Upload, Rich
+ * Text, etc.) are fixed system definitions built into Umbraco Forms — they are not
+ * created, edited, or deleted by users.
+ */
+
 import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
-import type { FormsUserContext } from "../../../auth/index.js";
-import getFieldTypeTool from "./get/get-field-type.js";
 import listFieldTypesTool from "./get/list-field-types.js";
+import getFieldTypeByIdTool from "./get/get-field-type-by-id.js";
+import getFieldTypeRichtextDatatypeTool from "./get/get-field-type-richtext-datatype.js";
 import listFieldTypeValidationPatternsTool from "./get/list-field-type-validation-patterns.js";
 
-const collection: ToolCollectionExport<FormsUserContext> = {
+const collection: ToolCollectionExport = {
   metadata: {
     name: "field-type",
-    displayName: "Field Type Tools",
+    displayName: "Field Type",
     description:
-      "Tools for discovering available form field type definitions, their capabilities, and validation patterns",
+      "Read-only lookup tools for Umbraco Forms' built-in field types and their validation patterns.",
   },
-  tools: (_user: FormsUserContext) => [getFieldTypeTool, listFieldTypesTool, listFieldTypeValidationPatternsTool],
+  tools: () => [
+    listFieldTypesTool,
+    getFieldTypeByIdTool,
+    getFieldTypeRichtextDatatypeTool,
+    listFieldTypeValidationPatternsTool,
+  ],
 };
 
 export default collection;

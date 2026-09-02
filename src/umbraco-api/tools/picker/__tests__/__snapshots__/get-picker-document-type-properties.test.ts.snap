@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-picker-document-type-properties should return properties for a document type alias 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Error Message",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Hide From Search",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Hide From Top Navigation",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Hide From XML Sitemap",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Instruction Message",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Is Followable",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Is Indexable",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Main Image",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Meta Description",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Meta Keywords",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Meta Name",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Subtitle",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Success Message",
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "value": "Title",
+      },
+    ],
+  },
+}
+`;

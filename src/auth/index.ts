@@ -3,6 +3,8 @@
  */
 
 export {
-  FormsAuthorizationPolicies,
-  type FormsUserContext,
+  AdminGroupKeyString,
+  sections,
+  AuthorizationPolicies,
+  type UserContext,
 } from "./auth-policies.js";

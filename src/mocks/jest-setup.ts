@@ -2,11 +2,17 @@
  * Jest Global Setup for MSW
  *
  * This file is loaded by Jest's setupFilesAfterEnv configuration.
- * It sets up MSW server globally so it only starts once for all tests.
+ * MSW is only started when USE_MOCK_API=true — this enables mock API
+ * interception for unit tests without a real Umbraco instance.
+ *
+ * In this monorepo: set via `npm run test:template` (USE_MOCK_API=true)
+ * On scaffolded sites: not set by default — tests hit the real Umbraco API
  */
 
 import { setupMswServer } from "@umbraco-cms/mcp-server-sdk/testing";
 import { server } from "./server.js";
 import { resetStore } from "./store.js";
 
-setupMswServer(server, resetStore);
+if (process.env.USE_MOCK_API === "true") {
+  setupMswServer(server, resetStore);
+}

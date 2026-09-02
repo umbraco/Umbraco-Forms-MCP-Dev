@@ -1,42 +1,63 @@
 #!/usr/bin/env node
 /**
- * Umbraco Forms MCP Server Entry Point
+ * MCP Server Entry Point
  *
- * Sets up and starts the MCP server for Umbraco Forms.
+ * This file sets up and starts the MCP server.
+ * Customize this to add your tool collections.
  */
 
-import "dotenv/config";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import "./load-env.js";
+import { McpServer, type ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
 import packageJson from "../package.json" with { type: "json" };
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import {
   configureApiClient,
+  initializeUmbracoFetch,
   createToolAnnotations,
   discoverProxiedTools,
   parseProxiedToolName,
   createCollectionConfigLoader,
   shouldIncludeTool,
+  handleCliCommands,
+  checkUmbracoVersion,
+  configureVersionCheckHook,
+  getVersionCheckMessage,
+  registerToolCollection,
+  UmbracoManagementClient,
+  CAPTURE_RAW_HTTP_RESPONSE,
+  SERVER_INFORMATION_PATH,
   type CollectionConfiguration,
+  type HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
 
 // Import the Orval-generated API client
-import { getUmbracoFormsManagementAPI, type FormSecurityForUser } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
-
-// Import auth types
-import type { FormsUserContext } from "./auth/index.js";
+import { getUmbracoFormsManagementAPI } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
 
 // Import tool collections
 import chainedCollection from "./umbraco-api/tools/chained/index.js";
+import umbracoServerCollection from "./umbraco-api/tools/umbraco-server/index.js";
+import acceptanceTestsCollection from "./umbraco-api/tools/acceptance-tests/index.js";
+import analyticsCollection from "./umbraco-api/tools/analytics/index.js";
+import configCollection from "./umbraco-api/tools/config/index.js";
 import dataSourceCollection from "./umbraco-api/tools/data-source/index.js";
 import dataSourceTypeCollection from "./umbraco-api/tools/data-source-type/index.js";
+import emailTemplateCollection from "./umbraco-api/tools/email-template/index.js";
+import exportCollection from "./umbraco-api/tools/export/index.js";
 import fieldTypeCollection from "./umbraco-api/tools/field-type/index.js";
 import folderCollection from "./umbraco-api/tools/folder/index.js";
 import formCollection from "./umbraco-api/tools/form/index.js";
-import formSubmissionCollection from "./umbraco-api/tools/form-submission/index.js";
+import formTemplateCollection from "./umbraco-api/tools/form-template/index.js";
+import licensingCollection from "./umbraco-api/tools/licensing/index.js";
+import mediaCollection from "./umbraco-api/tools/media/index.js";
+import memberCollection from "./umbraco-api/tools/member/index.js";
+import pickerCollection from "./umbraco-api/tools/picker/index.js";
 import prevalueSourceCollection from "./umbraco-api/tools/prevalue-source/index.js";
 import prevalueSourceTypeCollection from "./umbraco-api/tools/prevalue-source-type/index.js";
 import recordCollection from "./umbraco-api/tools/record/index.js";
+import securityCollection from "./umbraco-api/tools/security/index.js";
+import themeCollection from "./umbraco-api/tools/theme/index.js";
+import updatesCollection from "./umbraco-api/tools/updates/index.js";
 import workflowTypeCollection from "./umbraco-api/tools/workflow-type/index.js";
 
 // Import MCP client manager (for chaining to other MCP servers)
@@ -46,21 +67,27 @@ import { mcpClientManager } from "./umbraco-api/mcp-client.js";
 import { mcpServers } from "./config/mcp-servers.js";
 
 // Import registries for tool filtering
-import { allModes, allModeNames, allSliceNames, loadServerConfig, clearConfigCache } from "./config/index.js";
+import {
+  allModes,
+  allModeNames,
+  allSliceNames,
+  loadServerConfig,
+  clearConfigCache,
+  UMBRACO_TARGET_MAJOR,
+} from "./config/index.js";
+
+// Initialize the SDK's fetch client for real Umbraco API calls.
+// This enables the Orval-generated client to authenticate via client_credentials.
+const baseUrl = process.env.UMBRACO_BASE_URL || "http://localhost:44391";
+const clientId = process.env.UMBRACO_CLIENT_ID || "";
+const clientSecret = process.env.UMBRACO_CLIENT_SECRET || "";
+if (clientId) {
+  initializeUmbracoFetch({ baseUrl, clientId, clientSecret });
+}
 
 // Configure the API client for use with toolkit helpers
 // This connects your generated Orval client to executeGetApiCall, executeVoidApiCall, etc.
 configureApiClient(() => getUmbracoFormsManagementAPI());
-
-// ============================================================================
-// MCP Server Setup
-// ============================================================================
-
-// Create MCP server
-const server = new McpServer({
-  name: "umbraco-forms-mcp",
-  version: packageJson.version,
-});
 
 // ============================================================================
 // Tool Filtering Setup
@@ -70,7 +97,7 @@ const server = new McpServer({
 clearConfigCache();
 
 // Load server configuration (includes filtering settings from env vars)
-const serverConfig = loadServerConfig(true);
+const serverConfig = await loadServerConfig(true);
 
 // Create collection config loader with our registries
 const configLoader = createCollectionConfigLoader({
@@ -83,67 +110,162 @@ const configLoader = createCollectionConfigLoader({
 const filterConfig: CollectionConfiguration = configLoader.loadFromConfig(serverConfig.umbraco);
 
 // ============================================================================
-// Forms User Context
+// CLI Introspection (runs before server start, exits immediately)
 // ============================================================================
 
-/**
- * Fetches the current user's Forms security permissions.
- * Returns a FormsUserContext with full security on success,
- * or undefined security on failure (user gets only reference/delivery tools).
- */
-async function fetchFormsUserContext(): Promise<FormsUserContext> {
-  try {
-    const api = getUmbracoFormsManagementAPI();
-    // The custom client returns data directly (not AxiosResponse) when called without CAPTURE_RAW_HTTP_RESPONSE
-    const response = await api.getSecurityUserCurrentFormSecurity() as unknown as FormSecurityForUser;
-    return { security: response.userSecurity };
-  } catch (error) {
-    console.error("Warning: Could not fetch Forms security permissions. Only reference and delivery tools will be available.", error);
-    return { security: undefined };
-  }
+const collections = [
+  chainedCollection,
+  umbracoServerCollection,
+  acceptanceTestsCollection,
+  analyticsCollection,
+  configCollection,
+  dataSourceCollection,
+  dataSourceTypeCollection,
+  emailTemplateCollection,
+  exportCollection,
+  fieldTypeCollection,
+  folderCollection,
+  formCollection,
+  formTemplateCollection,
+  licensingCollection,
+  mediaCollection,
+  memberCollection,
+  pickerCollection,
+  prevalueSourceCollection,
+  prevalueSourceTypeCollection,
+  recordCollection,
+  securityCollection,
+  themeCollection,
+  updatesCollection,
+  workflowTypeCollection,
+];
+
+// handleCliCommands checks --list-tools, --describe-tool, --generate-context, --call.
+// If any flag is set it prints output and calls process.exit(0).
+// Otherwise it returns and the server continues to start.
+await handleCliCommands(collections, {
+  cliFlags: serverConfig.cliFlags,
+  serverName: "my-umbraco-mcp",
+  serverVersion: packageJson.version,
+  filterConfig,
+  serverConfig: serverConfig.umbraco,
+});
+
+// ============================================================================
+// Version Check
+// ============================================================================
+//
+// Verify the connected Umbraco major version matches the major version this
+// server's tools were generated against. `expectedUmbracoMajor` is a required
+// SDK field, so this can't be silently left off.
+//
+// The value comes from `UMBRACO_TARGET_MAJOR` in
+// `config/umbraco-target.generated.ts` — auto-generated by `npm run generate`,
+// which reads it from the Umbraco instance in `.env` (the spec cannot supply it:
+// every Umbraco spec hard-codes `info.version` to "Latest"). Regenerate against
+// a newer Umbraco and the constant follows automatically; there is nothing to
+// keep in sync by hand. `UMBRACO_EXPECTED_MAJOR` /
+// `--umbraco-expected-major` (see `config/server-config.ts`) overrides it at
+// runtime for a project deliberately targeting a different Umbraco major.
+//
+// It deliberately does *not* compare against this package's own version:
+// a new project starts at "1.0.0", which says nothing about which Umbraco
+// major it targets, so an implicit comparison falsely blocked the first tool
+// call of every new server (see Umbraco-MCP-Base#220).
+//
+// `checkUmbracoVersion` never throws and always logs a mismatch/error to
+// stderr (console.error — stdio-transport safe), but that alone isn't enough
+// to surface the warning to the user or pause tool execution. Two more calls
+// close that gap:
+//   - `configureVersionCheckHook()` bridges the result into
+//     `withPreExecutionCheck` (applied to every tool via
+//     `withStandardDecorators`), so a mismatch blocks the first tool call
+//     with the warning until the user deliberately retries. Safe to call
+//     unconditionally — it never blocks anything when the versions match.
+//   - `getVersionCheckMessage()` lets us fold the same warning into the
+//     server's `instructions`, so it reaches the model/user directly rather
+//     than only the server log.
+// Skipped when no client credentials are configured (matches the
+// `initializeUmbracoFetch` gate above) so CLI introspection / offline usage
+// never makes a live network call.
+if (clientId) {
+  await checkUmbracoVersion({
+    mcpVersion: packageJson.version,
+    expectedUmbracoMajor: serverConfig.custom.expectedUmbracoMajor ?? UMBRACO_TARGET_MAJOR,
+    client: {
+      getServerInformation: async () => {
+        const response = (await UmbracoManagementClient<{ version: string }>(
+          { url: SERVER_INFORMATION_PATH, method: "GET" },
+          CAPTURE_RAW_HTTP_RESPONSE,
+        )) as unknown as HttpResponse<{ version: string }>;
+        return { version: response.data.version };
+      },
+    },
+  });
+  configureVersionCheckHook();
 }
+
+const versionCheckMessage = getVersionCheckMessage();
+
+// ============================================================================
+// MCP Server Setup
+// ============================================================================
+
+// Create MCP server.
+// Pass an optional `instructions` string in the second argument to send
+// server-level guidance to clients during `initialize`. Most clients fold
+// this into the model's system prompt, so it applies implicitly without
+// per-tool repetition. Mirror the same value in `worker.ts` so stdio and
+// hosted deployments behave consistently.
+//
+// Here it's used to surface a version-mismatch warning when one was detected
+// (null otherwise). Extend the string if you also want custom guidance, e.g.:
+// [versionCheckMessage, "Refer to items by name, not by ID."].filter(Boolean).join("\n\n")
+const server = new McpServer(
+  { name: "my-umbraco-mcp", version: packageJson.version },
+  versionCheckMessage ? { instructions: versionCheckMessage } : undefined,
+);
 
 // ============================================================================
 // Register Tools with Filtering
 // ============================================================================
 
-const collections = [chainedCollection, dataSourceCollection, dataSourceTypeCollection, fieldTypeCollection, folderCollection, formCollection, formSubmissionCollection, prevalueSourceCollection, prevalueSourceTypeCollection, recordCollection, workflowTypeCollection];
+let registeredToolCount = 0;
+
+for (const collection of collections) {
+  const collectionName = collection.metadata.name;
+
+  // Get tools for current user (pass user context if needed)
+  const tools = collection.tools({});
+
+  for (const tool of tools) {
+    // Check if tool should be included based on filtering config
+    if (!shouldIncludeTool(tool, { collectionName, config: filterConfig })) {
+      continue;
+    }
+
+    // Build annotations from tool definition
+    const annotations = createToolAnnotations(tool);
+
+    // Record the owning collection so telemetry spans can be grouped by it.
+    // Only this loop knows both the tool and its collection — the decorators
+    // are applied in each tool's own file, before collections are assembled.
+    registerToolCollection(tool.name, collectionName);
+
+    // Register tool with MCP server using registerTool API
+    server.registerTool(tool.name, {
+      description: tool.description,
+      inputSchema: tool.inputSchema,
+      outputSchema: tool.outputSchema,
+      annotations,
+    }, tool.handler as ToolCallback<typeof tool.inputSchema>);
+
+    registeredToolCount++;
+  }
+}
 
 // Start the server
 async function main() {
-  // Fetch the current user's Forms permissions
-  const formsUser = await fetchFormsUserContext();
-
-  // Register tools from collections, filtered by user permissions
-  let registeredToolCount = 0;
-
-  for (const collection of collections) {
-    const collectionName = collection.metadata.name;
-
-    // Get tools for current user (filtered by permissions)
-    const tools = collection.tools(formsUser);
-
-    for (const tool of tools) {
-      // Check if tool should be included based on filtering config
-      if (!shouldIncludeTool(tool, { collectionName, config: filterConfig })) {
-        continue;
-      }
-
-      // Build annotations from tool definition
-      const annotations = createToolAnnotations(tool);
-
-      // Register tool with MCP server using registerTool API
-      server.registerTool(tool.name, {
-        description: tool.description,
-        inputSchema: tool.inputSchema,
-        outputSchema: tool.outputSchema,
-        annotations,
-      }, tool.handler);
-
-      registeredToolCount++;
-    }
-  }
-
   // Discover and register proxied tools from chained MCP servers
   // Skip if chaining is disabled via config (DISABLE_MCP_CHAINING=true)
   const chainingEnabled = mcpServers.length > 0 && !serverConfig.custom.disableMcpChaining;

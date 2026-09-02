@@ -1,51 +1,57 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   FormBuilder,
   FormTestHelper,
 } from "./setup.js";
 import copyFormTool from "../post/copy-form.js";
 
-const TEST_NAME = "_Test Copy Form";
+const TEST_NAME = "_Test Copy Form Source";
+const TEST_COPY_NAME = "_Test Copy Form Copy";
 
 describe("copy-form", () => {
   setupTestEnvironment();
 
+  let builder: FormBuilder;
+
   afterEach(async () => {
-    await FormTestHelper.cleanup(TEST_NAME);
+    if (builder) await builder.delete();
+    await FormTestHelper.cleanup(TEST_COPY_NAME);
   });
 
-  it("should copy a form", async () => {
+  it("should duplicate a form under a new name", async () => {
     const context = createMockRequestHandlerExtra();
-    const builder = await new FormBuilder().withName(TEST_NAME).create();
+    builder = await new FormBuilder().withName(TEST_NAME).create();
 
     const result = await copyFormTool.handler(
       {
         id: builder.getId(),
-        newName: `${TEST_NAME} Copy`,
-        copyWorkflows: true,
+        newName: TEST_COPY_NAME,
+        copyWorkflows: false,
         copyToFolderId: undefined,
       },
-      context
+      context,
     );
 
-    expect(FormTestHelper.normalizeIds(result)).toMatchSnapshot();
+    expect(createSnapshotResult(result)).toMatchSnapshot();
 
-    const copy = await FormTestHelper.findByName(`${TEST_NAME} Copy`);
-    expect(copy).toBeDefined();
+    const found = await FormTestHelper.findByName(TEST_COPY_NAME);
+    expect(found).toBeDefined();
+    expect(found?.id).not.toBe(builder.getId());
   });
 
-  it("should return error for non-existent ID", async () => {
+  it("should return an error for a non-existent source form id", async () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await copyFormTool.handler(
       {
         id: "00000000-0000-0000-0000-000000000000",
-        newName: `${TEST_NAME} Copy`,
-        copyWorkflows: true,
+        newName: TEST_COPY_NAME,
+        copyWorkflows: false,
         copyToFolderId: undefined,
       },
-      context
+      context,
     );
 
     expect(result.isError).toBe(true);

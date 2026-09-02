@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-media-by-path should return the media item for a known virtual path 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "flags": [],
+    "id": "00000000-0000-0000-0000-000000000000",
+    "isTrashed": false,
+    "mediaType": {
+      "collection": null,
+      "icon": "icon-picture",
+      "id": "00000000-0000-0000-0000-000000000000",
+    },
+    "values": [
+      {
+        "alias": "umbracoFile",
+        "culture": null,
+        "editorAlias": "Umbraco.ImageCropper",
+        "segment": null,
+        "value": {
+          "crops": [],
+          "focalPoint": null,
+          "src": "/media/NORMALIZED_PATH/chairs-lamps.jpg",
+        },
+      },
+      {
+        "alias": "umbracoWidth",
+        "culture": null,
+        "editorAlias": "Umbraco.Label",
+        "segment": null,
+        "value": "1920",
+      },
+      {
+        "alias": "umbracoHeight",
+        "culture": null,
+        "editorAlias": "Umbraco.Label",
+        "segment": null,
+        "value": "1280",
+      },
+      {
+        "alias": "umbracoBytes",
+        "culture": null,
+        "editorAlias": "Umbraco.Label",
+        "segment": null,
+        "value": "1977481",
+      },
+      {
+        "alias": "umbracoExtension",
+        "culture": null,
+        "editorAlias": "Umbraco.Label",
+        "segment": null,
+        "value": "jpg",
+      },
+      {
+        "alias": "altText",
+        "culture": null,
+        "editorAlias": "Umbraco.TextArea",
+        "segment": null,
+        "value": "A room filled with chairs and some lamps",
+      },
+    ],
+    "variants": [
+      {
+        "createDate": "NORMALIZED_DATE",
+        "culture": null,
+        "name": "Chairs lamps",
+        "segment": null,
+        "updateDate": "NORMALIZED_DATE",
+      },
+    ],
+  },
+}
+`;

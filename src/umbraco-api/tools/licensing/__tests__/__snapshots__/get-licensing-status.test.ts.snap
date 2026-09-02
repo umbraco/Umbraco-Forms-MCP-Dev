@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-licensing-status should return the current licensing status 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "isTrial": true,
+    "isValid": true,
+    "licenseLimitations": "- This license is *not* associated with any ips or domains at all
+",
+    "validDomains": [],
+  },
+}
+`;

@@ -1,17 +1,27 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   DataSourceTestHelper,
+  SQL_DATA_SOURCE_TYPE_ID,
+  DEFAULT_DATA_SOURCE_SETTINGS,
 } from "./setup.js";
 import createDataSourceTool from "../post/create-data-source.js";
+import deleteDataSourceTool from "../delete/delete-data-source.js";
 
 const TEST_NAME = "_Test Create Data Source";
-const TEST_DATA_SOURCE_TYPE_ID = "12345678-0000-0000-0000-000000000001";
 
 describe("create-data-source", () => {
   setupTestEnvironment();
 
+  let createdId: string | undefined;
+
   afterEach(async () => {
+    const context = createMockRequestHandlerExtra();
+    if (createdId) {
+      await deleteDataSourceTool.handler({ id: createdId }, context);
+      createdId = undefined;
+    }
     await DataSourceTestHelper.cleanup(TEST_NAME);
   });
 
@@ -21,31 +31,29 @@ describe("create-data-source", () => {
     const result = await createDataSourceTool.handler(
       {
         name: TEST_NAME,
-        formDataSourceTypeId: TEST_DATA_SOURCE_TYPE_ID,
-        settings: undefined,
+        formDataSourceTypeId: SQL_DATA_SOURCE_TYPE_ID,
+        settings: DEFAULT_DATA_SOURCE_SETTINGS,
       },
-      context
+      context,
     );
 
-    expect(
-      DataSourceTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    createdId = (result.structuredContent as { id?: string } | undefined)?.id;
+
+    expect(createSnapshotResult(result, createdId)).toMatchSnapshot();
   });
 
-  it("should create a data source with settings", async () => {
+  it("should return error for an unknown data source type id", async () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await createDataSourceTool.handler(
       {
-        name: `${TEST_NAME} With Settings`,
-        formDataSourceTypeId: TEST_DATA_SOURCE_TYPE_ID,
-        settings: { key1: "value1", key2: "value2" },
+        name: TEST_NAME,
+        formDataSourceTypeId: "00000000-0000-0000-0000-000000000000",
+        settings: {},
       },
-      context
+      context,
     );
 
-    expect(
-      DataSourceTestHelper.normalizeIds(result)
-    ).toMatchSnapshot();
+    expect(result.isError).toBe(true);
   });
 });

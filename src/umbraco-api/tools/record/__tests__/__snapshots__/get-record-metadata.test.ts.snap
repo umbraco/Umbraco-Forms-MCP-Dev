@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-record-metadata should handle non-existent form ID gracefully 1`] = `
+exports[`get-record-metadata should return a zero count for a non-existent form (the metadata endpoint does not validate form existence) 1`] = `
 {
   "content": [],
   "structuredContent": {
@@ -10,12 +10,12 @@ exports[`get-record-metadata should handle non-existent form ID gracefully 1`] =
 }
 `;
 
-exports[`get-record-metadata should return record count and last submit date 1`] = `
+exports[`get-record-metadata should return aggregate metadata for a form with no submissions 1`] = `
 {
   "content": [],
   "structuredContent": {
-    "count": 1,
-    "lastSubmittedDate": "Thursday, February 19, 2026",
+    "count": 0,
+    "lastSubmittedDate": "",
   },
 }
 `;

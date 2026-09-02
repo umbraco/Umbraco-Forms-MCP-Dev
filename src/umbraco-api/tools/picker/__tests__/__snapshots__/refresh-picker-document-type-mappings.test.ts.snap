@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`refresh-picker-document-type-mappings should refresh property mappings for a document type 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Error Message",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Hide From Search",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Hide From Top Navigation",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Hide From XML Sitemap",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Instruction Message",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Is Followable",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Is Indexable",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Main Image",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Meta Description",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Meta Keywords",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Meta Name",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Subtitle",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Success Message",
+      },
+      {
+        "field": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "staticValue": "",
+        "value": "Title",
+      },
+    ],
+  },
+}
+`;

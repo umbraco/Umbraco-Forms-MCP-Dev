@@ -1,3 +1,12 @@
+/**
+ * Folder CRUD Eval Test
+ *
+ * Verifies an LLM agent can complete a full create-read-update-delete
+ * lifecycle using the "folder" collection's tools, against the real,
+ * live Umbraco instance (no mocks exist for the Forms Management API).
+ * Uses a timestamp in the name to avoid colliding with any other test data.
+ */
+
 import { describe, it } from "@jest/globals";
 import {
   runScenarioTest,
@@ -5,41 +14,38 @@ import {
   getDefaultTimeoutMs,
 } from "@umbraco-cms/mcp-server-sdk/evals";
 
-const COLLECTION_TOOLS = [
+const FOLDER_TOOLS = [
   "create-folder",
-  "get-folder",
-  "check-folder-empty",
+  "get-folder-by-id",
+  "is-folder-empty",
   "update-folder",
-  "move-folder",
   "delete-folder",
 ] as const;
 
-describe("folder CRUD eval tests", () => {
+describe("Folder CRUD Operations", () => {
   setupConsoleMock();
+
   const timeout = getDefaultTimeoutMs();
 
   it(
-    "should complete full CRUD lifecycle for folder",
+    "should complete a full create-read-update-delete folder workflow",
     runScenarioTest({
-      prompt: `Complete these tasks in order:
-1. Generate a unique timestamp identifier (e.g., current time in milliseconds).
-2. Create a new folder with name "Eval Test Folder {timestamp}". The create operation will return a folder object with an id property - save this ID for the following steps.
-3. Get the folder you just created using get-folder with the ID from step 2 to verify it was created successfully.
-4. Check if the folder is empty using check-folder-empty with the same ID. It should be empty since it's a newly created folder.
-5. Update the folder's name to "Updated Eval Folder {timestamp}" using update-folder with the same ID.
-6. Delete the folder using delete-folder with the same ID.
-7. ONLY if every step above succeeded without errors, say "CRUD workflow completed successfully". If any step returned an error, say "CRUD workflow failed" and explain which steps failed.
-
-Important: Never hardcode IDs. Always use the ID returned from the create operation in step 2 for all subsequent operations.`,
-      tools: COLLECTION_TOOLS,
+      prompt: `Complete these tasks in order, using the Umbraco Forms folder tools:
+1. Generate a unique identifier using the current timestamp.
+2. Create a new folder named "Eval Test Folder {timestamp}" at the root (no parent folder).
+3. Check that the folder you just created is empty.
+4. Get the folder by its ID to confirm its name matches what you created.
+5. Rename the folder to "Eval Test Folder {timestamp} Renamed".
+6. Delete the folder you created.
+7. Say "FOLDER CRUD WORKFLOW COMPLETE" once all steps succeed.`,
+      tools: [...FOLDER_TOOLS],
       requiredTools: [
         "create-folder",
-        "get-folder",
-        "check-folder-empty",
+        "get-folder-by-id",
         "update-folder",
         "delete-folder",
       ],
-      successPattern: "CRUD workflow completed successfully",
+      successPattern: "FOLDER CRUD WORKFLOW COMPLETE",
       verbose: true,
     }),
     timeout

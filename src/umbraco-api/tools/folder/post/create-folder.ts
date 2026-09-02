@@ -1,51 +1,86 @@
-import { z } from "zod";
+/**
+ * Create Folder Tool
+ *
+ * Creates a new Umbraco Forms folder used to organise forms and data sources
+ * in the Forms tree. Folders can be created at the root or nested under an
+ * existing parent folder.
+ */
+
 import {
   withStandardDecorators,
-  getApiClient,
   createToolResult,
+  getApiClient,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
+  type HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
-import { v4 as uuid } from "uuid";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
+// The API requires a client-generated id up front. The LLM never supplies
+// one — it's generated internally so the model only has to think about the
+// folder's name and where it goes.
 const inputSchema = {
-  name: z.string().min(1).describe("Name for the new folder"),
-  parentId: z.string().uuid().optional().describe("UUID of the parent folder. Omit to create at root level."),
+  name: z.string().min(1).describe("Name of the folder to create."),
+  parentId: z
+    .uuid()
+    .optional()
+    .describe(
+      "ID of an existing parent folder to create this folder under. Omit to create the folder at the root of the Forms tree.",
+    ),
 };
 
 const outputSchema = z.object({
-  id: z.string().uuid(),
+  success: z.boolean(),
+  id: z.string().describe("The generated ID of the newly created folder."),
   name: z.string(),
+  parentId: z.string().nullish(),
 });
 
-const CreateFolder = {
+const CreateFolderTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "create-folder",
-  description: "Create a new folder for organizing forms. Provide a name and optionally a parent folder ID to create nested folders. The folder ID is generated automatically. Use this to organize forms into logical groups.",
+  description:
+    "Creates a new Forms folder, optionally nested beneath an existing parent folder. " +
+    "Use this to organise forms and data sources into a tree structure. Omit parentId " +
+    "to create the folder at the root. Does not accept a folder ID from the caller — " +
+    "one is generated automatically and returned in the response.",
   inputSchema,
   outputSchema,
   slices: ["create"],
-  annotations: {
-    destructiveHint: false,
-    idempotentHint: false,
-  },
-  handler: async (params) => {
-    const client = getApiClient<ApiClient>();
-    const id = uuid();
-
-    const body = {
+  annotations: { destructiveHint: false, idempotentHint: false },
+  handler: async ({ name, parentId }) => {
+    const id = randomUUID();
+    const payload = {
       id,
-      name: params.name,
-      parentId: params.parentId || null,
+      name,
+      parentId: parentId ?? null,
     };
 
-    const response = await client.postFolder(body, CAPTURE_RAW_HTTP_RESPONSE);
-    const locationHeader = (response as any)?.headers?.location || (response as any)?.headers?.Location;
-    const createdId = locationHeader ? locationHeader.split("/").pop() : id;
-    return createToolResult({ id: createdId, name: params.name });
-  },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+    const client = getApiClient<ApiClient>();
+    const response = (await client.postFolder(
+      payload,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as unknown as HttpResponse;
 
-export default withStandardDecorators(CreateFolder);
+    if (response.status < 200 || response.status >= 300) {
+      return createToolResult({
+        success: false,
+        id,
+        name,
+        parentId: parentId ?? null,
+      });
+    }
+
+    return createToolResult({
+      success: true,
+      id,
+      name,
+      parentId: parentId ?? null,
+    });
+  },
+};
+
+export default withStandardDecorators(CreateFolderTool);

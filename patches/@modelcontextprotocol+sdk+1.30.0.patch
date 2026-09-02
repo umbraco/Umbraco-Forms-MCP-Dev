@@ -1,0 +1,38 @@
+diff --git a/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js b/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js
+index bc067da..c17db6b 100644
+--- a/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js
++++ b/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js
+@@ -36,12 +36,12 @@ const zod_compat_js_1 = require("./zod-compat.js");
+ const zod_to_json_schema_1 = require("zod-to-json-schema");
+ function mapMiniTarget(t) {
+     if (!t)
+-        return 'draft-7';
++        return 'draft-2020-12';
+     if (t === 'jsonSchema7' || t === 'draft-7')
+         return 'draft-7';
+     if (t === 'jsonSchema2019-09' || t === 'draft-2020-12')
+         return 'draft-2020-12';
+-    return 'draft-7'; // fallback
++    return 'draft-2020-12'; // fallback
+ }
+ function toJsonSchemaCompat(schema, opts) {
+     if ((0, zod_compat_js_1.isZ4Schema)(schema)) {
+diff --git a/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js b/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+index 62f7fd0..c1efece 100644
+--- a/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
++++ b/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+@@ -8,12 +8,12 @@ import { getObjectShape, safeParse, isZ4Schema, getLiteralValue } from './zod-co
+ import { zodToJsonSchema } from 'zod-to-json-schema';
+ function mapMiniTarget(t) {
+     if (!t)
+-        return 'draft-7';
++        return 'draft-2020-12';
+     if (t === 'jsonSchema7' || t === 'draft-7')
+         return 'draft-7';
+     if (t === 'jsonSchema2019-09' || t === 'draft-2020-12')
+         return 'draft-2020-12';
+-    return 'draft-7'; // fallback
++    return 'draft-2020-12'; // fallback
+ }
+ export function toJsonSchemaCompat(schema, opts) {
+     if (isZ4Schema(schema)) {

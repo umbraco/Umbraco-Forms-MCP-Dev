@@ -1,34 +1,46 @@
-import * as zod from "zod";
+/**
+ * List Field Type Validation Patterns Tool
+ *
+ * Lists the built-in regular-expression validation patterns (e.g. email, number,
+ * postcode) that can be applied to Umbraco Forms fields which support regex
+ * validation.
+ */
+
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { z } from "zod";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getFieldTypeValidationPatternResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const outputSchema = z.object({ items: getFieldTypeValidationPatternResponse });
 
-const outputSchema = zod.object({ items: getFieldTypeValidationPatternResponse });
-
-const ListFieldTypeValidationPatterns = {
+const ListFieldTypeValidationPatternsTool = {
   name: "list-field-type-validation-patterns",
   description:
-    "List all available validation patterns for form fields. Validation patterns are named regex patterns (e.g., Email, Number) that can be applied to text-based form fields. Returns the pattern name, localization key, and regex expression. Use this when configuring field validation rules.",
-  inputSchema: emptyInput.shape,
+    "Lists the built-in, predefined regular-expression validation patterns available in " +
+    "Umbraco Forms (each with a name, translation label key, and the regex pattern " +
+    "itself) — for example patterns for email addresses, numbers, or postcodes. These " +
+    "are fixed system patterns, not user-defined. Use this to find a valid pattern name " +
+    "to apply as the regex/validation setting on a form field that supports regex " +
+    "validation (supportsRegex on the field type).",
+  inputSchema: {},
   outputSchema,
   slices: ["list"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
-    return executeGetItemsApiCall<ReturnType<ApiClient["getFieldTypeValidationPattern"]>, ApiClient>(
-      (client) => client.getFieldTypeValidationPattern(CAPTURE_RAW_HTTP_RESPONSE)
-    );
+    return executeGetItemsApiCall<
+      ReturnType<ApiClient["getFieldTypeValidationPattern"]>,
+      ApiClient
+    >((client) => client.getFieldTypeValidationPattern(CAPTURE_RAW_HTTP_RESPONSE));
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
+} satisfies ToolDefinition<Record<string, never>, typeof outputSchema>;
 
-export default withStandardDecorators(ListFieldTypeValidationPatterns);
+export default withStandardDecorators(ListFieldTypeValidationPatternsTool);

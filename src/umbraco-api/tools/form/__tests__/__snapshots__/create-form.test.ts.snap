@@ -1,11 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`create-form should create a new form 1`] = `
+exports[`create-form should create a form from a scaffolded design 1`] = `
 {
-  "content": [],
-  "structuredContent": {
-    "id": "00000000-0000-0000-0000-000000000000",
-    "name": "_Test Create Form",
-  },
+  "content": [
+    {
+      "text": "",
+      "type": "text",
+    },
+  ],
 }
 `;

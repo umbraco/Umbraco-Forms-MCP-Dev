@@ -2,29 +2,36 @@
  * Server Config Integration Tests
  *
  * Tests for the extensible config system using custom fields.
+ * Demonstrates how consuming packages can add their own config fields.
+ *
+ * Note: These tests mock getServerConfig from the toolkit since
+ * the toolkit's own tests verify the core config parsing works correctly.
+ * These tests verify the server-config module's interface and caching.
  */
 
 import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 
 // Mock the toolkit's getServerConfig before importing our module
-const mockGetServerConfig = jest.fn();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockGetServerConfig = jest.fn<(...args: any[]) => any>();
 jest.unstable_mockModule("@umbraco-cms/mcp-server-sdk", () => ({
   getServerConfig: mockGetServerConfig,
 }));
 
 // Import our module after setting up mocks
-const { loadServerConfig, clearConfigCache } =
+const { loadServerConfig, clearConfigCache, getCustomFieldDefinitions } =
   await import("../server-config.js");
 
 describe("Server Config", () => {
   beforeEach(() => {
+    // Clear config cache and reset mocks before each test
     clearConfigCache();
     mockGetServerConfig.mockReset();
   });
 
   describe("loadServerConfig", () => {
-    it("should return combined umbraco and custom config", () => {
-      mockGetServerConfig.mockReturnValue({
+    it("should return combined umbraco and custom config", async () => {
+      mockGetServerConfig.mockResolvedValue({
         config: {
           auth: {
             clientId: "test-client",
@@ -41,20 +48,27 @@ describe("Server Config", () => {
           },
         },
         custom: {
-          formsApiKey: "my-forms-key",
+          experimentalFeatures: true,
+          externalApiKey: "my-api-key",
+          customEndpoints: ["ep1", "ep2"],
         },
       });
 
-      const { umbraco, custom } = loadServerConfig(true);
+      const { umbraco, custom } = await loadServerConfig(true);
 
+      // Verify base config
       expect(umbraco.auth.clientId).toBe("test-client");
       expect(umbraco.auth.baseUrl).toBe("http://localhost:5000");
       expect(umbraco.readonly).toBe(true);
-      expect(custom.formsApiKey).toBe("my-forms-key");
+
+      // Verify custom config
+      expect(custom.experimentalFeatures).toBe(true);
+      expect(custom.externalApiKey).toBe("my-api-key");
+      expect(custom.customEndpoints).toEqual(["ep1", "ep2"]);
     });
 
-    it("should pass isStdioMode to getServerConfig", () => {
-      mockGetServerConfig.mockReturnValue({
+    it("should pass isStdioMode to getServerConfig", async () => {
+      mockGetServerConfig.mockResolvedValue({
         config: {
           auth: { clientId: "x", clientSecret: "x", baseUrl: "x" },
           configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
@@ -62,16 +76,16 @@ describe("Server Config", () => {
         custom: {},
       });
 
-      loadServerConfig(true);
+      await loadServerConfig(true);
       expect(mockGetServerConfig).toHaveBeenCalledWith(true, expect.any(Object));
 
       clearConfigCache();
-      loadServerConfig(false);
+      await loadServerConfig(false);
       expect(mockGetServerConfig).toHaveBeenCalledWith(false, expect.any(Object));
     });
 
-    it("should pass additionalFields to getServerConfig", () => {
-      mockGetServerConfig.mockReturnValue({
+    it("should pass additionalFields to getServerConfig", async () => {
+      mockGetServerConfig.mockResolvedValue({
         config: {
           auth: { clientId: "x", clientSecret: "x", baseUrl: "x" },
           configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
@@ -79,50 +93,55 @@ describe("Server Config", () => {
         custom: {},
       });
 
-      loadServerConfig(true);
+      await loadServerConfig(true);
 
       expect(mockGetServerConfig).toHaveBeenCalledWith(
         true,
         expect.objectContaining({
           additionalFields: expect.arrayContaining([
-            expect.objectContaining({ name: "disableMcpChaining" }),
-            expect.objectContaining({ name: "formsApiKey", envVar: "UMBRACO_FORMS_API_KEY" }),
+            expect.objectContaining({ name: "experimentalFeatures" }),
+            expect.objectContaining({ name: "customEndpoints" }),
+            expect.objectContaining({ name: "externalApiKey" }),
+            expect.objectContaining({ name: "maxPageSize" }),
           ]),
         })
       );
     });
 
-    it("should cache config after first load", () => {
-      mockGetServerConfig.mockReturnValue({
+    it("should cache config after first load", async () => {
+      mockGetServerConfig.mockResolvedValue({
         config: {
           auth: { clientId: "cached", clientSecret: "x", baseUrl: "x" },
           configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
         },
-        custom: { formsApiKey: "cached-key" },
+        custom: { externalApiKey: "cached-key" },
       });
 
-      const first = loadServerConfig(true);
+      // First call
+      const first = await loadServerConfig(true);
       expect(mockGetServerConfig).toHaveBeenCalledTimes(1);
 
-      const second = loadServerConfig(true);
+      // Second call - should use cache
+      const second = await loadServerConfig(true);
       expect(mockGetServerConfig).toHaveBeenCalledTimes(1);
 
+      // Both should return same data
       expect(first.umbraco.auth.clientId).toBe("cached");
       expect(second.umbraco.auth.clientId).toBe("cached");
-      expect(first.custom.formsApiKey).toBe("cached-key");
-      expect(second.custom.formsApiKey).toBe("cached-key");
+      expect(first.custom.externalApiKey).toBe("cached-key");
+      expect(second.custom.externalApiKey).toBe("cached-key");
     });
 
-    it("should reload config after clearConfigCache", () => {
+    it("should reload config after clearConfigCache", async () => {
       mockGetServerConfig
-        .mockReturnValueOnce({
+        .mockResolvedValueOnce({
           config: {
             auth: { clientId: "first", clientSecret: "x", baseUrl: "x" },
             configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
           },
           custom: {},
         })
-        .mockReturnValueOnce({
+        .mockResolvedValueOnce({
           config: {
             auth: { clientId: "second", clientSecret: "x", baseUrl: "x" },
             configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
@@ -130,20 +149,20 @@ describe("Server Config", () => {
           custom: {},
         });
 
-      const first = loadServerConfig(true);
+      const first = await loadServerConfig(true);
       expect(first.umbraco.auth.clientId).toBe("first");
 
       clearConfigCache();
 
-      const second = loadServerConfig(true);
+      const second = await loadServerConfig(true);
       expect(second.umbraco.auth.clientId).toBe("second");
       expect(mockGetServerConfig).toHaveBeenCalledTimes(2);
     });
   });
 
   describe("custom config interface", () => {
-    it("should handle undefined custom values", () => {
-      mockGetServerConfig.mockReturnValue({
+    it("should handle undefined custom values", async () => {
+      mockGetServerConfig.mockResolvedValue({
         config: {
           auth: { clientId: "x", clientSecret: "x", baseUrl: "x" },
           configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
@@ -151,28 +170,84 @@ describe("Server Config", () => {
         custom: {},
       });
 
-      const { custom } = loadServerConfig(true);
+      const { custom } = await loadServerConfig(true);
 
-      expect(custom.disableMcpChaining).toBeUndefined();
-      expect(custom.formsApiKey).toBeUndefined();
+      expect(custom.experimentalFeatures).toBeUndefined();
+      expect(custom.externalApiKey).toBeUndefined();
+      expect(custom.customEndpoints).toBeUndefined();
+      expect(custom.maxPageSize).toBeUndefined();
     });
 
-    it("should type custom values correctly", () => {
-      mockGetServerConfig.mockReturnValue({
+    it("should type custom values correctly", async () => {
+      mockGetServerConfig.mockResolvedValue({
         config: {
           auth: { clientId: "x", clientSecret: "x", baseUrl: "x" },
           configSources: { clientId: "env", clientSecret: "env", baseUrl: "env", envFile: "default" },
         },
         custom: {
-          disableMcpChaining: true,
-          formsApiKey: "test-key",
+          experimentalFeatures: true,
+          customEndpoints: ["a", "b"],
+          externalApiKey: "key",
+          maxPageSize: "50",
         },
       });
 
-      const { custom } = loadServerConfig(true);
+      const { custom } = await loadServerConfig(true);
 
-      expect(typeof custom.disableMcpChaining).toBe("boolean");
-      expect(typeof custom.formsApiKey).toBe("string");
+      // TypeScript type checks (these verify the interface is correct)
+      const boolVal: boolean | undefined = custom.experimentalFeatures;
+      const arrVal: string[] | undefined = custom.customEndpoints;
+      const strVal: string | undefined = custom.externalApiKey;
+      const pageSize: string | undefined = custom.maxPageSize;
+
+      expect(typeof boolVal).toBe("boolean");
+      expect(Array.isArray(arrVal)).toBe(true);
+      expect(typeof strVal).toBe("string");
+      expect(typeof pageSize).toBe("string");
+    });
+  });
+
+  describe("getCustomFieldDefinitions", () => {
+    it("should return all custom field definitions", () => {
+      const fields = getCustomFieldDefinitions();
+
+      expect(fields).toHaveLength(6);
+      expect(fields.map(f => f.name)).toEqual([
+        "disableMcpChaining",
+        "expectedUmbracoMajor",
+        "experimentalFeatures",
+        "customEndpoints",
+        "externalApiKey",
+        "maxPageSize",
+      ]);
+    });
+
+    it("should return field definitions with correct types", () => {
+      const fields = getCustomFieldDefinitions();
+
+      const experimental = fields.find(f => f.name === "experimentalFeatures");
+      expect(experimental?.type).toBe("boolean");
+      expect(experimental?.envVar).toBe("MY_EXPERIMENTAL_FEATURES");
+      expect(experimental?.cliFlag).toBe("my-experimental-features");
+
+      const endpoints = fields.find(f => f.name === "customEndpoints");
+      expect(endpoints?.type).toBe("csv");
+
+      const apiKey = fields.find(f => f.name === "externalApiKey");
+      expect(apiKey?.type).toBe("string");
+
+      const expectedMajor = fields.find(f => f.name === "expectedUmbracoMajor");
+      expect(expectedMajor?.type).toBe("string");
+      expect(expectedMajor?.envVar).toBe("UMBRACO_EXPECTED_MAJOR");
+      expect(expectedMajor?.cliFlag).toBe("umbraco-expected-major");
+    });
+
+    it("should return a copy to prevent mutation", () => {
+      const fields1 = getCustomFieldDefinitions();
+      const fields2 = getCustomFieldDefinitions();
+
+      expect(fields1).not.toBe(fields2);
+      expect(fields1).toEqual(fields2);
     });
   });
 });

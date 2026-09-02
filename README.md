@@ -1,130 +1,160 @@
-# Umbraco Forms MCP
+# forms-mcp-server
 
-An MCP (Model Context Protocol) server for [Umbraco Forms](https://umbraco.com/products/umbraco-forms/) that enables AI-powered form management. It provides comprehensive access to the Umbraco Forms Management API, allowing your AI agent to create and manage forms, view submissions, configure data sources and prevalue sources, and more — all through natural conversation.
+MCP server template for Umbraco add-ons using the @umbraco-cms/mcp-server-sdk.
 
-## Intro
+## Getting Started
 
-The MCP server authenticates using an Umbraco API user, ensuring secure, permission-based access to the Umbraco Forms API. At startup, it fetches the API user's Forms security permissions and only registers tools the user is authorized to use — no tools are exposed beyond what Umbraco's permission system allows.
+### 1. Install Dependencies
 
-The server also connects to the [Forms Delivery API](https://docs.umbraco.com/umbraco-forms/developer/ajaxforms) if an API key is provided, enabling form definition retrieval and form submissions.
-
-It chains to the [Umbraco CMS MCP server](https://www.npmjs.com/package/@umbraco-cms/mcp-dev), proxying its tools with a `cms:` prefix. This gives your AI agent access to both Forms and CMS capabilities in a single session.
-
-## Quick Start
-
-### 1. Create an Umbraco API User
-
-Create an Umbraco API user with appropriate permissions. You can find instructions in [Umbraco's documentation](https://docs.umbraco.com/umbraco-cms/fundamentals/data/users/api-users).
-
-Grant the user access to the **Forms** section and configure Forms-specific permissions (manage forms, view entries, etc.).
-
-### 2. Add to Your MCP Client
-
-Add the server to your MCP client configuration (Claude Desktop, Cursor, VS Code, etc.):
-
-```json
-{
-  "mcpServers": {
-    "umbraco-forms": {
-      "command": "npx",
-      "args": ["@umbraco-forms/mcp-dev"],
-      "env": {
-        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-        "UMBRACO_CLIENT_ID": "your-api-user-id",
-        "UMBRACO_CLIENT_SECRET": "your-api-secret",
-        "UMBRACO_BASE_URL": "https://localhost:{port}",
-        "UMBRACO_FORMS_API_KEY": "your-forms-api-key"
-      }
-    }
-  }
-}
+```bash
+npm install
 ```
 
-Restart your MCP client after saving the configuration.
+### 2. Configure Environment
 
-## Configuration
+Copy `.env.example` to `.env` and fill in your Umbraco connection details:
 
-All settings can be provided as environment variables or CLI flags.
+```bash
+cp .env.example .env
+```
 
-### Connection
+### 3. Generate API Client (Optional)
 
-| Variable | CLI Flag | Purpose |
-|---|---|---|
-| `UMBRACO_CLIENT_ID` | `--umbraco-client-id` | OAuth client ID |
-| `UMBRACO_CLIENT_SECRET` | `--umbraco-client-secret` | OAuth client secret |
-| `UMBRACO_BASE_URL` | `--umbraco-base-url` | Umbraco instance URL |
-| `UMBRACO_FORMS_API_KEY` | `--umbraco-forms-api-key` | Forms Delivery API key |
+If you have an OpenAPI spec for your add-on:
 
-### Tool Filtering
+1. Update `orval.config.ts` to point to your spec
+2. Run the generator:
 
-| Variable | CLI Flag | Purpose |
-|---|---|---|
-| `UMBRACO_TOOL_MODES` | `--umbraco-tool-modes` | Enable tool modes (comma-separated) |
-| `UMBRACO_INCLUDE_TOOL_COLLECTIONS` | `--umbraco-include-tool-collections` | Include only these collections |
-| `UMBRACO_EXCLUDE_TOOL_COLLECTIONS` | `--umbraco-exclude-tool-collections` | Exclude these collections |
-| `UMBRACO_INCLUDE_SLICES` | `--umbraco-include-slices` | Include only these slices |
-| `UMBRACO_EXCLUDE_SLICES` | `--umbraco-exclude-slices` | Exclude these slices |
-| `UMBRACO_READONLY` | `--umbraco-readonly` | Block all write operations |
-| `DISABLE_MCP_CHAINING` | `--disable-mcp-chaining` | Disable CMS MCP server chaining |
+```bash
+npm run generate
+```
 
-### Modes
+### 4. Build and Test
 
-Modes are named groups that enable related collections together. Set `UMBRACO_TOOL_MODES` to one or more mode names:
+```bash
+# Build the server
+npm run build
 
-| Mode | Collections |
-|---|---|
-| `form-design` | `form`, `field-type`, `folder`, `media` |
-| `data-sources` | `data-source`, `data-source-type`, `prevalue-source`, `prevalue-source-type` |
-| `submissions` | `record`, `workflow-type` |
-| `forms-data` | `data-source` |
+# Run tests
+npm test
 
-### Collections
+# Test with MCP Inspector
+npm run inspect
+```
 
-| Collection | Tools | Description |
-|---|---|---|
-| `form` | 14 | Forms CRUD, scaffolding, tree browsing, relations |
-| `folder` | 6 | Folder CRUD and move operations |
-| `record` | 10 | Record listing, filtering, updating, deleting, auditing |
-| `data-source` | 8 | Data source CRUD, tree browsing, scaffolding |
-| `prevalue-source` | 9 | Prevalue source CRUD, value resolution, tree browsing |
-| `field-type` | 3 | Field type discovery and validation patterns |
-| `workflow-type` | 2 | Workflow type discovery |
-| `data-source-type` | 2 | Data source type discovery |
-| `prevalue-source-type` | 2 | Prevalue source type discovery |
-| `form-submission` | 2 | Delivery API — form definitions and submissions |
+## Project Structure
 
-### Slices
+```
+├── src/
+│   ├── api/
+│   │   ├── client.ts           # API client configuration
+│   │   └── generated/          # Orval-generated API code
+│   ├── tools/
+│   │   └── example/            # Example tool collection
+│   │       ├── get/
+│   │       ├── post/
+│   │       └── index.ts
+│   └── index.ts                # Server entry point
+├── scripts/
+│   └── tunnels.sh              # Cloudflare tunnels for remote MCP client testing
+├── umbraco/
+│   ├── McpOAuthComposer.cs                            # Self-hosted: OAuth client for your own Worker
+│   ├── McpHostedClientsComposer.Cloud.cs              # Cloud only (commented out): one or more hosted MCP clients (Editor / Dev / …) chosen via array
+│   └── McpExternalLoginShortCircuitComposer.Cloud.cs  # Cloud only (commented out): redirects to Umbraco SSO instead of dead-ending at /umbraco/login
+├── __tests__/
+│   └── example/                # Example tests
+├── package.json
+├── tsconfig.json
+├── tsup.config.ts
+├── jest.config.ts
+├── orval.config.ts
+└── .env.example
+```
 
-Slices filter tools by operation type. Use `UMBRACO_INCLUDE_SLICES` or `UMBRACO_EXCLUDE_SLICES` with values like `create`, `read`, `update`, `delete`, `list`, `tree`, `search`, `copy`, `move`, `audit`, `scaffolding`, and more.
+## Adding Your Own Tools
 
-For example, `UMBRACO_INCLUDE_SLICES=read,list` registers only read and list tools.
+1. Create a new folder under `src/tools/` for your tool collection
+2. Create tool files following the example pattern:
+   - `get/` for GET operations
+   - `post/` for POST operations
+   - `put/` for PUT operations
+   - `delete/` for DELETE operations
+3. Create an `index.ts` that exports the collection
+4. Register the collection in `src/index.ts`
 
-## Permission-Based Tool Filtering
+### Tool Pattern Example
 
-At startup, the server calls the Forms security API to determine the user's permissions. Tools are only registered when the user has the required permission:
+```typescript
+import { z } from "zod";
+import {
+  withStandardDecorators,
+  executeGetApiCall,
+  CAPTURE_RAW_HTTP_RESPONSE,
+  ToolDefinition,
+} from "@umbraco-cms/mcp-server-sdk";
 
-| Permission | Tools Gated |
-|---|---|
-| **Has Forms Access** | Read tools for forms, folders, data sources, prevalue sources |
-| **Manage Forms** | Create, copy, update, move, delete forms and folders |
-| **View Entries** | List records, metadata, audit trails |
-| **Edit Entries** | Update records, execute record actions |
-| **Delete Entries** | Delete records |
-| **Manage Workflows** | Copy form workflows, retry record workflows |
-| **Manage Data Sources** | Create, update, delete data sources |
-| **Manage PreValue Sources** | Create, update, delete prevalue sources |
+const inputSchema = {
+  id: z.string().uuid(),
+};
 
-Reference tools (field types, workflow types, data source types, prevalue source types) and delivery API tools are always available.
+const myTool: ToolDefinition<typeof inputSchema> = {
+  name: "my-tool",
+  description: "Does something useful",
+  inputSchema,
+  slices: ["read"],
+  annotations: { readOnlyHint: true },
+  handler: async ({ id }) => {
+    return executeGetApiCall((client) =>
+      client.getMyItem(id, CAPTURE_RAW_HTTP_RESPONSE)
+    );
+  },
+};
 
-If the security endpoint is unreachable, only reference and delivery tools are registered.
+export default withStandardDecorators(myTool);
+```
 
-## CMS MCP Server Chaining
+## Testing
 
-This server automatically chains to the [Umbraco CMS MCP server](https://www.npmjs.com/package/@umbraco-cms/mcp-dev), sharing the same API user credentials. All CMS tools are proxied with a `cms:` prefix (e.g. `cms:get-document`, `cms:list-media`).
+Tests use Jest with the MCP toolkit's testing helpers:
 
-This means your AI agent can work with both Forms and CMS content in a single conversation without needing to configure two separate MCP servers. Any mode, collection, and slice filter configuration is passed through to the chained server.
+```typescript
+import {
+  setupTestEnvironment,
+  createSnapshotResult,
+  createMockRequestHandlerExtra,
+} from "@umbraco-cms/mcp-server-sdk/testing";
 
-To disable chaining, set `DISABLE_MCP_CHAINING=true`.
+describe("my-tool", () => {
+  setupTestEnvironment();
+
+  it("should do something", async () => {
+    const result = await myTool.handler({ id: "..." }, createMockRequestHandlerExtra());
+    expect(createSnapshotResult(result)).toMatchSnapshot();
+  });
+});
+```
+
+## Testing with Claude Code
+
+This project ships with a `.mcp.json` that registers the MCP server with Claude Code automatically. Once you have run `init`, `discover`, and `npm run build`, open the project directory in Claude Code and the server is available immediately — no manual `claude mcp add` required.
+
+```bash
+# One-time setup
+npx @umbraco-cms/create-umbraco-mcp-server init   # writes credentials to .env
+npx @umbraco-cms/create-umbraco-mcp-server discover # generates API client
+npm run build                                       # compiles dist/index.js
+
+# Open in Claude Code — .mcp.json is picked up automatically
+claude .
+```
+
+The server reads credentials from `.env` via `node --env-file=.env ./dist/index.js`, so no secrets are committed to source control.
+
+## Publishing
+
+1. Update `package.json` with your package name and details
+2. Build: `npm run build`
+3. Publish: `npm publish`
 
 ## License
 

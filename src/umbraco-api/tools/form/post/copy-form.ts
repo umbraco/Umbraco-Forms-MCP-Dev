@@ -1,64 +1,48 @@
-import { z } from "zod";
+/**
+ * Copy Form Tool
+ *
+ * Duplicates an existing form, optionally renaming it and/or placing the
+ * copy in a different folder.
+ */
+
 import {
   withStandardDecorators,
   executeVoidApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  postFormByIdCopyParams,
+  postFormByIdCopyBody,
+} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  id: z.string().uuid().describe("The ID of the form to copy"),
-  newName: z
-    .string()
-    .optional()
-    .describe(
-      "Name for the copied form. If omitted, the original name is used with a copy suffix."
-    ),
-  copyWorkflows: z
-    .boolean()
-    .default(true)
-    .describe("Whether to copy the form's workflows to the new form"),
-  copyToFolderId: z
-    .string()
-    .uuid()
-    .optional()
-    .describe(
-      "Target folder ID. If omitted, copies to the same folder as the original."
-    ),
+  ...postFormByIdCopyParams.shape,
+  ...postFormByIdCopyBody.shape,
 };
 
-const outputSchema = z.object({
-  success: z.boolean(),
-});
-
-const CopyFormTool = {
+const CopyFormTool: ToolDefinition<typeof inputSchema> = {
   name: "copy-form",
   description:
-    "Copy an existing form to create a new one. Optionally specify a new name, whether to include workflows, and a destination folder. Use list-forms first to find the source form ID. If no name is given, a copy suffix is added automatically. Note: The API does not return the new form's ID. Use list-forms after copying to find the new form by name.",
+    "Duplicates an existing form (identified by id) as a brand-new form with a server-generated ID. Optionally give the copy a new name and/or place it in a different folder via copyToFolderId; omit to copy into the same folder with an auto-generated name. Set copyWorkflows to true to also duplicate the form's workflows (submit/approve/reject actions) — use copy-form-workflows instead if you only want to add this form's workflows onto an already-existing form.",
   inputSchema,
-  outputSchema,
   slices: ["copy"],
   annotations: {
     destructiveHint: false,
     idempotentHint: false,
   },
-  handler: async (params) => {
-    return executeVoidApiCall<ApiClient>(
-      (client) =>
-        client.postFormByIdCopy(
-          params.id,
-          {
-            newName: params.newName ?? null,
-            copyWorkflows: params.copyWorkflows ?? true,
-            copyToFolderId: params.copyToFolderId ?? null,
-          },
-          CAPTURE_RAW_HTTP_RESPONSE
-        )
+  handler: async ({ id, newName, copyWorkflows, copyToFolderId }) => {
+    return executeVoidApiCall<ApiClient>((client) =>
+      client.postFormByIdCopy(
+        id,
+        { newName, copyWorkflows, copyToFolderId },
+        CAPTURE_RAW_HTTP_RESPONSE,
+      ),
     );
   },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+};
 
 export default withStandardDecorators(CopyFormTool);

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`move-form should move a form to root 1`] = `
+exports[`move-form should move a form into a real folder 1`] = `
 {
   "content": [
     {

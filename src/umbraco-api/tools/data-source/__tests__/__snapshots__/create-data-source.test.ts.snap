@@ -1,21 +1,13 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`create-data-source should create a data source with settings 1`] = `
-{
-  "content": [],
-  "structuredContent": {
-    "id": "00000000-0000-0000-0000-000000000000",
-    "name": "_Test Create Data Source With Settings",
-  },
-}
-`;
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`create-data-source should create a new data source 1`] = `
 {
   "content": [],
   "structuredContent": {
+    "formDataSourceTypeId": "f19506f3-efea-4b13-a308-89348f69df91",
     "id": "00000000-0000-0000-0000-000000000000",
     "name": "_Test Create Data Source",
+    "success": true,
   },
 }
 `;

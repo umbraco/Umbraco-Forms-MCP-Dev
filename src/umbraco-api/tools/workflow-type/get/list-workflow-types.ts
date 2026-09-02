@@ -1,34 +1,45 @@
-import * as zod from "zod";
+/**
+ * List Workflow Types Tool
+ *
+ * Lists all workflow types available in Umbraco Forms (e.g. Send Email, Send to URL,
+ * Add to Umbraco Members group) together with their settings and configuration status.
+ */
+
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { z } from "zod";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getWorkflowTypeResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const outputSchema = z.object({ items: getWorkflowTypeResponse });
 
-const outputSchema = zod.object({ items: getWorkflowTypeResponse });
-
-const ListWorkflowTypes = {
+const ListWorkflowTypesTool = {
   name: "list-workflow-types",
   description:
-    "List all available workflow type definitions. Workflow types define what kinds of post-submission workflows can be attached to forms (e.g., Send Email, Post as XML, Save as Umbraco Content Node). Each type includes its group, configuration settings schema, and description. Returns all installed workflow types. Use this to discover what workflow types are available when configuring form submission workflows.",
-  inputSchema: emptyInput.shape,
+    "Lists every workflow type available in Umbraco Forms (built-in ones like Send Email, " +
+    "Send to URL, or Add to Umbraco Members Group, plus any installed via packages), " +
+    "including each one's id, alias, name, description, icon, group, configurable settings, " +
+    "and whether it is currently configured (isConfigured) with any configuration errors. " +
+    "Workflow types are fixed system/package definitions — they are not created or edited by " +
+    "users. Use this to discover which workflow type ids/aliases are available and what " +
+    "settings each one supports before adding a workflow to a form.",
+  inputSchema: {},
   outputSchema,
   slices: ["list"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
-    return executeGetItemsApiCall<ReturnType<ApiClient["getWorkflowType"]>, ApiClient>(
-      (client) => client.getWorkflowType(CAPTURE_RAW_HTTP_RESPONSE)
+    return executeGetItemsApiCall<ReturnType<ApiClient["getWorkflowType"]>, ApiClient>((client) =>
+      client.getWorkflowType(CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
+} satisfies ToolDefinition<Record<string, never>, typeof outputSchema>;
 
-export default withStandardDecorators(ListWorkflowTypes);
+export default withStandardDecorators(ListWorkflowTypesTool);

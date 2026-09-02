@@ -1,118 +1,137 @@
-import { v4 as uuid } from "uuid";
+/**
+ * Form Builder
+ *
+ * Fluent builder for creating Umbraco Forms forms as test data.
+ *
+ * Umbraco Forms' `POST /form` endpoint requires a *complete* form design
+ * (the form's own ID, page IDs, field IDs, etc. are all client-supplied) —
+ * there is no server-side ID generation on create like plain entities. The
+ * only supported way to get a valid starting design is to fetch a scaffold
+ * first (mirrors what create-form.ts's own doc comment instructs), so this
+ * builder always calls `getFormScaffold()` and overlays test overrides on
+ * top rather than hand-writing a FormDesign.
+ */
+
+import { randomUUID } from "node:crypto";
+import { CAPTURE_RAW_HTTP_RESPONSE, type HttpResponse } from "@umbraco-cms/mcp-server-sdk";
 import {
-  getApiClient,
-  CAPTURE_RAW_HTTP_RESPONSE,
-} from "@umbraco-cms/mcp-server-sdk";
-import type {
   getUmbracoFormsManagementAPI,
-  FormDesign,
+  type FormDesign,
 } from "../../../../api/generated/umbracoFormsManagementApi.js";
 
-type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
+export const TEST_FORM_NAME = "_Test Form";
 
-const TEST_FORM_NAME = "_Test Form";
+// The built-in "Send email" workflow type — a fixed system definition that
+// always exists on any Umbraco Forms instance. Used by withOnSubmitWorkflow()
+// so copy-form-workflows has a real workflow to copy.
+const SEND_EMAIL_WORKFLOW_TYPE_ID = "e96badd7-05be-4978-b8d9-b3d733de70a5";
+
+interface FormOverrides {
+  name?: string;
+  folderId?: string | null;
+}
 
 export class FormBuilder {
-  private model: FormDesign;
+  private overrides: FormOverrides = {
+    name: TEST_FORM_NAME,
+  };
+
+  private includeWorkflow = false;
   private createdId?: string;
-
-  constructor() {
-    const now = new Date().toISOString();
-    const formId = uuid();
-    const pageId = uuid();
-
-    this.model = {
-      id: formId,
-      unique: formId,
-      entityType: "Form",
-      name: TEST_FORM_NAME,
-      created: now,
-      createdBy: null,
-      createdByName: null,
-      updated: now,
-      updatedBy: null,
-      updatedByName: null,
-      pages: [
-        {
-          id: pageId,
-          caption: null,
-          sortOrder: 0,
-          fieldSets: [],
-          form: formId,
-        },
-      ],
-      validationRules: [],
-      fieldIndicationType: "MarkMandatoryFields",
-      indicator: "*",
-      showValidationSummary: false,
-      hideFieldValidation: false,
-      requiredErrorMessage: "",
-      invalidErrorMessage: "",
-      messageOnSubmit: null,
-      messageOnSubmitIsHtml: false,
-      goToPageOnSubmit: null,
-      xPathOnSubmit: null,
-      manualApproval: false,
-      storeRecordsLocally: true,
-      autocompleteAttribute: null,
-      displayDefaultFields: true,
-      selectedDisplayFields: [],
-      daysToRetainSubmittedRecordsFor: 0,
-      daysToRetainApprovedRecordsFor: 0,
-      daysToRetainRejectedRecordsFor: 0,
-      cssClass: null,
-      disableDefaultStylesheet: false,
-      datasource: null,
-      submitLabel: null,
-      nextLabel: null,
-      prevLabel: null,
-      folderId: null,
-      nodeId: 0,
-      showPagingOnMultiPageForms: "None",
-      pagingDetailsFormat: "",
-      pageCaptionFormat: "",
-      showSummaryPageOnMultiPageForms: false,
-      summaryLabel: null,
-      formWorkflows: {
-        onSubmit: [],
-        onApprove: [],
-        onReject: [],
-      },
-      path: "",
-    };
-  }
+  private createdDesign?: FormDesign;
 
   withName(name: string): this {
-    this.model.name = name;
+    this.overrides.name = name;
     return this;
   }
 
-  withFolderId(folderId: string | null): this {
-    this.model.folderId = folderId;
+  withFolderId(folderId: string): this {
+    this.overrides.folderId = folderId;
     return this;
   }
 
-  build(): FormDesign {
-    return { ...this.model };
+  /** Adds a real "Send email" onSubmit workflow to the scaffold before creating. */
+  withOnSubmitWorkflow(): this {
+    this.includeWorkflow = true;
+    return this;
+  }
+
+  build(): FormOverrides {
+    return { ...this.overrides };
   }
 
   async create(): Promise<this> {
-    const client = getApiClient<ApiClient>();
+    const client = getUmbracoFormsManagementAPI();
 
-    const response = await client.postForm(
-      this.model as any,
-      CAPTURE_RAW_HTTP_RESPONSE
-    );
+    const scaffoldResponse = (await client.getFormScaffold(
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as unknown as HttpResponse<FormDesign>;
 
-    // Extract ID from Location header
-    const locationHeader =
-      (response as any)?.headers?.location ||
-      (response as any)?.headers?.Location;
-    this.createdId = locationHeader
-      ? locationHeader.split("/").pop()
-      : this.model.id;
+    if (scaffoldResponse.status < 200 || scaffoldResponse.status >= 300) {
+      throw new Error(
+        `Failed to fetch form scaffold: HTTP ${scaffoldResponse.status} ${JSON.stringify(scaffoldResponse.data)}`,
+      );
+    }
+
+    const design: FormDesign = {
+      ...scaffoldResponse.data,
+      name: this.overrides.name ?? TEST_FORM_NAME,
+      folderId: this.overrides.folderId ?? scaffoldResponse.data.folderId ?? null,
+    };
+
+    if (this.includeWorkflow) {
+      design.formWorkflows = {
+        ...design.formWorkflows,
+        onSubmit: [
+          ...(design.formWorkflows?.onSubmit ?? []),
+          {
+            id: randomUUID(),
+            name: "_Test Send Email Workflow",
+            form: design.id,
+            active: true,
+            includeSensitiveData: "False",
+            isDeleted: false,
+            sortOrder: 0,
+            workflowTypeId: SEND_EMAIL_WORKFLOW_TYPE_ID,
+            workflowTypeName: "Send email",
+            workflowTypeDescription: "",
+            workflowTypeIcon: "",
+            workflowTypeGroup: "",
+            settings: {},
+            isMandatory: false,
+            condition: null,
+          },
+        ],
+      };
+    }
+
+    const createResponse = (await client.postForm(
+      design,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as unknown as HttpResponse<void>;
+
+    if (createResponse.status < 200 || createResponse.status >= 300) {
+      throw new Error(
+        `Failed to create form: HTTP ${createResponse.status} ${JSON.stringify(createResponse.data)}`,
+      );
+    }
+
+    this.createdId = design.id;
+    this.createdDesign = design;
 
     return this;
+  }
+
+  async delete(): Promise<void> {
+    if (!this.createdId) return;
+    const client = getUmbracoFormsManagementAPI();
+    try {
+      await client.deleteFormById(this.createdId, CAPTURE_RAW_HTTP_RESPONSE);
+    } catch {
+      // Ignore delete failures in cleanup — the instance is shared and the
+      // form may already have been removed by the test itself.
+    }
+    this.createdId = undefined;
   }
 
   getId(): string {
@@ -122,7 +141,10 @@ export class FormBuilder {
     return this.createdId;
   }
 
-  getItem(): FormDesign {
-    return this.build();
+  getDesign(): FormDesign {
+    if (!this.createdDesign) {
+      throw new Error("Form not created yet. Call create() first.");
+    }
+    return this.createdDesign;
   }
 }

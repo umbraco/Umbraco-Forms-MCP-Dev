@@ -1,42 +1,51 @@
-import { z } from "zod";
+/**
+ * Get Prevalue Source Values Tool
+ *
+ * Resolves and returns the actual list of prevalue options (id, value,
+ * caption, sort order) that a prevalue source currently produces. Optionally
+ * scoped to a specific form/field, for providers whose output depends on
+ * that context (e.g. filtering by the current form). Use this to preview
+ * what a field using this source will actually show to end users.
+ */
+
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-import { getPrevalueSourceByIdValuesResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
+import { z } from "zod";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { getPrevalueSourceByIdValuesResponseItem } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = {
-  id: z.string().describe("The unique ID of the prevalue source to get values from"),
-  formId: z.string().optional().describe("Optional form ID for context-specific values"),
-  fieldId: z.string().optional().describe("Optional field ID for context-specific values"),
+  id: z.uuid().describe("ID of the prevalue source to resolve values for."),
+  formId: z.uuid().optional().describe("Optional form ID to scope resolution to, for providers whose output depends on the form context."),
+  fieldId: z.uuid().optional().describe("Optional field ID to scope resolution to, for providers whose output depends on the field context."),
 };
 
-const outputSchema = z.object({ items: getPrevalueSourceByIdValuesResponse });
+const outputSchema = z.object({ items: z.array(getPrevalueSourceByIdValuesResponseItem) });
 
-const GetPrevalueSourceValues = {
+const getPrevalueSourceValuesTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "get-prevalue-source-values",
   description:
-    "Resolve the actual option values for a prevalue source. Returns the list of value/caption pairs. Optionally provide formId and fieldId for context-specific values.",
+    "Resolves and returns the actual dropdown/list options (id, value, caption, sort order) " +
+    "that a prevalue source currently produces. Pass formId/fieldId for providers whose " +
+    "output depends on that context. Use this to preview what end users will see, not to " +
+    "edit the source's configuration.",
   inputSchema,
   outputSchema,
-  slices: ["read"],
+  slices: ["list"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async (params) => {
+  handler: async ({ id, formId, fieldId }) => {
     return executeGetItemsApiCall<ReturnType<ApiClient["getPrevalueSourceByIdValues"]>, ApiClient>(
-      (client) => client.getPrevalueSourceByIdValues(
-        params.id,
-        { formId: params.formId, fieldId: params.fieldId },
-        CAPTURE_RAW_HTTP_RESPONSE
-      )
+      (client) => client.getPrevalueSourceByIdValues(id, { formId, fieldId }, CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
+};
 
-export default withStandardDecorators(GetPrevalueSourceValues);
+export default withStandardDecorators(getPrevalueSourceValuesTool);

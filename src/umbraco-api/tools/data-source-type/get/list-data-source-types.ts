@@ -1,45 +1,28 @@
-import * as zod from "zod";
+/**
+ * List Data Source Types Tool
+ *
+ * Calls GET /umbraco/forms/management/api/v1/data-source-type
+ */
+
+import { z } from "zod";
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { getDataSourceTypeResponseItem } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const outputSchema = z.object({ items: z.array(getDataSourceTypeResponseItem) });
 
-// Relaxed schema: API returns non-UUID IDs for some built-in data source types
-const dataSourceTypeItem = zod.object({
-  id: zod.string(),
-  unique: zod.string(),
-  entityType: zod.string(),
-  alias: zod.string(),
-  name: zod.string(),
-  description: zod.string(),
-  icon: zod.string(),
-  settings: zod.array(zod.object({
-    name: zod.string(),
-    alias: zod.string(),
-    description: zod.string(),
-    prevalues: zod.array(zod.string()),
-    view: zod.string(),
-    displayOrder: zod.number(),
-    defaultValue: zod.string(),
-    isReadOnly: zod.boolean(),
-    isMandatory: zod.boolean(),
-  })),
-});
-
-const outputSchema = zod.object({ items: zod.array(dataSourceTypeItem) });
-
-const ListDataSourceTypes = {
+const ListDataSourceTypesTool = {
   name: "list-data-source-types",
   description:
-    "List all available data source type definitions. Data source types are templates that define what kinds of data sources can be created (e.g., SQL database, Umbraco content picker). Each type includes its configuration settings schema. Returns all available types (typically a small set of system-defined types). Use this to discover what types are available before creating a data source instance.",
-  inputSchema: emptyInput.shape,
+    "Lists every data source type registered in Umbraco Forms, including the built-in types (e.g. Umbraco members, examine index, static values) and any custom types added by installed packages. Each entry includes its id, alias, name, description, icon, and the settings schema used to configure a data source of that type. Data source types are read-only entities defined by code/installed packages — they cannot be created, updated, or deleted via the API. Use this to discover which data source types are available before creating a data source, or to look up the settings a given type expects. To fetch a single type by id, use get-data-source-type-by-id instead.",
+  inputSchema: {},
   outputSchema,
   slices: ["list"],
   annotations: {
@@ -47,9 +30,9 @@ const ListDataSourceTypes = {
   },
   handler: async () => {
     return executeGetItemsApiCall<ReturnType<ApiClient["getDataSourceType"]>, ApiClient>(
-      (client) => client.getDataSourceType(CAPTURE_RAW_HTTP_RESPONSE)
+      (client) => client.getDataSourceType(CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
+} satisfies ToolDefinition<Record<string, never>, typeof outputSchema>;
 
-export default withStandardDecorators(ListDataSourceTypes);
+export default withStandardDecorators(ListDataSourceTypesTool);

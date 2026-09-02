@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`query-analytics-submissions should return a submissions time series using default metrics and dimensions 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "columns": [
+      "date",
+      "entries",
+      "uniqueMembers",
+    ],
+    "currentPage": 1,
+    "fromRow": 1,
+    "rows": [
+      {
+        "date": "2026-08-20T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+      {
+        "date": "2026-08-21T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+      {
+        "date": "2026-08-22T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+      {
+        "date": "2026-08-23T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+      {
+        "date": "2026-08-24T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+      {
+        "date": "2026-08-25T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+      {
+        "date": "2026-08-26T00:00:00",
+        "entries": 0,
+        "uniqueMembers": 0,
+      },
+    ],
+    "rowsPerPage": 9999,
+    "toRow": 7,
+    "totalPages": 1,
+    "totalRows": 7,
+    "uniqueMembers": 0,
+  },
+}
+`;

@@ -1,34 +1,33 @@
+/**
+ * Folder Tool Collection
+ *
+ * Tools for managing Umbraco Forms folders — the containers used to organise
+ * forms and data sources in the Forms tree.
+ */
+
 import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
-import { FormsAuthorizationPolicies, type FormsUserContext } from "../../../auth/index.js";
 import createFolderTool from "./post/create-folder.js";
-import getFolderTool from "./get/get-folder.js";
-import checkFolderEmptyTool from "./get/check-folder-empty.js";
+import deleteFolderTool from "./delete/delete-folder.js";
+import getFolderByIdTool from "./get/get-folder-by-id.js";
 import updateFolderTool from "./put/update-folder.js";
 import moveFolderTool from "./put/move-folder.js";
-import deleteFolderTool from "./delete/delete-folder.js";
+import isFolderEmptyTool from "./get/is-folder-empty.js";
+import getItemFolderTool from "./get/get-item-folder.js";
 
-const readTools = [
-  getFolderTool,
-  checkFolderEmptyTool,
-];
-
-const writeTools = [
-  createFolderTool,
-  updateFolderTool,
-  moveFolderTool,
-  deleteFolderTool,
-];
-
-const collection: ToolCollectionExport<FormsUserContext> = {
+const collection: ToolCollectionExport = {
   metadata: {
     name: "folder",
-    displayName: "Folder Tools",
-    description:
-      "Tools for creating, managing, and organizing folders that contain forms and other entities",
+    displayName: "Forms Folder",
+    description: "Create, read, rename, move, and delete folders used to organise Umbraco Forms.",
   },
-  tools: (user: FormsUserContext) => [
-    ...(FormsAuthorizationPolicies.HasFormsAccess(user) ? readTools : []),
-    ...(FormsAuthorizationPolicies.ManageForms(user) ? writeTools : []),
+  tools: () => [
+    createFolderTool,
+    deleteFolderTool,
+    getFolderByIdTool,
+    updateFolderTool,
+    moveFolderTool,
+    isFolderEmptyTool,
+    getItemFolderTool,
   ],
 };
 

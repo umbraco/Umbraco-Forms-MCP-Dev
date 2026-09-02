@@ -24,36 +24,31 @@ import type { ToolModeDefinition } from "@umbraco-cms/mcp-server-sdk";
  * ```
  */
 export const toolModes: ToolModeDefinition[] = [
-    {
-    name: 'forms-data',
-    displayName: 'Forms Data',
-    description: 'Manage form data sources and their configurations',
-    collections: ['data-source']
+  {
+    name: 'umbraco-server',
+    displayName: 'Umbraco Server',
+    description: 'Server information and status from the Umbraco Management API',
+    collections: ['umbraco-server']
   },
     {
-    name: 'all',
-    displayName: 'All',
-    description: 'All Umbraco Forms management tools',
-    collections: ['data-source']
+    name: 'forms-management-all',
+    displayName: 'All Forms Management Tools',
+    description: 'All 22 collections combined',
+    collections: ['acceptance-tests', 'analytics', 'config', 'data-source', 'data-source-type', 'email-template', 'export', 'field-type', 'folder', 'form', 'form-template', 'licensing', 'media', 'member', 'picker', 'prevalue-source', 'prevalue-source-type', 'record', 'security', 'theme', 'updates', 'workflow-type']
   },
-    {
-    name: 'form-design',
-    displayName: 'Form Design',
-    description: 'Create and manage forms, fields, folders, and media',
-    collections: ['form', 'field-type', 'folder', 'media']
-  },
-    {
-    name: 'data-sources',
-    displayName: 'Data Sources',
-    description: 'Manage data sources and prevalue sources for form fields',
-    collections: ['data-source', 'data-source-type', 'prevalue-source', 'prevalue-source-type']
-  },
-    {
-    name: 'submissions',
-    displayName: 'Submissions',
-    description: 'View and manage form submission records and workflows',
-    collections: ['record', 'workflow-type']
-  },
+  // Add your modes here as you build out your MCP server
+  // {
+  //   name: 'content',
+  //   displayName: 'Content Management',
+  //   description: 'Document creation, editing, and versioning',
+  //   collections: ['document', 'document-version', 'document-blueprint']
+  // },
+  // {
+  //   name: 'media',
+  //   displayName: 'Media Management',
+  //   description: 'Media library and file operations',
+  //   collections: ['media', 'imaging', 'temporary-file']
+  // }
 ];
 
 /**

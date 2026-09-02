@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`list-data-source-types should return all available data source types 1`] = `
+exports[`list-data-source-types should list registered data source types 1`] = `
 {
   "content": [],
   "structuredContent": {
@@ -15,7 +15,7 @@ exports[`list-data-source-types should return all available data source types 1`
         "settings": [
           {
             "alias": "Connection",
-            "defaultValue": "Server=localhost;Database=test;",
+            "defaultValue": "Server=localhost,1433;Database=FormsMcpDb;User Id=sa;Password=MyStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False",
             "description": "SQL Server connection string",
             "displayOrder": 10,
             "isMandatory": true,
@@ -26,7 +26,7 @@ exports[`list-data-source-types should return all available data source types 1`
           },
           {
             "alias": "Table",
-            "defaultValue": "TestTable",
+            "defaultValue": "umbracoLock",
             "description": "Table name",
             "displayOrder": 20,
             "isMandatory": true,
@@ -36,17 +36,7 @@ exports[`list-data-source-types should return all available data source types 1`
             "view": "Umb.PropertyEditorUi.TextBox",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
-      },
-      {
-        "alias": "",
-        "description": "Simple data source for integration testing",
-        "entityType": "datasource-type",
-        "icon": "",
-        "id": "00000000-0000-0000-0000-000000000000",
-        "name": "Test Data Source",
-        "settings": [],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "f19506f3-efea-4b13-a308-89348f69df91",
       },
     ],
   },

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`list-prevalue-source-types should return all available prevalue source types 1`] = `
+exports[`list-prevalue-source-types should list built-in prevalue source types 1`] = `
 {
   "content": [],
   "structuredContent": {
@@ -13,7 +13,7 @@ exports[`list-prevalue-source-types should return all available prevalue source 
         "id": "00000000-0000-0000-0000-000000000000",
         "name": "DataSource",
         "settings": [],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "cc9f9b2a-a746-11de-9e17-681b56d89593",
       },
       {
         "alias": "getValuesFromTextFile",
@@ -35,7 +35,7 @@ exports[`list-prevalue-source-types should return all available prevalue source 
             "view": "Umb.PropertyEditorUi.UploadField",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "35c2053e-cbf7-4793-b27c-6e97b7671a2d",
       },
       {
         "alias": "umbracoDocuments",
@@ -130,7 +130,7 @@ exports[`list-prevalue-source-types should return all available prevalue source 
             "view": "Umb.PropertyEditorUi.Dropdown",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "de996870-c45a-11de-8a39-0800200c9a66",
       },
       {
         "alias": "sqlDatabase",
@@ -207,7 +207,7 @@ exports[`list-prevalue-source-types should return all available prevalue source 
             "view": "Umb.PropertyEditorUi.TextBox",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "f1f5bd4d-e6ae-44ed-86cb-97661e4660b2",
       },
       {
         "alias": "umbracoDataTypePreValues",
@@ -229,7 +229,7 @@ exports[`list-prevalue-source-types should return all available prevalue source 
             "view": "Forms.PropertyEditorUi.DataTypePicker",
           },
         ],
-        "unique": "00000000-0000-0000-0000-000000000000",
+        "unique": "ea773caf-fef2-491b-b5b7-6a3552b1a0e2",
       },
     ],
   },

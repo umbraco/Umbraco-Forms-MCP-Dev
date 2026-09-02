@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`generate-form-export documents the current server response when generating an export for a form with no submitted records (see blocker comment above) 1`] = `
+{
+  "content": [],
+  "isError": true,
+  "structuredContent": {
+    "detail": "",
+    "status": 500,
+  },
+}
+`;

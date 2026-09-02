@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`list-field-type-validation-patterns should return all available validation patterns 1`] = `
+exports[`list-field-type-validation-patterns should list built-in validation patterns 1`] = `
 {
   "content": [],
   "structuredContent": {

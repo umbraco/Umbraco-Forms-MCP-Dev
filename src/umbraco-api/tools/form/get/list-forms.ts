@@ -1,34 +1,41 @@
-import * as zod from "zod";
+/**
+ * List Forms Tool
+ *
+ * Paged listing of forms — the preferred way to browse forms in larger installations.
+ */
+
 import {
   withStandardDecorators,
-  executeGetItemsApiCall,
+  executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-import { getFormResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  getFormCollectionQueryParams,
+  getFormCollectionResponse,
+} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const inputSchema = getFormCollectionQueryParams.shape;
+const outputSchema = getFormCollectionResponse;
 
-const outputSchema = zod.object({ items: getFormResponse });
-
-const ListForms = {
+const ListFormsTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "list-forms",
   description:
-    "List all Umbraco Forms with basic information. Returns a summary of each form including its unique identifier, name, field count, and a brief summary description. This is useful for discovering available forms before retrieving full form details with get-form. The field count is returned as a string (e.g., '5 fields').",
-  inputSchema: emptyInput.shape,
+    "Lists forms with paging support. Provide skip/take to page through results; omit both to get all forms in one page (default page size is very large). Returns each form's ID, name, field summary and entry count, plus the total count. Prefer this over list-all-forms when paging is needed, or search-forms when filtering by name.",
+  inputSchema,
   outputSchema,
   slices: ["list"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async () => {
-    return executeGetItemsApiCall<ReturnType<ApiClient["getForm"]>, ApiClient>(
-      (client) => client.getForm(CAPTURE_RAW_HTTP_RESPONSE)
+  handler: async ({ skip, take }) => {
+    return executeGetApiCall<ReturnType<ApiClient["getFormCollection"]>, ApiClient>(
+      (client) => client.getFormCollection({ skip, take }, CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
+};
 
-export default withStandardDecorators(ListForms);
+export default withStandardDecorators(ListFormsTool);

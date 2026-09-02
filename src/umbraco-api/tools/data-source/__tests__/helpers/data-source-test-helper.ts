@@ -1,48 +1,55 @@
-import { getApiClient } from "@umbraco-cms/mcp-server-sdk";
-import type { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
-import type { FormDataSource } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  getApiClient,
+  CAPTURE_RAW_HTTP_RESPONSE,
+  type HttpResponse,
+  type ProblemDetails,
+} from "@umbraco-cms/mcp-server-sdk";
+import type {
+  getUmbracoFormsManagementAPI,
+  FormDataSource,
+} from "../../../../api/generated/umbracoFormsManagementApi.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 export class DataSourceTestHelper {
   /**
-   * Find a data source by name
+   * Find a data source by name.
    */
   static async findByName(name: string): Promise<FormDataSource | undefined> {
     const client = getApiClient<ApiClient>();
-    const response = await client.getDataSource({ take: 100 });
+    const response = (await client.getDataSource(
+      { skip: 0, take: 2147483647 },
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<{ total: number; items: FormDataSource[] } | ProblemDetails>;
 
-    // The response is directly the paged result, not wrapped in .data
-    const pagedResult = response as any;
-
-    if (!pagedResult.items) {
+    if (response.status < 200 || response.status >= 300) {
       return undefined;
     }
 
-    return pagedResult.items.find((item: FormDataSource) => item.name === name);
+    const data = response.data as { total: number; items: FormDataSource[] };
+    return data.items.find((item) => item.name === name);
   }
 
   /**
-   * Clean up test data sources by name prefix
+   * Clean up test data sources by name prefix.
    */
   static async cleanup(namePrefix: string): Promise<void> {
     const client = getApiClient<ApiClient>();
-    const response = await client.getDataSource({ take: 100 });
+    const response = (await client.getDataSource(
+      { skip: 0, take: 2147483647 },
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<{ total: number; items: FormDataSource[] } | ProblemDetails>;
 
-    // The response is directly the paged result, not wrapped in .data
-    const pagedResult = response as any;
-
-    if (!pagedResult.items) {
+    if (response.status < 200 || response.status >= 300) {
       return;
     }
 
-    const toDelete = pagedResult.items.filter((item: FormDataSource) =>
-      item.name.startsWith(namePrefix)
-    );
+    const data = response.data as { total: number; items: FormDataSource[] };
+    const toDelete = data.items.filter((item) => item.name.startsWith(namePrefix));
 
     for (const item of toDelete) {
       try {
-        await client.deleteDataSourceById(item.id);
+        await client.deleteDataSourceById(item.id, CAPTURE_RAW_HTTP_RESPONSE);
       } catch {
         // Ignore errors during cleanup
       }
@@ -50,43 +57,62 @@ export class DataSourceTestHelper {
   }
 
   /**
-   * Normalize IDs for snapshot testing
+   * Normalize IDs for snapshot testing.
    */
-  static normalizeIds(data: any): any {
+  static normalizeIds(data: unknown): unknown {
     if (Array.isArray(data)) {
       return data.map((item) => this.normalizeIds(item));
     }
 
     if (data && typeof data === "object") {
-      const normalized = { ...data };
-
-      // Normalize common UUID fields
-      if (normalized.id) {
+      const normalized: Record<string, unknown> = { ...(data as Record<string, unknown>) };
+      if (typeof normalized.id === "string") {
         normalized.id = "00000000-0000-0000-0000-000000000000";
       }
-      if (normalized.unique) {
+      if (typeof normalized.unique === "string") {
         normalized.unique = "00000000-0000-0000-0000-000000000000";
       }
-      if (normalized.formDataSourceTypeId) {
-        normalized.formDataSourceTypeId = "00000000-0000-0000-0000-000000000000";
-      }
-
-      // Normalize date fields
-      if (normalized.created) {
-        normalized.created = "NORMALIZED_DATE";
-      }
-      if (normalized.updated) {
+      // The SDK's built-in date normalization only recognizes "updateDate", not Umbraco
+      // Forms' "updated" — normalize it ourselves so a fresh timestamp per test run
+      // doesn't flake the snapshot.
+      if (typeof normalized.updated === "string") {
         normalized.updated = "NORMALIZED_DATE";
       }
-
-      // Normalize nested objects
       for (const key of Object.keys(normalized)) {
         if (typeof normalized[key] === "object") {
           normalized[key] = this.normalizeIds(normalized[key]);
         }
       }
-
       return normalized;
+    }
+
+    return data;
+  }
+
+  /**
+   * Redact `settings` map values before snapshotting. Data source settings can carry
+   * live secrets (e.g. a SQL connection string with a password) — this keeps those
+   * values out of committed `.snap` files while still asserting the shape/keys.
+   */
+  static redactSettings(data: unknown): unknown {
+    if (Array.isArray(data)) {
+      return data.map((item) => this.redactSettings(item));
+    }
+
+    if (data && typeof data === "object") {
+      const redacted: Record<string, unknown> = { ...(data as Record<string, unknown>) };
+
+      if (redacted.settings && typeof redacted.settings === "object") {
+        const settings = redacted.settings as Record<string, unknown>;
+        redacted.settings = Object.fromEntries(Object.keys(settings).map((key) => [key, "**redacted**"]));
+      }
+
+      for (const key of Object.keys(redacted)) {
+        if (typeof redacted[key] === "object") {
+          redacted[key] = this.redactSettings(redacted[key]);
+        }
+      }
+      return redacted;
     }
 
     return data;

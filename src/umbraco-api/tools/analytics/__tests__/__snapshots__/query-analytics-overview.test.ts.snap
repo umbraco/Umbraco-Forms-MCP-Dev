@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`query-analytics-overview should return an analytics overview using default metrics and dimensions 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "columns": [
+      "formId",
+      "formName",
+      "entries",
+      "workflowCount",
+      "workflowErrors",
+      "storeRecords",
+    ],
+    "currentPage": 1,
+    "fromRow": 1,
+    "rows": [],
+    "rowsPerPage": 50,
+    "toRow": 0,
+    "totalPages": 0,
+    "totalRows": 0,
+    "uniqueMembers": 0,
+  },
+}
+`;

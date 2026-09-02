@@ -1,44 +1,42 @@
-import { z } from "zod";
+/**
+ * Move Form Tool
+ *
+ * Moves a form to a different folder, or to the root of the Forms tree.
+ */
+
 import {
   withStandardDecorators,
   executeVoidApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import {
+  putFormByIdMoveParams,
+  putFormByIdMoveBody,
+} from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const inputSchema = z.object({
-  id: z.string().uuid().describe("The ID of the form to move"),
-  parentId: z
-    .string()
-    .uuid()
-    .nullable()
-    .describe(
-      "The destination folder ID. Set to null to move to the root level."
-    ),
-});
+const inputSchema = {
+  ...putFormByIdMoveParams.shape,
+  ...putFormByIdMoveBody.shape,
+};
 
-const MoveFormTool = {
+const MoveFormTool: ToolDefinition<typeof inputSchema> = {
   name: "move-form",
   description:
-    "Move a form to a different folder. Provide the form ID and the target folder ID. Set parentId to null to move the form to the root level. Use get-form-tree to browse available folders.",
-  inputSchema: inputSchema.shape,
+    "Moves a form (id) into a different folder (parentId). Omit parentId to move the form to the root of the Forms tree. Use this instead of update-form when only relocating a form — no other design changes are made.",
+  inputSchema,
   slices: ["move"],
   annotations: {
     idempotentHint: true,
   },
-  handler: async (params) => {
-    return executeVoidApiCall<ApiClient>(
-      (client) =>
-        client.putFormByIdMove(
-          params.id,
-          { parentId: params.parentId ?? null },
-          CAPTURE_RAW_HTTP_RESPONSE
-        )
+  handler: async ({ id, parentId }) => {
+    return executeVoidApiCall<ApiClient>((client) =>
+      client.putFormByIdMove(id, { parentId }, CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof inputSchema.shape, never>;
+};
 
 export default withStandardDecorators(MoveFormTool);

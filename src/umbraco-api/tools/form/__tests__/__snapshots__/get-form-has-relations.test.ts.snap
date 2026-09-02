@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-form-has-relations should return false for a newly created form with no relations 1`] = `
+{
+  "content": [],
+  "structuredContent": false,
+}
+`;

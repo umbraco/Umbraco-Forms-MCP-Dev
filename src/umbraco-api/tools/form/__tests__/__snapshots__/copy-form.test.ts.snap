@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`copy-form should copy a form 1`] = `
+exports[`copy-form should duplicate a form under a new name 1`] = `
 {
   "content": [
     {

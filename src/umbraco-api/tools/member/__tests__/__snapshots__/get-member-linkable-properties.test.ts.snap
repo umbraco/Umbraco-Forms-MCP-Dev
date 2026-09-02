@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-member-linkable-properties should filter linkable member properties by fieldTypeId 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "alias": "umbracoMemberComments",
+        "name": "Comments",
+      },
+      {
+        "alias": "email",
+        "name": "Email",
+      },
+      {
+        "alias": "name",
+        "name": "Name",
+      },
+      {
+        "alias": "loginname",
+        "name": "Username",
+      },
+    ],
+  },
+}
+`;
+
+exports[`get-member-linkable-properties should return all linkable member properties when no fieldTypeId is supplied 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "alias": "umbracoMemberComments",
+        "name": "Comments",
+      },
+      {
+        "alias": "email",
+        "name": "Email",
+      },
+      {
+        "alias": "name",
+        "name": "Name",
+      },
+      {
+        "alias": "loginname",
+        "name": "Username",
+      },
+    ],
+  },
+}
+`;

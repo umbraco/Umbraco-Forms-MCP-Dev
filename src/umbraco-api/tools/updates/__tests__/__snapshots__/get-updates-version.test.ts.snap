@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-updates-version should return the latest available Umbraco Forms version 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "version": "18.1.0",
+  },
+}
+`;

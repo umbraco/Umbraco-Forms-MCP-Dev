@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`copy-form-workflows should copy a workflow from the source form onto the destination form 1`] = `
+{
+  "content": [],
+  "isError": true,
+  "structuredContent": {
+    "detail": "",
+    "status": 500,
+  },
+}
+`;

@@ -1,37 +1,40 @@
-import { z } from "zod";
+/**
+ * Get Data Source Scaffold Tool
+ *
+ * Returns a blank/default Umbraco Forms data source structure, showing the
+ * shape and default values a new data source starts from before it is
+ * customized and saved with create-data-source.
+ */
+
 import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getDataSourceScaffoldResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = z.object({});
-
-// Relax formDataSourceTypeId from uuid() to string() — the API can return non-UUID type IDs
-const outputSchema = getDataSourceScaffoldResponse.extend({
-  formDataSourceTypeId: z.string(),
-});
-
-const GetDataSourceScaffold = {
+const GetDataSourceScaffoldTool = {
   name: "get-data-source-scaffold",
   description:
-    "Gets an empty data source scaffold with default values. Returns the structure needed to create a new data source, including default settings and required fields. Use this to understand the data source structure before calling create-data-source.",
-  inputSchema: emptyInput.shape,
-  outputSchema,
-  slices: ["scaffolding"],
+    "Gets the default/blank structure for a new Umbraco Forms data source, before a name, " +
+    "type, or settings have been assigned. Useful for inspecting the default shape and " +
+    "field values Umbraco starts a new data source with. To actually create a data " +
+    "source, use create-data-source instead — it applies this scaffold internally.",
+  inputSchema: {},
+  outputSchema: getDataSourceScaffoldResponse,
+  slices: ["scaffold"],
   annotations: {
     readOnlyHint: true,
   },
   handler: async () => {
-    return executeGetApiCall<ReturnType<ApiClient["getDataSourceScaffold"]>, ApiClient>(
-      (client) => client.getDataSourceScaffold(CAPTURE_RAW_HTTP_RESPONSE)
+    return executeGetApiCall<ReturnType<ApiClient["getDataSourceScaffold"]>, ApiClient>((client) =>
+      client.getDataSourceScaffold(CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
+} satisfies ToolDefinition<Record<string, never>, typeof getDataSourceScaffoldResponse>;
 
-export default withStandardDecorators(GetDataSourceScaffold);
+export default withStandardDecorators(GetDataSourceScaffoldTool);

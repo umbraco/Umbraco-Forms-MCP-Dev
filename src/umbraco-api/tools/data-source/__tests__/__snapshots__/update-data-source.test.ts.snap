@@ -1,11 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`update-data-source should update a data source name 1`] = `
+exports[`update-data-source should update a data source's name 1`] = `
 {
-  "content": [],
-  "structuredContent": {
-    "id": "00000000-0000-0000-0000-000000000000",
-    "name": "_Test Update Data Source Updated",
-  },
+  "content": [
+    {
+      "text": "",
+      "type": "text",
+    },
+  ],
 }
 `;

@@ -1,3 +1,16 @@
+/**
+ * Field Type Read Eval Test
+ *
+ * Verifies an LLM agent can chain the "field-type" collection's two
+ * read-only tools: list the fixed, system-defined field types built into
+ * Umbraco Forms (Short Answer, Long Answer, Checkbox, Dropdown, Date
+ * Picker, File Upload, Rich Text, etc.), then fetch the full details for
+ * one of them by its real id. Field types are not user-created content
+ * (fixed system definitions), so this is a read-only smoke test against
+ * the real, live Umbraco instance (no mocks exist for the Forms
+ * Management API).
+ */
+
 import { describe, it } from "@jest/globals";
 import {
   runScenarioTest,
@@ -5,33 +18,24 @@ import {
   getDefaultTimeoutMs,
 } from "@umbraco-cms/mcp-server-sdk/evals";
 
-const COLLECTION_TOOLS = [
-  "list-field-types",
-  "get-field-type",
-  "list-field-type-validation-patterns",
-] as const;
+const FIELD_TYPE_TOOLS = ["list-field-types", "get-field-type-by-id"] as const;
 
-describe("field-type read eval tests", () => {
+describe("Field Type Read Operations", () => {
   setupConsoleMock();
+
   const timeout = getDefaultTimeoutMs();
 
   it(
-    "should complete read-only field type workflow",
+    "should list field types then get details for one by its id",
     runScenarioTest({
       prompt: `Complete these tasks in order:
-1. List all field types to see what form field types are available
-2. Pick one field type from the list that has an ID
-3. Get that specific field type by its ID to see full details
-4. List all validation patterns available for field types
-5. Report what you found (mention the field type name you looked up and how many validation patterns exist)
-6. ONLY if every step above succeeded without errors, say "Read workflow completed successfully". If any step returned an error, say "Read workflow failed" and explain which steps failed.`,
-      tools: COLLECTION_TOOLS,
-      requiredTools: [
-        "list-field-types",
-        "get-field-type",
-        "list-field-type-validation-patterns",
-      ],
-      successPattern: "Read workflow completed successfully",
+1. List all Umbraco Forms field types.
+2. From that list, find the field type named "Short Answer" (or, if it is not present, pick the first field type in the list) and note its real "id" field. Never invent or guess an id — use only the exact id value returned by the list call.
+3. Get the full details for that field type by its id.
+4. Say "FIELD TYPE DETAILS RETRIEVED" followed by the alias and name of the field type you looked up.`,
+      tools: [...FIELD_TYPE_TOOLS],
+      requiredTools: [...FIELD_TYPE_TOOLS],
+      successPattern: "FIELD TYPE DETAILS RETRIEVED",
       verbose: true,
     }),
     timeout

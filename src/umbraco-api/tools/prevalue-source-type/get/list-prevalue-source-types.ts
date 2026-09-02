@@ -1,24 +1,39 @@
-import * as zod from "zod";
+/**
+ * List Prevalue Source Types Tool
+ *
+ * Lists every prevalue source type built into Umbraco Forms (e.g. Static Values,
+ * Values from a Sheet, Values from a Member Property Editor, Umbraco content nodes)
+ * together with their configurable settings.
+ */
+
 import {
   withStandardDecorators,
   executeGetItemsApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { z } from "zod";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getPrevalueSourceTypeResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const emptyInput = zod.object({});
+const outputSchema = z.object({ items: getPrevalueSourceTypeResponse });
 
-const outputSchema = zod.object({ items: getPrevalueSourceTypeResponse });
-
-const ListPrevalueSourceTypes = {
+const ListPrevalueSourceTypesTool = {
   name: "list-prevalue-source-types",
   description:
-    "List all available prevalue source type definitions. Prevalue source types define what kinds of prevalue sources can be created (e.g., Get values from textfile, Umbraco data type prevalues, SQL database). Each type includes its configuration settings schema. Returns all installed prevalue source types. Use this to discover what types are available before creating a prevalue source instance.",
-  inputSchema: emptyInput.shape,
+    "Lists every prevalue source type built into Umbraco Forms, including its id, " +
+    "unique id, entity type, alias, name, description, icon, and available settings. " +
+    "Prevalue source types are fixed system definitions (e.g. Static Values, Values " +
+    "from a Sheet, Values from a Member Property Editor, Umbraco content nodes) that " +
+    "describe where a prevalue source (used to populate dropdowns/checkboxes/radio " +
+    "buttons on a form) gets its values from — they are not created or edited by " +
+    "users. Use this to discover which prevalue source type ids/aliases are available " +
+    "and what settings each one supports before creating or configuring a prevalue " +
+    "source. To look up a single known type by id, use get-prevalue-source-type-by-id " +
+    "instead.",
+  inputSchema: {},
   outputSchema,
   slices: ["list"],
   annotations: {
@@ -26,9 +41,9 @@ const ListPrevalueSourceTypes = {
   },
   handler: async () => {
     return executeGetItemsApiCall<ReturnType<ApiClient["getPrevalueSourceType"]>, ApiClient>(
-      (client) => client.getPrevalueSourceType(CAPTURE_RAW_HTTP_RESPONSE)
+      (client) => client.getPrevalueSourceType(CAPTURE_RAW_HTTP_RESPONSE),
     );
   },
-} satisfies ToolDefinition<typeof emptyInput.shape, typeof outputSchema>;
+} satisfies ToolDefinition<Record<string, never>, typeof outputSchema>;
 
-export default withStandardDecorators(ListPrevalueSourceTypes);
+export default withStandardDecorators(ListPrevalueSourceTypesTool);

@@ -3,10 +3,17 @@ import {
   createMockRequestHandlerExtra,
   createSnapshotResult,
 } from "@umbraco-cms/mcp-server-sdk/testing";
-import { configureApiClient } from "@umbraco-cms/mcp-server-sdk";
+import { configureApiClient, initializeUmbracoFetch } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { PrevalueSourceBuilder } from "./helpers/prevalue-source-builder.js";
 import { PrevalueSourceTestHelper } from "./helpers/prevalue-source-test-helper.js";
+
+// Initialize fetch with credentials — required for integration tests hitting the real API
+initializeUmbracoFetch({
+  baseUrl: process.env.UMBRACO_BASE_URL!,
+  clientId: process.env.UMBRACO_CLIENT_ID!,
+  clientSecret: process.env.UMBRACO_CLIENT_SECRET!,
+});
 
 configureApiClient(() => getUmbracoFormsManagementAPI());
 

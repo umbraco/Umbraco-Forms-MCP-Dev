@@ -1,10 +1,16 @@
+/**
+ * Get Form Relations Tool
+ *
+ * Full list of Umbraco relations (content, media, members, etc.) tied to a form.
+ */
+
 import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
+  type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import {
   getFormByIdRelationsParams,
   getFormByIdRelationsResponse,
@@ -12,25 +18,24 @@ import {
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const GetFormRelations = {
+const inputSchema = getFormByIdRelationsParams.shape;
+const outputSchema = getFormByIdRelationsResponse;
+
+const GetFormRelationsTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "get-form-relations",
   description:
-    "Get content relations for a form by its ID. Returns a list of Umbraco content pages that reference or use this form, including node names, types, and whether they are published. Use this to check where a form is used before modifying or deleting it.",
-  inputSchema: getFormByIdRelationsParams.shape,
-  outputSchema: getFormByIdRelationsResponse,
-  slices: ["references"],
+    "Gets the full list of Umbraco relations for a form — the related node's key, name, type and relation type details. More detailed than get-form-has-relations, useful for understanding exactly what would be affected before deleting or moving a form.",
+  inputSchema,
+  outputSchema,
+  slices: ["read"],
   annotations: {
     readOnlyHint: true,
   },
-  handler: async (params) => {
-    return executeGetApiCall<
-      ReturnType<ApiClient["getFormByIdRelations"]>,
-      ApiClient
-    >((client) => client.getFormByIdRelations(params.id, CAPTURE_RAW_HTTP_RESPONSE));
+  handler: async ({ id }) => {
+    return executeGetApiCall<ReturnType<ApiClient["getFormByIdRelations"]>, ApiClient>(
+      (client) => client.getFormByIdRelations(id, CAPTURE_RAW_HTTP_RESPONSE),
+    );
   },
-} satisfies ToolDefinition<
-  typeof getFormByIdRelationsParams.shape,
-  typeof getFormByIdRelationsResponse
->;
+};
 
-export default withStandardDecorators(GetFormRelations);
+export default withStandardDecorators(GetFormRelationsTool);

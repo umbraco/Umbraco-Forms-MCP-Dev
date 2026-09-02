@@ -1,18 +1,29 @@
 {
   "apiName": "Umbraco Forms Management API",
-  "swaggerUrl": "https://localhost:44374/umbraco/swagger/forms-management/swagger.json",
-  "baseUrl": "https://localhost:44374",
+  "swaggerUrl": "https://localhost:44390/umbraco/openapi/forms-management.json",
+  "baseUrl": "https://localhost:44390",
   "collections": [
+    "acceptance-tests",
+    "analytics",
+    "config",
     "data-source",
     "data-source-type",
+    "email-template",
+    "export",
     "field-type",
     "folder",
     "form",
-    "form-submission",
+    "form-template",
+    "licensing",
+    "media",
+    "member",
+    "picker",
     "prevalue-source",
     "prevalue-source-type",
-    "form-submission",
     "record",
+    "security",
+    "theme",
+    "updates",
     "workflow-type"
   ]
 }

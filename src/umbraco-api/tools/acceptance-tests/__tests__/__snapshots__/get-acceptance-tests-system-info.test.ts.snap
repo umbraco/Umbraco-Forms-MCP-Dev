@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-acceptance-tests-system-info should return host system information 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "isLinux": false,
+    "isMacOS": true,
+    "isSqlServer": true,
+    "isSqlite": false,
+    "isWindows": false,
+  },
+}
+`;

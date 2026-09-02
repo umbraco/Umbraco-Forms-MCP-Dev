@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-prevalue-source-values should return values for prevalue source 1`] = `
+exports[`get-prevalue-source-values should resolve values for a prevalue source 1`] = `
 {
   "content": [],
   "structuredContent": {

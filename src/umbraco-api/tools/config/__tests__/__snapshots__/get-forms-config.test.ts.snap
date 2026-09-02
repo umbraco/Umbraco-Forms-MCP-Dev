@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-forms-config should return the Umbraco Forms back-office configuration 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "allowedFileUploadExtensions": "",
+    "disallowedFileUploadExtensions": "config,exe,dll,asp,aspx,js",
+    "enableAdvancedValidationRules": false,
+    "enableMultiPageFormSettings": true,
+    "manageSecurityWithUserGroups": false,
+    "mandatoryFieldsetLegends": false,
+    "maxNumberOfColumnsInFormGroup": 12,
+    "scheduledRecordDeletionEnabled": false,
+  },
+}
+`;

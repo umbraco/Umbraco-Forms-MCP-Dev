@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-data-source-wizard-scaffold should return the wizard scaffold for a data source 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "dataSourceGuid": "00000000-0000-0000-0000-000000000000",
+    "formName": "Form From _Test Data Source Wizard Scaffold",
+    "mappings": [
+      {
+        "allowNulls": false,
+        "availablePrevalueValueFields": [],
+        "dataType": "Integer",
+        "defaultValue": "",
+        "fieldTypeId": "00000000-0000-0000-0000-000000000000",
+        "include": true,
+        "isForeignKey": false,
+        "isMandatory": false,
+        "isPrimaryKey": true,
+        "key": "id",
+        "name": "id",
+        "prevalueKeyField": "",
+        "prevalueSource": "",
+        "prevalueValueField": "",
+      },
+      {
+        "allowNulls": false,
+        "availablePrevalueValueFields": [],
+        "dataType": "Integer",
+        "defaultValue": "",
+        "fieldTypeId": "00000000-0000-0000-0000-000000000000",
+        "include": true,
+        "isForeignKey": false,
+        "isMandatory": false,
+        "isPrimaryKey": false,
+        "key": "value",
+        "name": "value",
+        "prevalueKeyField": "",
+        "prevalueSource": "",
+        "prevalueValueField": "",
+      },
+      {
+        "allowNulls": false,
+        "availablePrevalueValueFields": [],
+        "dataType": "String",
+        "defaultValue": "",
+        "fieldTypeId": "00000000-0000-0000-0000-000000000000",
+        "include": true,
+        "isForeignKey": false,
+        "isMandatory": false,
+        "isPrimaryKey": false,
+        "key": "name",
+        "name": "name",
+        "prevalueKeyField": "",
+        "prevalueSource": "",
+        "prevalueValueField": "",
+      },
+    ],
+  },
+}
+`;

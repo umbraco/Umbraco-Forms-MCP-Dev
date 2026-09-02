@@ -9,13 +9,12 @@
       "Bash(node *)",
       "Bash(curl *)",
       "Bash(mkdir *)",
-      "Bash(mkdir -p *)", 
-      "Bash(ls *)",                                                                                                           
-      "Bash(lsof -ti :*)",                                                                                                
-      "Bash(pkill -f 'dotnet.*demo-site'*)",                                                                                     
-      "Bash(dotnet build *)",                                                                                                    
-      "Bash(dotnet run *)",
-      "WebFetch(domain:docs.umbraco.com)"    
+      "Bash(mkdir -p *)",
+      "Bash(ls *)",
+      "Bash(lsof -ti :*)",
+      "Bash(pkill -f 'dotnet.*demo-site'*)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet run *)"
     ]
   }
 }

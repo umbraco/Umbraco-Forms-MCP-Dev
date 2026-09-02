@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`get-form-scaffold should return empty form scaffold 1`] = `
+exports[`get-form-scaffold should return a blank form design with generated ids 1`] = `
 {
   "content": [],
   "structuredContent": {
@@ -48,7 +48,7 @@ exports[`get-form-scaffold should return empty form scaffold 1`] = `
           "workflowTypeDescription": "Send the result of the form to an email address/addresses using a Razor .cshtml template",
           "workflowTypeGroup": "Email",
           "workflowTypeIcon": "icon-message",
-          "workflowTypeId": "17c61629-d984-4e86-b43b-a8407b3efea9",
+          "workflowTypeId": "00000000-0000-0000-0000-000000000000",
           "workflowTypeName": "Send email with template (Razor)",
         },
       ],
@@ -60,6 +60,7 @@ exports[`get-form-scaffold should return empty form scaffold 1`] = `
     "invalidErrorMessage": "Please provide a valid value for {0}",
     "manualApproval": false,
     "messageOnSubmit": "Thank you",
+    "messageOnSubmitBlocks": null,
     "messageOnSubmitIsHtml": false,
     "name": "",
     "nextLabel": "Next",
@@ -86,10 +87,12 @@ exports[`get-form-scaffold should return empty form scaffold 1`] = `
                     "containsSensitiveData": false,
                     "cssClass": null,
                     "dataSourceFieldKey": null,
-                    "fieldTypeId": "a72c9df9-3847-47cf-afb8-b86773fd12cd",
+                    "fieldTypeId": "00000000-0000-0000-0000-000000000000",
                     "id": "00000000-0000-0000-0000-000000000000",
                     "invalidErrorMessage": null,
                     "mandatory": true,
+                    "mappedMemberPropertyAlias": null,
+                    "memberPrefillMode": "None",
                     "preValues": [],
                     "prevalueSourceId": "00000000-0000-0000-0000-000000000000",
                     "regex": null,
@@ -127,7 +130,7 @@ exports[`get-form-scaffold should return empty form scaffold 1`] = `
     "submitLabel": "Submit",
     "summaryLabel": "Summary of Entry",
     "unique": "00000000-0000-0000-0000-000000000000",
-    "updated": "NORMALIZED_DATE",
+    "updated": "2000-01-01T00:00:00.000Z",
     "updatedBy": null,
     "updatedByName": null,
     "validationRules": [],

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`search-forms should find a form by a partial name match 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [
+      {
+        "entries": 0,
+        "fields": "Consent for storing submitted data",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "_Test Search Forms Unique Query",
+        "summary": "1 page form with 1 fields",
+      },
+    ],
+    "nextCursor": undefined,
+    "total": 1,
+  },
+}
+`;
+
+exports[`search-forms should return an empty result set for a query that matches nothing 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "items": [],
+    "nextCursor": undefined,
+    "total": 0,
+  },
+}
+`;

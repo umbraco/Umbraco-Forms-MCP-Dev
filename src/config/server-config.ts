@@ -1,31 +1,67 @@
 /**
  * Server Configuration
  *
- * Extends the base Umbraco MCP config with custom fields
- * for the Umbraco Forms MCP server.
+ * This module demonstrates how to extend the base Umbraco MCP config
+ * with custom configuration fields specific to your MCP server.
+ *
+ * Custom fields support:
+ * - string: Simple string values
+ * - boolean: True/false flags
+ * - csv: Comma-separated values parsed into arrays
+ * - csv-path: Comma-separated paths, resolved to absolute paths
  */
 
 import {
   getServerConfig,
   type ConfigFieldDefinition,
   type UmbracoServerConfig,
+  type GetServerConfigResult,
 } from "@umbraco-cms/mcp-server-sdk";
 
 // ============================================================================
 // Custom Config Interface
 // ============================================================================
 
-export interface FormsCustomConfig {
+/**
+ * Custom configuration specific to this MCP server.
+ * Define your own fields here - they will be parsed from CLI args or env vars.
+ */
+export interface MyServerCustomConfig {
   /** Disable MCP server chaining (useful for testing or isolated deployments) */
   disableMcpChaining?: boolean;
-  /** API key for the Umbraco Forms Delivery API */
-  formsApiKey?: string;
+  /**
+   * Overrides the Umbraco major version this server targets (e.g. "17") for the
+   * startup version-compatibility check: connecting to a different major warns
+   * and blocks the first tool call until the user retries.
+   *
+   * Leave unset (the normal case) to use `UMBRACO_TARGET_MAJOR` from
+   * `config/umbraco-target.generated.ts`, which `npm run generate` derives from
+   * the OpenAPI spec's `info.version` — i.e. the Umbraco version the tools were
+   * actually generated against. Set this only to deliberately point the server
+   * at a different Umbraco major.
+   */
+  expectedUmbracoMajor?: string;
+  /** Enable experimental features */
+  experimentalFeatures?: boolean;
+  /** Custom API endpoints to enable */
+  customEndpoints?: string[];
+  /** External service API key */
+  externalApiKey?: string;
+  /** Maximum items per page for list operations */
+  maxPageSize?: string;
 }
 
 // ============================================================================
 // Custom Field Definitions
 // ============================================================================
 
+/**
+ * Define additional config fields for this server.
+ * Each field automatically gets:
+ * - A CLI argument (--my-experimental-features)
+ * - An environment variable (MY_EXPERIMENTAL_FEATURES)
+ * - Automatic parsing based on type
+ */
 const customFields: ConfigFieldDefinition[] = [
   {
     name: "disableMcpChaining",
@@ -34,9 +70,33 @@ const customFields: ConfigFieldDefinition[] = [
     type: "boolean",
   },
   {
-    name: "formsApiKey",
-    envVar: "UMBRACO_FORMS_API_KEY",
-    cliFlag: "umbraco-forms-api-key",
+    name: "expectedUmbracoMajor",
+    envVar: "UMBRACO_EXPECTED_MAJOR",
+    cliFlag: "umbraco-expected-major",
+    type: "string",
+  },
+  {
+    name: "experimentalFeatures",
+    envVar: "MY_EXPERIMENTAL_FEATURES",
+    cliFlag: "my-experimental-features",
+    type: "boolean",
+  },
+  {
+    name: "customEndpoints",
+    envVar: "MY_CUSTOM_ENDPOINTS",
+    cliFlag: "my-custom-endpoints",
+    type: "csv",
+  },
+  {
+    name: "externalApiKey",
+    envVar: "MY_EXTERNAL_API_KEY",
+    cliFlag: "my-external-api-key",
+    type: "string",
+  },
+  {
+    name: "maxPageSize",
+    envVar: "MY_MAX_PAGE_SIZE",
+    cliFlag: "my-max-page-size",
     type: "string",
   },
 ];
@@ -49,26 +109,46 @@ export interface ServerConfig {
   /** Base Umbraco MCP configuration */
   umbraco: UmbracoServerConfig;
   /** Custom configuration for this server */
-  custom: FormsCustomConfig;
+  custom: MyServerCustomConfig;
+  /** CLI introspection flags */
+  cliFlags: GetServerConfigResult["cliFlags"];
 }
 
 let cachedConfig: ServerConfig | null = null;
 
 /**
  * Load server configuration from CLI arguments and environment variables.
+ *
+ * @param isStdioMode - Whether the server is running in stdio mode (suppresses logging)
+ * @returns Combined base and custom configuration
+ *
+ * @example
+ * ```typescript
+ * const { umbraco, custom } = loadServerConfig(true);
+ *
+ * // Access base Umbraco config
+ * console.log(umbraco.auth.baseUrl);
+ * console.log(umbraco.readonly);
+ *
+ * // Access custom config
+ * if (custom.experimentalFeatures) {
+ *   enableExperimentalFeatures();
+ * }
+ * ```
  */
-export function loadServerConfig(isStdioMode: boolean): ServerConfig {
+export async function loadServerConfig(isStdioMode: boolean): Promise<ServerConfig> {
   if (cachedConfig) {
     return cachedConfig;
   }
 
-  const { config, custom } = getServerConfig(isStdioMode, {
+  const { config, custom, cliFlags } = await getServerConfig(isStdioMode, {
     additionalFields: customFields,
   });
 
   cachedConfig = {
     umbraco: config,
-    custom: custom as FormsCustomConfig,
+    custom: custom as MyServerCustomConfig,
+    cliFlags,
   };
 
   return cachedConfig;
@@ -79,4 +159,11 @@ export function loadServerConfig(isStdioMode: boolean): ServerConfig {
  */
 export function clearConfigCache(): void {
   cachedConfig = null;
+}
+
+/**
+ * Get the custom field definitions (useful for testing/documentation)
+ */
+export function getCustomFieldDefinitions(): ConfigFieldDefinition[] {
+  return [...customFields];
 }

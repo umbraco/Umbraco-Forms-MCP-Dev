@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-folder-by-id should return a folder by ID 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "created": "NORMALIZED_DATE",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "_Test Get Folder By Id",
+    "parentId": null,
+  },
+}
+`;
