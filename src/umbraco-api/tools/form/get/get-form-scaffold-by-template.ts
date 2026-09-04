@@ -21,6 +21,7 @@ import {
   getFormScaffoldByTemplateResponse,
 } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 import { normalizeScaffoldDates } from "./normalize-scaffold-dates.js";
+import { normalizeScaffoldReferences } from "./normalize-scaffold-references.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
@@ -46,7 +47,7 @@ const GetFormScaffoldByTemplateTool: ToolDefinition<typeof inputSchema, typeof o
         template,
         CAPTURE_RAW_HTTP_RESPONSE,
       )) as HttpResponse<FormDesign>;
-      return normalizeScaffoldDates(response);
+      return normalizeScaffoldReferences(normalizeScaffoldDates(response));
     });
   },
 };

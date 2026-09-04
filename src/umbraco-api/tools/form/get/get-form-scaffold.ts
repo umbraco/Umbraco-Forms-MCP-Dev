@@ -18,6 +18,7 @@ import type {
 } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { getFormScaffoldResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 import { normalizeScaffoldDates } from "./normalize-scaffold-dates.js";
+import { normalizeScaffoldReferences } from "./normalize-scaffold-references.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
@@ -35,7 +36,7 @@ const GetFormScaffoldTool: ToolDefinition<undefined, typeof outputSchema> = {
   handler: async () => {
     return executeGetApiCall<ReturnType<ApiClient["getFormScaffold"]>, ApiClient>(async (client) => {
       const response = (await client.getFormScaffold(CAPTURE_RAW_HTTP_RESPONSE)) as HttpResponse<FormDesign>;
-      return normalizeScaffoldDates(response);
+      return normalizeScaffoldReferences(normalizeScaffoldDates(response));
     });
   },
 };
