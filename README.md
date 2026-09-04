@@ -1,86 +1,114 @@
 # forms-mcp-server
 
-MCP server template for Umbraco add-ons using the @umbraco-cms/mcp-server-sdk.
+MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`. Exposes forms, data sources, records, workflows, and related Forms management APIs as MCP tools.
 
-## Getting Started
+## Prerequisites
 
-### 1. Install Dependencies
+- Node.js 22+
+- .NET SDK 10.0
+- SQL Server reachable at `localhost:1433` (the committed `demo-site/appsettings.local.json` expects `sa` / `MyStrong!Passw0rd`; edit that file if you want different credentials or SQLite)
+
+## Quick Start
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Configure Environment
+### 2. Start SQL Server and create the database
 
-Copy `.env.example` to `.env` and fill in your Umbraco connection details:
+```bash
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=MyStrong!Passw0rd" \
+  -p 1433:1433 --name forms-mcp-sql -d mcr.microsoft.com/mssql/server:2022-latest
+
+docker exec forms-mcp-sql /opt/mssql-tools18/bin/sqlcmd \
+  -S localhost -U sa -P 'MyStrong!Passw0rd' -C -Q "CREATE DATABASE FormsMcpDb"
+```
+
+### 3. Start the demo Umbraco + Forms instance
+
+`demo-site/` is a working Umbraco Forms install already checked into this repo.
+
+```bash
+npm run start:umbraco
+```
+
+The first run performs an unattended install and creates the admin user (`admin@admin.com` / `1234567890`, see `demo-site/appsettings.Development.json`). Leave it running — subsequent steps talk to it at `https://localhost:44390`.
+
+### 4. Create the MCP API user
+
+In a new terminal, once Umbraco is up:
+
+```bash
+npm run create-api-user
+```
+
+This provisions an API user (Client ID `umbraco-back-office-mcp` / Secret `1234567890`) via the Management API — see `CLAUDE.md` for the manual backoffice alternative and version-specific caveats (e.g. the Swagger OAuth redirect path).
+
+### 5. Configure environment
 
 ```bash
 cp .env.example .env
 ```
 
-### 3. Generate API Client (Optional)
+Fill in (or confirm) these values to match the demo site:
 
-If you have an OpenAPI spec for your add-on:
-
-1. Update `orval.config.ts` to point to your spec
-2. Run the generator:
-
-```bash
-npm run generate
+```
+UMBRACO_CLIENT_ID=umbraco-back-office-mcp
+UMBRACO_CLIENT_SECRET=1234567890
+UMBRACO_BASE_URL=https://localhost:44390
+NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 
-### 4. Build and Test
+### 6. Build and try it
 
 ```bash
-# Build the server
 npm run build
-
-# Run tests
-npm test
 
 # Test with MCP Inspector
 npm run inspect
 ```
 
+Or open this project directory in Claude Code — `.mcp.json` registers the server automatically (it runs `node --env-file=.env ./dist/index.js`, so no secrets leave `.env`).
+
 ## Project Structure
 
 ```
 ├── src/
-│   ├── api/
-│   │   ├── client.ts           # API client configuration
-│   │   └── generated/          # Orval-generated API code
-│   ├── tools/
-│   │   └── example/            # Example tool collection
-│   │       ├── get/
-│   │       ├── post/
-│   │       └── index.ts
-│   └── index.ts                # Server entry point
+│   ├── umbraco-api/
+│   │   ├── api/
+│   │   │   ├── client.ts              # API client configuration
+│   │   │   └── generated/             # Orval-generated client and Zod schemas
+│   │   └── tools/
+│   │       └── {collection}/          # e.g. form, data-source, record, workflow-type...
+│   │           ├── index.ts           # ToolCollectionExport
+│   │           ├── get/ post/ put/ delete/
+│   │           └── __tests__/
+│   ├── config/                        # Custom fields, slice/mode registries
+│   ├── mocks/                         # MSW handlers for unit tests
+│   └── index.ts                       # Server entry point
+├── demo-site/                         # Local Umbraco Forms instance for dev/testing
 ├── scripts/
-│   └── tunnels.sh              # Cloudflare tunnels for remote MCP client testing
-├── umbraco/
-│   ├── McpOAuthComposer.cs                            # Self-hosted: OAuth client for your own Worker
-│   ├── McpHostedClientsComposer.Cloud.cs              # Cloud only (commented out): one or more hosted MCP clients (Editor / Dev / …) chosen via array
-│   └── McpExternalLoginShortCircuitComposer.Cloud.cs  # Cloud only (commented out): redirects to Umbraco SSO instead of dead-ending at /umbraco/login
-├── __tests__/
-│   └── example/                # Example tests
-├── package.json
-├── tsconfig.json
-├── tsup.config.ts
-├── jest.config.ts
-├── orval.config.ts
+│   ├── create-api-user.mjs            # Provisions the MCP API user
+│   ├── test-changed.mjs               # Runs only tests related to the current diff
+│   ├── rerun-failures.mjs             # Reruns only the last run's failures
+│   └── start-umbraco.sh / .ps1        # Runs demo-site/
+├── umbraco/                            # Composer snippets to copy into YOUR OWN Umbraco project
+│   └── McpOAuthComposer.cs            # if self-hosting the MCP server as a Worker
+├── tests/evals/                       # LLM-based acceptance tests
+├── .github/workflows/                 # CI (test.yml) and release (release-tag.yml)
 └── .env.example
 ```
 
+Full tool conventions, registries, and the Umbraco-version check are documented in `CLAUDE.md`.
+
 ## Adding Your Own Tools
 
-1. Create a new folder under `src/tools/` for your tool collection
-2. Create tool files following the example pattern:
-   - `get/` for GET operations
-   - `post/` for POST operations
-   - `put/` for PUT operations
-   - `delete/` for DELETE operations
-3. Create an `index.ts` that exports the collection
-4. Register the collection in `src/index.ts`
+1. Create a folder under `src/umbraco-api/tools/` for your tool collection
+2. Add tool files in the matching subfolder — `get/`, `post/`, `put/`, `delete/`
+3. Add an `index.ts` that exports the collection (`ToolCollectionExport`)
+4. Register the collection in `src/collections.ts` and `src/index.ts`
 
 ### Tool Pattern Example
 
@@ -115,6 +143,15 @@ export default withStandardDecorators(myTool);
 
 ## Testing
 
+Integration tests run against the real Umbraco instance from the Quick Start above (no mocking):
+
+```bash
+npm test                      # full integration suite
+npm run test:changed          # only tests related to files changed vs dev/main
+npm run test:rerun-failures   # re-run only what failed last time (reads test-failures.log)
+npm run test:evals            # LLM-based acceptance tests (needs Claude Code subscription or ANTHROPIC_API_KEY)
+```
+
 Tests use Jest with the MCP toolkit's testing helpers:
 
 ```typescript
@@ -134,27 +171,24 @@ describe("my-tool", () => {
 });
 ```
 
-## Testing with Claude Code
+## Regenerating the API Client
 
-This project ships with a `.mcp.json` that registers the MCP server with Claude Code automatically. Once you have run `init`, `discover`, and `npm run build`, open the project directory in Claude Code and the server is available immediately — no manual `claude mcp add` required.
+If the Umbraco Forms Management API changes, point `orval.config.ts` at your instance and regenerate:
 
 ```bash
-# One-time setup
-npx @umbraco-cms/create-umbraco-mcp-server init   # writes credentials to .env
-npx @umbraco-cms/create-umbraco-mcp-server discover # generates API client
-npm run build                                       # compiles dist/index.js
-
-# Open in Claude Code — .mcp.json is picked up automatically
-claude .
+npm run generate
 ```
 
-The server reads credentials from `.env` via `node --env-file=.env ./dist/index.js`, so no secrets are committed to source control.
+This also re-stamps `src/config/umbraco-target.generated.ts` from your connected instance's actual version — see `CLAUDE.md` for why there's no spec-based fallback.
 
-## Publishing
+## CI
 
-1. Update `package.json` with your package name and details
-2. Build: `npm run build`
-3. Publish: `npm publish`
+- `.github/workflows/test.yml` spins up SQL Server + a real Umbraco instance and runs the integration suite per tool collection on every push/PR to `dev`/`main`.
+- `.github/workflows/release-tag.yml` tags `v<version>` and creates a GitHub Release whenever `package.json`'s version changes on `main`.
+
+## Deploying as a Hosted Worker
+
+See `src/worker.ts` and `CLAUDE.md`'s "Hosted Worker" section. The `umbraco/` folder holds Composer snippets to copy into your own Umbraco project so it can authenticate a Worker-hosted MCP server.
 
 ## License
 
