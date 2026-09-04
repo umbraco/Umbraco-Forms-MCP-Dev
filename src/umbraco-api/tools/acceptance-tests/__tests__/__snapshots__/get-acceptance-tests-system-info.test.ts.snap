@@ -4,8 +4,8 @@ exports[`get-acceptance-tests-system-info should return host system information 
 {
   "content": [],
   "structuredContent": {
-    "isLinux": false,
-    "isMacOS": true,
+    "isLinux": true,
+    "isMacOS": false,
     "isSqlServer": true,
     "isSqlite": false,
     "isWindows": false,
