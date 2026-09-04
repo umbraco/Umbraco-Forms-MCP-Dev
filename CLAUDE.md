@@ -123,7 +123,17 @@ Custom fields defined in `config/server-config.ts`.
 
 ## API User Setup
 
-Integration tests require an API user in Umbraco. **You must create this manually via the Umbraco backoffice UI:**
+Integration tests require an API user in Umbraco with Client ID `umbraco-back-office-mcp` / Secret `1234567890` (matching `.env`).
+
+**Preferred: `npm run create-api-user`** (`scripts/create-api-user.mjs`) — creates the user via the Management API directly (admin login → PKCE token exchange → create API user → set client credentials), no backoffice UI needed:
+
+```bash
+node scripts/create-api-user.mjs https://localhost:44391 admin@admin.com 1234567890
+```
+
+Check the hardcoded Swagger OAuth `redirect_uri` before reusing it against a different Umbraco version — it must match the `umbraco-swagger` OpenIddict client's registered redirect URI for your installed CMS version.
+
+**Manual alternative:** create the user via the Umbraco backoffice UI:
 
 1. Go to **Settings > Users** in the Umbraco backoffice
 2. Create an API user with:
