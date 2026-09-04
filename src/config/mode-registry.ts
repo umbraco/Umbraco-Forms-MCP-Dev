@@ -34,7 +34,7 @@ export const toolModes: ToolModeDefinition[] = [
     name: 'forms-management-all',
     displayName: 'All Forms Management Tools',
     description: 'All 22 collections combined',
-    collections: ['acceptance-tests', 'analytics', 'config', 'data-source', 'data-source-type', 'email-template', 'export', 'field-type', 'folder', 'form', 'form-template', 'licensing', 'media', 'member', 'picker', 'prevalue-source', 'prevalue-source-type', 'record', 'security', 'theme', 'updates', 'workflow-type']
+    collections: ['acceptance-tests', 'analytics', 'config', 'data-source', 'data-source-type', 'email-template', 'export', 'field-type', 'folder', 'form', 'form-template', 'form-submission', 'licensing', 'media', 'member', 'picker', 'prevalue-source', 'prevalue-source-type', 'record', 'theme', 'updates', 'workflow-type']
   },
   // Add your modes here as you build out your MCP server
   // {

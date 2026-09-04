@@ -121,4 +121,62 @@ export default defineConfig({
       afterAllFilesWrite: postProcessZodFiles as HookFunction,
     },
   },
+
+  // Forms Delivery API client generation.
+  //
+  // Unlike the Management API, the Delivery API has no discoverable
+  // /umbraco/openapi/*.json endpoint on the instance — it's a small,
+  // stable public surface (get a form definition, submit an entry) that
+  // Umbraco Forms ships as a fixed spec, so it's checked in locally rather
+  // than fetched live. It also authenticates differently (an `Api-Key`
+  // header, not OAuth), hence the separate `deliveryInstance` mutator in
+  // `./src/umbraco-api/api/delivery-client.ts`.
+  umbracoFormsDeliveryApi: {
+    input: {
+      target: "./src/umbraco-api/api/forms-delivery-swagger.json",
+      unsafeDisableValidation: true,
+    },
+    output: {
+      target: "./src/umbraco-api/api/generated/umbracoFormsDeliveryApi.ts",
+      client: "axios",
+      mode: "single",
+      clean: false,
+      override: {
+        mutator: {
+          path: "./src/umbraco-api/api/delivery-client.ts",
+          name: "deliveryInstance",
+        },
+      },
+    },
+    hooks: {
+      afterAllFilesWrite: orvalImportFixer as HookFunction,
+    },
+  },
+
+  umbracoFormsDeliveryApiZod: {
+    input: {
+      target: "./src/umbraco-api/api/forms-delivery-swagger.json",
+      unsafeDisableValidation: true,
+    },
+    output: {
+      target: "./src/umbraco-api/api/generated/umbracoFormsDeliveryApi.zod.ts",
+      client: "zod",
+      mode: "single",
+      clean: false,
+      override: {
+        zod: {
+          dateTimeOptions: {
+            local: true,
+            offset: true,
+          },
+          coerce: {
+            query: ["number", "boolean"],
+          },
+        },
+      },
+    },
+    hooks: {
+      afterAllFilesWrite: postProcessZodFiles as HookFunction,
+    },
+  },
 });
