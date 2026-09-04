@@ -1,0 +1,157 @@
+name: Test
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: Moloko99
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Moloko99 -C -Q 'SELECT 1' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      UMBRACO_CLIENT_ID: umbraco-back-office-mcp
+      UMBRACO_CLIENT_SECRET: '1234567890'
+      UMBRACO_BASE_URL: https://localhost:44390
+      NODE_TLS_REJECT_UNAUTHORIZED: '0'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup .NET dev certs
+        run: dotnet dev-certs https
+
+      - name: Configure Umbraco for CI
+        run: |
+          cat > demo-site/appsettings.local.json << 'EOF'
+          {
+            "ConnectionStrings": {
+              "umbracoDbDSN": "Server=localhost,1433;Database=forms-mcp-ci;User Id=sa;password=Moloko99;TrustServerCertificate=True",
+              "umbracoDbDSN_ProviderName": "Microsoft.Data.SqlClient"
+            }
+          }
+          EOF
+
+      - name: Create database
+        run: |
+          docker exec ${{ job.services.sqlserver.id }} /opt/mssql-tools18/bin/sqlcmd \
+            -S localhost -U sa -P Moloko99 -C \
+            -Q "IF DB_ID('forms-mcp-ci') IS NULL CREATE DATABASE [forms-mcp-ci]"
+
+      - name: Start Umbraco
+        run: |
+          cd demo-site
+          ASPNETCORE_ENVIRONMENT=Development \
+          ASPNETCORE_URLS="http://localhost:9219;https://localhost:44390" \
+          dotnet run --no-launch-profile > /tmp/umbraco.log 2>&1 &
+          echo $! > /tmp/umbraco.pid
+
+      - name: Wait for Umbraco
+        run: |
+          echo "Waiting for Umbraco runtime to reach 'Run'..."
+          for i in $(seq 1 60); do
+            STATUS=$(curl -sf http://localhost:9219/umbraco/management/api/v1/server/status 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('serverStatus',''))" 2>/dev/null || echo "")
+            if [ "$STATUS" = "Run" ]; then
+              echo "Umbraco is ready (serverStatus=Run)"
+              exit 0
+            fi
+            if ! kill -0 $(cat /tmp/umbraco.pid) 2>/dev/null; then
+              echo "Umbraco process died! Last 100 lines of log:"
+              tail -100 /tmp/umbraco.log
+              exit 1
+            fi
+            echo "Attempt $i/60 - serverStatus='${STATUS:-unreachable}' - waiting 5s..."
+            sleep 5
+          done
+          echo "Umbraco failed to reach 'Run' within 5 minutes. Last 100 lines of log:"
+          tail -100 /tmp/umbraco.log
+          exit 1
+        timeout-minutes: 6
+
+      - name: Create API user
+        run: |
+          # serverStatus=Run can be reported moments before the backoffice
+          # login endpoint is actually ready (Umbraco does a final internal
+          # restart after unattended install) - retry through the brief 503 window.
+          for i in $(seq 1 10); do
+            if node scripts/create-api-user.mjs http://localhost:9219 admin@admin.com 1234567890; then
+              exit 0
+            fi
+            echo "Attempt $i/10 failed - waiting 5s before retry..."
+            sleep 5
+          done
+          exit 1
+
+      - name: Run tests per collection
+        run: |
+          set +e
+          FAILED=0
+          for dir in src/umbraco-api/tools/*/; do
+            collection=$(basename "$dir")
+            if [ ! -d "${dir}__tests__" ]; then
+              continue
+            fi
+            echo "=== ${collection} ==="
+            NODE_OPTIONS="--max-old-space-size=4096" node --experimental-vm-modules node_modules/jest/bin/jest.js \
+              --runInBand --testPathPatterns="tools/${collection}/__tests__"
+            if [ $? -ne 0 ]; then
+              echo "*** FAILED: ${collection} ***"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+
+      - name: Upload snapshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots
+          path: src/umbraco-api/tools/*/__tests__/__snapshots__/*.snap
+
+      - name: Dump Umbraco log on failure
+        if: failure()
+        run: tail -200 /tmp/umbraco.log || true
