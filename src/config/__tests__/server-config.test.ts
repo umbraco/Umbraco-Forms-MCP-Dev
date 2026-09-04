@@ -211,7 +211,7 @@ describe("Server Config", () => {
     it("should return all custom field definitions", () => {
       const fields = getCustomFieldDefinitions();
 
-      expect(fields).toHaveLength(6);
+      expect(fields).toHaveLength(7);
       expect(fields.map(f => f.name)).toEqual([
         "disableMcpChaining",
         "expectedUmbracoMajor",
@@ -219,6 +219,7 @@ describe("Server Config", () => {
         "customEndpoints",
         "externalApiKey",
         "maxPageSize",
+        "formsApiKey",
       ]);
     });
 

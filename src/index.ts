@@ -48,6 +48,7 @@ import fieldTypeCollection from "./umbraco-api/tools/field-type/index.js";
 import folderCollection from "./umbraco-api/tools/folder/index.js";
 import formCollection from "./umbraco-api/tools/form/index.js";
 import formTemplateCollection from "./umbraco-api/tools/form-template/index.js";
+import formSubmissionCollection from "./umbraco-api/tools/form-submission/index.js";
 import licensingCollection from "./umbraco-api/tools/licensing/index.js";
 import mediaCollection from "./umbraco-api/tools/media/index.js";
 import memberCollection from "./umbraco-api/tools/member/index.js";
@@ -55,7 +56,6 @@ import pickerCollection from "./umbraco-api/tools/picker/index.js";
 import prevalueSourceCollection from "./umbraco-api/tools/prevalue-source/index.js";
 import prevalueSourceTypeCollection from "./umbraco-api/tools/prevalue-source-type/index.js";
 import recordCollection from "./umbraco-api/tools/record/index.js";
-import securityCollection from "./umbraco-api/tools/security/index.js";
 import themeCollection from "./umbraco-api/tools/theme/index.js";
 import updatesCollection from "./umbraco-api/tools/updates/index.js";
 import workflowTypeCollection from "./umbraco-api/tools/workflow-type/index.js";
@@ -127,6 +127,7 @@ const collections = [
   folderCollection,
   formCollection,
   formTemplateCollection,
+  formSubmissionCollection,
   licensingCollection,
   mediaCollection,
   memberCollection,
@@ -134,7 +135,6 @@ const collections = [
   prevalueSourceCollection,
   prevalueSourceTypeCollection,
   recordCollection,
-  securityCollection,
   themeCollection,
   updatesCollection,
   workflowTypeCollection,

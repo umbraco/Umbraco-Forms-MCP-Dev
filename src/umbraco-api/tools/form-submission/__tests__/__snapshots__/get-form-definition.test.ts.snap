@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-form-definition should return form definition from Delivery API 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "autocompleteAttribute": "",
+    "disableDefaultStylesheet": false,
+    "fieldIndicationType": "NoIndicator",
+    "hideFieldValidation": false,
+    "id": "00000000-0000-0000-0000-000000000000",
+    "indicator": "*",
+    "messageOnSubmit": "Thank you",
+    "messageOnSubmitIsHtml": false,
+    "name": "_Test Get Form Definition",
+    "nextLabel": "Next",
+    "pageCaptionFormat": "Page {0}",
+    "pages": [
+      {
+        "caption": "",
+        "fieldsets": [
+          {
+            "caption": "",
+            "columns": [
+              {
+                "caption": "",
+                "fields": [
+                  {
+                    "alias": "dataConsent",
+                    "caption": "Consent for storing submitted data",
+                    "containsSensitiveData": false,
+                    "helpText": "",
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "pattern": "",
+                    "patternInvalidErrorMessage": "Please provide a valid value for Consent for storing submitted data",
+                    "preValues": [],
+                    "required": false,
+                    "requiredErrorMessage": "Consent is required to store and process the data in this form.",
+                    "settings": {
+                      "acceptCopy": "Yes, I give permission to store and process my data",
+                      "showLabel": "",
+                    },
+                    "type": {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "Data Consent",
+                      "renderInputType": "Single",
+                      "supportsPreValues": false,
+                      "supportsUploadTypes": false,
+                    },
+                  },
+                  {
+                    "alias": "shortAnswer",
+                    "caption": "Short Answer",
+                    "containsSensitiveData": false,
+                    "helpText": "",
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "pattern": "",
+                    "patternInvalidErrorMessage": "Please provide a valid value for Short Answer",
+                    "preValues": [],
+                    "required": false,
+                    "requiredErrorMessage": "Please provide a value for Short Answer",
+                    "settings": {
+                      "autocompleteAttribute": "",
+                      "defaultValue": "",
+                      "fieldType": "",
+                      "maximumLength": "",
+                      "placeholder": "",
+                      "showLabel": "True",
+                    },
+                    "type": {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "Short answer",
+                      "renderInputType": "Single",
+                      "supportsPreValues": false,
+                      "supportsUploadTypes": false,
+                    },
+                  },
+                ],
+                "width": 12,
+              },
+            ],
+            "id": "00000000-0000-0000-0000-000000000000",
+          },
+        ],
+        "id": "00000000-0000-0000-0000-000000000000",
+      },
+    ],
+    "pagingDetailsFormat": "Page {0} of {1}",
+    "previousLabel": "Previous",
+    "showPagingOnMultiPageFormsAtBottom": false,
+    "showPagingOnMultiPageFormsAtTop": false,
+    "showSummaryPageOnMultiPageForms": false,
+    "showValidationSummary": false,
+    "submitLabel": "Submit",
+    "summaryLabel": "Summary of Entry",
+    "validationRules": [],
+  },
+}
+`;
