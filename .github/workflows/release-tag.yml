@@ -1,0 +1,55 @@
+# Tag + GitHub Release when the version on `main` changes.
+#
+# Idempotent: it computes v<version> from package.json and skips if that tag
+# already exists, so it only tags + releases when the version is actually
+# bumped (i.e. when a release branch merges to main).
+#
+# Prereleases (alpha/beta/rc suffixes) are flagged with --prerelease so they
+# don't show as the latest stable release.
+
+name: release-tag
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write        # push tags + create releases
+
+jobs:
+  tag-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so we can see whether the tag already exists
+
+      - name: Read version
+        id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether tag already exists
+        id: check
+        run: |
+          if git rev-parse "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create tag + GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.v.outputs.version }}"
+
+          # Flag prereleases (alpha/beta/rc) so they don't claim "latest".
+          case "$VERSION" in
+            *alpha*|*beta*|*rc*) PRERELEASE="--prerelease" ;;
+            *)                   PRERELEASE="" ;;
+          esac
+
+          git tag "$VERSION"
+          git push origin "$VERSION"
+          gh release create "$VERSION" --title "$VERSION" --generate-notes $PRERELEASE

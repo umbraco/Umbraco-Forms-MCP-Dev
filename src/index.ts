@@ -55,7 +55,6 @@ import pickerCollection from "./umbraco-api/tools/picker/index.js";
 import prevalueSourceCollection from "./umbraco-api/tools/prevalue-source/index.js";
 import prevalueSourceTypeCollection from "./umbraco-api/tools/prevalue-source-type/index.js";
 import recordCollection from "./umbraco-api/tools/record/index.js";
-import securityCollection from "./umbraco-api/tools/security/index.js";
 import themeCollection from "./umbraco-api/tools/theme/index.js";
 import updatesCollection from "./umbraco-api/tools/updates/index.js";
 import workflowTypeCollection from "./umbraco-api/tools/workflow-type/index.js";
@@ -134,7 +133,6 @@ const collections = [
   prevalueSourceCollection,
   prevalueSourceTypeCollection,
   recordCollection,
-  securityCollection,
   themeCollection,
   updatesCollection,
   workflowTypeCollection,
