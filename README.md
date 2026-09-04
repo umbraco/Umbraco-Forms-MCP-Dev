@@ -5,10 +5,19 @@ MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`. Exposes fo
 ## Prerequisites
 
 - Node.js 22+
-- .NET SDK 10.0
-- SQL Server reachable at `localhost:1433` (the committed `demo-site/appsettings.local.json` expects `sa` / `MyStrong!Passw0rd`; edit that file if you want different credentials or SQLite)
+- .NET SDK 10.0 and SQL Server reachable at `localhost:1433` — **only if you're running the
+  bundled `demo-site/`** (see below). Pointing this server at an existing Umbraco Forms
+  instance instead needs neither.
 
 ## Quick Start
+
+> **Already have an Umbraco Forms instance?** This server works against any Umbraco Forms
+> install — the `demo-site/` in steps 2–4 below is only there to give you something to run
+> against out of the box. If you already have an instance running (locally or remotely), skip
+> straight to step 5 and point `.env` at it: set `UMBRACO_BASE_URL` to its URL, and
+> `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET` to an API user on *that* instance (create one via
+> its backoffice, or run `npm run create-api-user <base-url> <admin-email> <admin-password>`
+> against it instead of the demo defaults).
 
 ### 1. Install dependencies
 
