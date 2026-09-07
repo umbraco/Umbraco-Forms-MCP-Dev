@@ -4,6 +4,7 @@ const config: JestConfigWithTsJest = {
   displayName: "template",
   preset: "ts-jest/presets/js-with-ts-esm",
   testEnvironment: "node",
+  reporters: ["default", "<rootDir>/jest-failure-reporter.ts"],
   maxWorkers: 1,
   extensionsToTreatAsEsm: [".ts"],
   moduleNameMapper: {

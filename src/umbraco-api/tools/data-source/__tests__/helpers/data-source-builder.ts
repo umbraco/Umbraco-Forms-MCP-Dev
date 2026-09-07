@@ -18,12 +18,15 @@ export const TEST_DATA_SOURCE_NAME = "_Test Data Source";
 // The "SQL Database" data source type is the only built-in type on this instance.
 // It validates connectivity live against the settings it's given, so — rather than
 // fabricating fake external infra — these tests point it at the same real SQL Server
-// that already backs this Umbraco instance (see demo-site/appsettings.local.json),
-// against a stock Umbraco system table with only basic column types.
+// that already backs this Umbraco instance, against a stock Umbraco system table with
+// only basic column types. The connection string is environment-specific (differs
+// between a local dev's appsettings.local.json and CI's SQL Server container), so it's
+// overridable via TEST_SQL_DATA_SOURCE_CONNECTION rather than hardcoded to one machine.
 export const SQL_DATA_SOURCE_TYPE_ID = "f19506f3-efea-4b13-a308-89348f69df91";
 
 export const DEFAULT_DATA_SOURCE_SETTINGS: FormDataSourceSettings = {
   Connection:
+    process.env.TEST_SQL_DATA_SOURCE_CONNECTION ??
     "Server=localhost,1433;Database=FormsMcpDb;User Id=sa;Password=MyStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False",
   Table: "umbracoLock",
 };

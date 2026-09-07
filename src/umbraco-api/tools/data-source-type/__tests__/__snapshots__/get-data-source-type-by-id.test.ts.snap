@@ -13,7 +13,7 @@ exports[`get-data-source-type-by-id should return a data source type by id 1`] =
     "settings": [
       {
         "alias": "Connection",
-        "defaultValue": "Server=localhost,1433;Database=FormsMcpDb;User Id=sa;Password=MyStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False",
+        "defaultValue": "",
         "description": "SQL Server connection string",
         "displayOrder": 10,
         "isMandatory": true,
@@ -24,7 +24,7 @@ exports[`get-data-source-type-by-id should return a data source type by id 1`] =
       },
       {
         "alias": "Table",
-        "defaultValue": "umbracoLock",
+        "defaultValue": "",
         "description": "Table name",
         "displayOrder": 20,
         "isMandatory": true,
