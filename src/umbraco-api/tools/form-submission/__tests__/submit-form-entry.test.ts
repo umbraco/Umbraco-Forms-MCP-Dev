@@ -47,6 +47,7 @@ describe("submit-form-entry", () => {
       context
     );
 
+    expect(result.isError).toBe(true);
     expect(
       result.structuredContent &&
         typeof result.structuredContent === "object" &&

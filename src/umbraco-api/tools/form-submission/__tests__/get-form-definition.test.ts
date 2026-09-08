@@ -23,7 +23,7 @@ describe("get-form-definition", () => {
     builder = await new FormSubmissionBuilder().withName(TEST_NAME).create();
 
     const result = await getFormDefinitionTool.handler(
-      { id: builder.getId() },
+      { id: builder.getId(), contentId: undefined, culture: undefined, additionalData: undefined },
       context
     );
 
@@ -34,7 +34,12 @@ describe("get-form-definition", () => {
     const context = createMockRequestHandlerExtra();
 
     const result = await getFormDefinitionTool.handler(
-      { id: "00000000-0000-0000-0000-000000000000" },
+      {
+        id: "00000000-0000-0000-0000-000000000000",
+        contentId: undefined,
+        culture: undefined,
+        additionalData: undefined,
+      },
       context
     );
 
