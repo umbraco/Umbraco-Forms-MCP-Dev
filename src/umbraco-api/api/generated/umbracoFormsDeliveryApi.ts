@@ -113,6 +113,7 @@ export type FormFieldDtoSettings = {[key: string]: string};
 export interface FormFieldDto {
   id: string;
   caption: string;
+  containsSensitiveData: boolean;
   /** @nullable */
   helpText?: string | null;
   /** @nullable */
@@ -165,6 +166,8 @@ export interface FormDto {
   name: string;
   indicator: string;
   /** @nullable */
+  autocompleteAttribute?: string | null;
+  /** @nullable */
   cssClass?: string | null;
   /** @nullable */
   nextLabel?: string | null;
@@ -179,6 +182,7 @@ export interface FormDto {
   messageOnSubmit?: string | null;
   messageOnSubmitIsHtml: boolean;
   showValidationSummary: boolean;
+  pageCaptionFormat: string;
   /** @nullable */
   gotoPageOnSubmit?: string | null;
   gotoPageOnSubmitRoute?: ApiContentRouteModel | null;
