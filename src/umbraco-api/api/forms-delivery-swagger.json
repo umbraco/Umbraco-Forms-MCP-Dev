@@ -314,6 +314,7 @@
           "indicator",
           "messageOnSubmitIsHtml",
           "name",
+          "pageCaptionFormat",
           "pages",
           "showValidationSummary",
           "validationRules"
@@ -329,6 +330,10 @@
           },
           "indicator": {
             "type": "string"
+          },
+          "autocompleteAttribute": {
+            "type": "string",
+            "nullable": true
           },
           "cssClass": {
             "type": "string",
@@ -364,6 +369,9 @@
           },
           "showValidationSummary": {
             "type": "boolean"
+          },
+          "pageCaptionFormat": {
+            "type": "string"
           },
           "gotoPageOnSubmit": {
             "type": "string",
@@ -439,6 +447,7 @@
         "required": [
           "alias",
           "caption",
+          "containsSensitiveData",
           "id",
           "preValues",
           "required",
@@ -453,6 +462,9 @@
           },
           "caption": {
             "type": "string"
+          },
+          "containsSensitiveData": {
+            "type": "boolean"
           },
           "helpText": {
             "type": "string",
