@@ -6,14 +6,20 @@ import {
 import { getUmbracoFormsDeliveryAPI } from "../../../api/generated/umbracoFormsDeliveryApi.js";
 import {
   getUmbracoFormsDeliveryApiV1DefinitionsIdParams,
+  getUmbracoFormsDeliveryApiV1DefinitionsIdQueryParams,
   getUmbracoFormsDeliveryApiV1DefinitionsIdResponse,
 } from "../../../api/generated/umbracoFormsDeliveryApi.zod.js";
+
+const inputSchema = {
+  ...getUmbracoFormsDeliveryApiV1DefinitionsIdParams.shape,
+  ...getUmbracoFormsDeliveryApiV1DefinitionsIdQueryParams.shape,
+};
 
 const GetFormDefinitionTool = {
   name: "get-form-definition",
   description:
     "Get the public form definition from the Delivery API including all pages, fieldsets, fields with their aliases, types, and validation rules. This returns the form structure as seen by frontend consumers. Use field aliases from this response as keys in submit-form-entry values. Use list-forms first to find form IDs.",
-  inputSchema: getUmbracoFormsDeliveryApiV1DefinitionsIdParams.shape,
+  inputSchema,
   outputSchema: getUmbracoFormsDeliveryApiV1DefinitionsIdResponse,
   slices: ["read"],
   annotations: {
@@ -21,9 +27,13 @@ const GetFormDefinitionTool = {
   },
   handler: async (params) => {
     const client = getUmbracoFormsDeliveryAPI();
-    const result = await client.getUmbracoFormsDeliveryApiV1DefinitionsId(params.id);
+    const result = await client.getUmbracoFormsDeliveryApiV1DefinitionsId(params.id, {
+      contentId: params.contentId,
+      culture: params.culture,
+      additionalData: params.additionalData,
+    });
     return createToolResult(result);
   },
-} satisfies ToolDefinition<typeof getUmbracoFormsDeliveryApiV1DefinitionsIdParams.shape, typeof getUmbracoFormsDeliveryApiV1DefinitionsIdResponse>;
+} satisfies ToolDefinition<typeof inputSchema, typeof getUmbracoFormsDeliveryApiV1DefinitionsIdResponse>;
 
 export default withStandardDecorators(GetFormDefinitionTool);
