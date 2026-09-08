@@ -21,6 +21,7 @@ export const getUmbracoFormsDeliveryApiV1DefinitionsIdResponse = zod.object({
   "id": zod.guid(),
   "name": zod.string(),
   "indicator": zod.string(),
+  "autocompleteAttribute": zod.string().nullish(),
   "cssClass": zod.string().nullish(),
   "nextLabel": zod.string().nullish(),
   "previousLabel": zod.string().nullish(),
@@ -31,6 +32,7 @@ export const getUmbracoFormsDeliveryApiV1DefinitionsIdResponse = zod.object({
   "messageOnSubmit": zod.string().nullish(),
   "messageOnSubmitIsHtml": zod.boolean(),
   "showValidationSummary": zod.boolean(),
+  "pageCaptionFormat": zod.string(),
   "gotoPageOnSubmit": zod.guid().nullish(),
   "gotoPageOnSubmitRoute": zod.object({
   "path": zod.string(),
@@ -69,6 +71,7 @@ export const getUmbracoFormsDeliveryApiV1DefinitionsIdResponse = zod.object({
   "fields": zod.array(zod.object({
   "id": zod.guid(),
   "caption": zod.string(),
+  "containsSensitiveData": zod.boolean(),
   "helpText": zod.string().nullish(),
   "cssClass": zod.string().nullish(),
   "alias": zod.string(),
