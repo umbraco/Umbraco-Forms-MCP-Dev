@@ -2,9 +2,11 @@ import * as zod from "zod";
 import {
   withStandardDecorators,
   createToolResult,
+  createToolResultError,
   ToolDefinition,
+  HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
-import { deliveryInstance } from "../../../api/delivery-client.js";
+import { getUmbracoFormsDeliveryAPI } from "../../../api/generated/umbracoFormsDeliveryApi.js";
 
 const inputSchema = {
   formId: zod.string().uuid().describe("The form ID to submit an entry for. Use list-forms to find form IDs."),
@@ -35,22 +37,18 @@ const SubmitFormEntryTool = {
       normalizedValues[key] = Array.isArray(value) ? value : [value];
     }
 
-    const response = await deliveryInstance<void>(
+    const response = (await getUmbracoFormsDeliveryAPI().postUmbracoFormsDeliveryApiV1EntriesId(
+      params.formId,
       {
-        url: `/umbraco/forms/delivery/api/v1/entries/${params.formId}`,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        data: {
-          values: normalizedValues,
-          ...(params.culture ? { culture: params.culture } : {}),
-        },
+        values: normalizedValues,
+        ...(params.culture ? { culture: params.culture } : {}),
       },
-      { returnFullResponse: true } as any
-    );
+      { returnFullResponse: true }
+    )) as HttpResponse<void>;
 
-    if ((response as any).status >= 400) {
-      return createToolResult({
-        error: `Form submission failed with status ${(response as any).status}`,
+    if (response.status >= 400) {
+      return createToolResultError({
+        error: `Form submission failed with status ${response.status}`,
       });
     }
 
