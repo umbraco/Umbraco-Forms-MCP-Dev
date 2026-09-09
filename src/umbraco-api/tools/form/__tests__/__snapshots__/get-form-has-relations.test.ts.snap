@@ -3,6 +3,8 @@
 exports[`get-form-has-relations should return false for a newly created form with no relations 1`] = `
 {
   "content": [],
-  "structuredContent": false,
+  "structuredContent": {
+    "hasRelations": false,
+  },
 }
 `;
