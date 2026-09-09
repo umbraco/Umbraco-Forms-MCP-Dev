@@ -9,13 +9,19 @@ import {
   withStandardDecorators,
   executeGetApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
+  type HttpResponse,
   type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
-import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import type {
+  FormDesign,
+  getUmbracoFormsManagementAPI,
+} from "../../../api/generated/umbracoFormsManagementApi.js";
 import {
   getFormScaffoldByTemplateParams,
   getFormScaffoldByTemplateResponse,
 } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
+import { normalizeScaffoldDates } from "./normalize-scaffold-dates.js";
+import { normalizeScaffoldReferences } from "./normalize-scaffold-references.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
@@ -36,7 +42,13 @@ const GetFormScaffoldByTemplateTool: ToolDefinition<typeof inputSchema, typeof o
     return executeGetApiCall<
       ReturnType<ApiClient["getFormScaffoldByTemplate"]>,
       ApiClient
-    >((client) => client.getFormScaffoldByTemplate(template, CAPTURE_RAW_HTTP_RESPONSE));
+    >(async (client) => {
+      const response = (await client.getFormScaffoldByTemplate(
+        template,
+        CAPTURE_RAW_HTTP_RESPONSE,
+      )) as HttpResponse<FormDesign>;
+      return normalizeScaffoldReferences(normalizeScaffoldDates(response));
+    });
   },
 };
 
