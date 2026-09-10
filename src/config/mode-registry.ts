@@ -33,22 +33,33 @@ export const toolModes: ToolModeDefinition[] = [
     {
     name: 'forms-management-all',
     displayName: 'All Forms Management Tools',
-    description: 'All 22 collections combined',
+    description: 'All 21 Forms Management collections combined',
     collections: ['acceptance-tests', 'analytics', 'config', 'data-source', 'data-source-type', 'email-template', 'export', 'field-type', 'folder', 'form', 'form-template', 'licensing', 'media', 'member', 'picker', 'prevalue-source', 'prevalue-source-type', 'record', 'theme', 'updates', 'workflow-type']
   },
-  // Add your modes here as you build out your MCP server
-  // {
-  //   name: 'content',
-  //   displayName: 'Content Management',
-  //   description: 'Document creation, editing, and versioning',
-  //   collections: ['document', 'document-version', 'document-blueprint']
-  // },
-  // {
-  //   name: 'media',
-  //   displayName: 'Media Management',
-  //   description: 'Media library and file operations',
-  //   collections: ['media', 'imaging', 'temporary-file']
-  // }
+  {
+    name: 'forms-authoring',
+    displayName: 'Forms Authoring',
+    description: 'Build and structure forms: forms, templates, field types, pickers, folders, themes',
+    collections: ['form', 'form-template', 'field-type', 'picker', 'folder', 'theme']
+  },
+  {
+    name: 'data-sources',
+    displayName: 'Data Sources',
+    description: 'Dynamic prevalue and data sources used to populate form fields',
+    collections: ['data-source', 'data-source-type', 'prevalue-source', 'prevalue-source-type']
+  },
+  {
+    name: 'submissions',
+    displayName: 'Submissions & Analytics',
+    description: 'Read and act on submitted form records, and query submission analytics',
+    collections: ['record', 'analytics', 'workflow-type']
+  },
+  {
+    name: 'admin',
+    displayName: 'Forms Admin',
+    description: 'Server-wide Forms configuration, licensing, updates, members, email templates, and export/import',
+    collections: ['config', 'licensing', 'updates', 'member', 'email-template', 'export', 'acceptance-tests', 'media']
+  },
 ];
 
 /**
