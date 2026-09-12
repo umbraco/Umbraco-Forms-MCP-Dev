@@ -48,6 +48,7 @@ import fieldTypeCollection from "./umbraco-api/tools/field-type/index.js";
 import folderCollection from "./umbraco-api/tools/folder/index.js";
 import formCollection from "./umbraco-api/tools/form/index.js";
 import formTemplateCollection from "./umbraco-api/tools/form-template/index.js";
+import formSubmissionCollection from "./umbraco-api/tools/form-submission/index.js";
 import licensingCollection from "./umbraco-api/tools/licensing/index.js";
 import mediaCollection from "./umbraco-api/tools/media/index.js";
 import memberCollection from "./umbraco-api/tools/member/index.js";
@@ -126,6 +127,7 @@ const collections = [
   folderCollection,
   formCollection,
   formTemplateCollection,
+  formSubmissionCollection,
   licensingCollection,
   mediaCollection,
   memberCollection,
