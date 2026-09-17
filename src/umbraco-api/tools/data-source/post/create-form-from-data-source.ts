@@ -25,11 +25,14 @@ import type {
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-// getFormSearch matches on a name *substring* and defaults to `take: 10`
-// server-side when no `take` is given. This value is a generously large
-// explicit page size so a realistic number of same-named forms are covered
-// in one page — it doesn't need to survive pathological cases (hundreds of
-// identically-named forms), only realistic ones.
+// getFormSearch matches on a name *substring*, not an exact name, and
+// defaults to `take: 10` server-side when no `take` is given. This value is
+// a generously large explicit page size so a realistic number of forms whose
+// name *contains* `formName` are covered in one page — it doesn't need to
+// survive pathological cases (hundreds of forms containing that substring,
+// e.g. `formName: "Contact"` on a large Forms install), only realistic ones.
+// If the true total exceeds this page size, `findExactNameFormIds` throws
+// rather than silently working with a possibly-incomplete page.
 const FORM_SEARCH_TAKE = 100;
 
 /** Ids of forms whose name matches `formName` exactly (search is substring-only). */
@@ -43,9 +46,18 @@ async function findExactNameFormIds(client: ApiClient, formName: string): Promis
     throw new UmbracoApiError(searchResponse.data as ProblemDetails);
   }
 
-  const ids = (searchResponse.data as PagedBasicFormModel).items
-    .filter((form) => form.name === formName)
-    .map((form) => form.id);
+  const paged = searchResponse.data as PagedBasicFormModel;
+
+  if (paged.total > FORM_SEARCH_TAKE) {
+    throw new UmbracoApiError({
+      status: searchResponse.status,
+      detail:
+        `${paged.total} forms match "${formName}", more than the ${FORM_SEARCH_TAKE} this tool ` +
+        "inspects, so the created form's id cannot be resolved reliably. Use a more distinctive form name.",
+    });
+  }
+
+  const ids = paged.items.filter((form) => form.name === formName).map((form) => form.id);
 
   return new Set(ids);
 }
