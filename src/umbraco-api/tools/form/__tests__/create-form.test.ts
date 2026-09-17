@@ -30,6 +30,10 @@ describe("create-form", () => {
 
     const result = await createFormTool.handler(design as any, context);
 
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+    expect(data.id).toBe(design.id);
+
     expect(createSnapshotResult(result, design.id)).toMatchSnapshot();
 
     const found = await FormTestHelper.findByName(TEST_NAME);

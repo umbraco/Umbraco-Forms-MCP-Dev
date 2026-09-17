@@ -8,7 +8,7 @@
 
 import {
   withStandardDecorators,
-  executeVoidApiCall,
+  createToolResult,
   getApiClient,
   UmbracoApiError,
   CAPTURE_RAW_HTTP_RESPONSE,
@@ -20,6 +20,7 @@ import { z } from "zod";
 import type {
   getUmbracoFormsManagementAPI,
   DataSourceWizard,
+  PagedBasicFormModel,
 } from "../../../api/generated/umbracoFormsManagementApi.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
@@ -31,6 +32,11 @@ const inputSchema = {
   formName: z.string().min(1).describe("Name for the new form that will be generated."),
 };
 
+const outputSchema = z.object({
+  success: z.boolean(),
+  id: z.string().describe("The id of the newly created form."),
+});
+
 const CreateFormFromDataSourceTool = {
   name: "create-form-from-data-source",
   description:
@@ -40,6 +46,7 @@ const CreateFormFromDataSourceTool = {
     "tool first if you need to know which fields will be included before generating the " +
     "form. Requires an existing data source id; it does not create a data source.",
   inputSchema,
+  outputSchema,
   slices: ["create"],
   annotations: {
     destructiveHint: false,
@@ -65,10 +72,52 @@ const CreateFormFromDataSourceTool = {
       formName,
     };
 
-    return executeVoidApiCall<ApiClient>((client) =>
-      client.postDatasourceWizardCreateForm(payload, CAPTURE_RAW_HTTP_RESPONSE),
-    );
+    const response = (await client.postDatasourceWizardCreateForm(
+      payload,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<ProblemDetails | void>;
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new UmbracoApiError(
+        (response.data as ProblemDetails) || {
+          status: response.status,
+          detail: response.statusText,
+        },
+      );
+    }
+
+    // The wizard's create-form endpoint responds 200 with an empty body and no
+    // Location header (unlike postFormByIdCopy / postPrevalueSource), so the new
+    // form's id can't be read off the response. Resolve it the same way the
+    // integration test does: search by the name we just gave it.
+    const location = response.headers?.Location || response.headers?.location;
+    let id = location?.split("/").pop();
+
+    if (!id) {
+      const searchResponse = (await client.getFormSearch(
+        { query: formName },
+        CAPTURE_RAW_HTTP_RESPONSE,
+      )) as HttpResponse<PagedBasicFormModel | ProblemDetails>;
+
+      if (searchResponse.status < 200 || searchResponse.status >= 300) {
+        throw new UmbracoApiError(searchResponse.data as ProblemDetails);
+      }
+
+      const match = (searchResponse.data as PagedBasicFormModel).items.find(
+        (form) => form.name === formName,
+      );
+      id = match?.id;
+    }
+
+    if (!id) {
+      throw new UmbracoApiError({
+        status: response.status,
+        detail: "Form was created but its id could not be resolved afterwards.",
+      });
+    }
+
+    return createToolResult({ success: true, id });
   },
-} satisfies ToolDefinition<typeof inputSchema>;
+} satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
 
 export default withStandardDecorators(CreateFormFromDataSourceTool);

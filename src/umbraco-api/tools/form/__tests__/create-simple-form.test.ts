@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   getStructuredContent,
   FormTestHelper,
 } from "./setup.js";
@@ -50,8 +51,14 @@ describe("create-simple-form", () => {
 
     expect(result.isError).toBeFalsy();
 
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+
     const found = await FormTestHelper.findByName(TEST_NAME);
     expect(found).toBeDefined();
+    expect(found?.id).toBe(data.id);
+
+    expect(createSnapshotResult(result, data.id)).toMatchSnapshot();
 
     const design = await fetchDesign(found!.id);
     const fields = fieldsOf(design);

@@ -2,6 +2,7 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  getStructuredContent,
   FormBuilder,
   FormTestHelper,
 } from "./setup.js";
@@ -34,11 +35,15 @@ describe("copy-form", () => {
       context,
     );
 
-    expect(createSnapshotResult(result)).toMatchSnapshot();
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+
+    expect(createSnapshotResult(result, data.id)).toMatchSnapshot();
 
     const found = await FormTestHelper.findByName(TEST_COPY_NAME);
     expect(found).toBeDefined();
     expect(found?.id).not.toBe(builder.getId());
+    expect(found?.id).toBe(data.id);
   });
 
   it("should return an error for a non-existent source form id", async () => {

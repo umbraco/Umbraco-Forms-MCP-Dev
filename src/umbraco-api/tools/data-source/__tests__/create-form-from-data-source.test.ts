@@ -3,6 +3,7 @@ import {
   CAPTURE_RAW_HTTP_RESPONSE,
   type HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
+import { getStructuredContent } from "@umbraco-cms/mcp-server-sdk/testing";
 import type {
   getUmbracoFormsManagementAPI,
   BasicForm,
@@ -63,10 +64,14 @@ describe("create-form-from-data-source", () => {
       context,
     );
 
-    expect(createSnapshotResult(result)).toMatchSnapshot();
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+
+    expect(createSnapshotResult(result, data.id)).toMatchSnapshot();
 
     createdFormId = await findFormIdByName(TEST_FORM_NAME);
     expect(createdFormId).toBeDefined();
+    expect(createdFormId).toBe(data.id);
   });
 
   it("should return error for a non-existent data source id", async () => {
