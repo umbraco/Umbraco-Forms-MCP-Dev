@@ -29,10 +29,12 @@ import searchFormsTool from "./get/search-forms.js";
 import copyFormWorkflowsTool from "./post/copy-form-workflows.js";
 import copyFormTool from "./post/copy-form.js";
 import createFormTool from "./post/create-form.js";
+import createSimpleFormTool from "./post/create-simple-form.js";
 import importFormTool from "./post/import-form.js";
 import validateFormFieldSettingsTool from "./post/validate-form-field-settings.js";
 import validateFormWorkflowSettingsTool from "./post/validate-form-workflow-settings.js";
 
+import addFormFieldsTool from "./put/add-form-fields.js";
 import deleteFormFieldTool from "./put/delete-form-field.js";
 import moveFormTool from "./put/move-form.js";
 import updateFormTool from "./put/update-form.js";
@@ -65,9 +67,11 @@ const collection: ToolCollectionExport = {
     copyFormWorkflowsTool,
     copyFormTool,
     createFormTool,
+    createSimpleFormTool,
     importFormTool,
     validateFormFieldSettingsTool,
     validateFormWorkflowSettingsTool,
+    addFormFieldsTool,
     deleteFormFieldTool,
     moveFormTool,
     updateFormTool,
