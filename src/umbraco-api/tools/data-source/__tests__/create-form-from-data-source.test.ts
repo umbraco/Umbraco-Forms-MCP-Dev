@@ -3,7 +3,6 @@ import {
   CAPTURE_RAW_HTTP_RESPONSE,
   type HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
-import { getStructuredContent } from "@umbraco-cms/mcp-server-sdk/testing";
 import type {
   getUmbracoFormsManagementAPI,
   BasicForm,
@@ -12,14 +11,17 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  getStructuredContent,
   DataSourceBuilder,
 } from "./setup.js";
+import { FormBuilder } from "../../form/__tests__/helpers/form-builder.js";
 import createFormFromDataSourceTool from "../post/create-form-from-data-source.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const TEST_NAME = "_Test Create Form From Data Source";
 const TEST_FORM_NAME = "_Test Form From Data Source";
+const TEST_COLLISION_FORM_NAME = "_Test Form From Data Source Collision";
 
 async function findFormIdByName(name: string): Promise<string | undefined> {
   const client = getApiClient<ApiClient>();
@@ -44,6 +46,7 @@ describe("create-form-from-data-source", () => {
 
   let builder: DataSourceBuilder;
   let createdFormId: string | undefined;
+  let decoyForm: FormBuilder | undefined;
 
   afterEach(async () => {
     // The generated form is a separate entity type from this collection — clean it up
@@ -51,6 +54,10 @@ describe("create-form-from-data-source", () => {
     if (createdFormId) {
       await deleteFormById(createdFormId);
       createdFormId = undefined;
+    }
+    if (decoyForm) {
+      await decoyForm.delete();
+      decoyForm = undefined;
     }
     if (builder) await builder.delete();
   });
@@ -72,6 +79,30 @@ describe("create-form-from-data-source", () => {
     createdFormId = await findFormIdByName(TEST_FORM_NAME);
     expect(createdFormId).toBeDefined();
     expect(createdFormId).toBe(data.id);
+  });
+
+  it("should return the id of the new form, not a pre-existing form with the same name", async () => {
+    const context = createMockRequestHandlerExtra();
+    builder = await new DataSourceBuilder().withName(TEST_NAME).create();
+
+    // Create a decoy form with the target name FIRST. Umbraco Forms does not
+    // enforce unique form names, so a naive "first exact-name match" lookup
+    // (the bug this test guards against) would resolve to this pre-existing
+    // form instead of the one the tool is about to create.
+    decoyForm = await new FormBuilder().withName(TEST_COLLISION_FORM_NAME).create();
+    const decoyFormId = decoyForm.getId();
+
+    const result = await createFormFromDataSourceTool.handler(
+      { dataSourceId: builder.getId(), formName: TEST_COLLISION_FORM_NAME },
+      context,
+    );
+
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+    expect(data.id).toBeDefined();
+    expect(data.id).not.toBe(decoyFormId);
+
+    createdFormId = data.id;
   });
 
   it("should return error for a non-existent data source id", async () => {
