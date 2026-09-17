@@ -93,10 +93,56 @@ Custom fields defined in `config/server-config.ts`.
 ## Tool Conventions
 
 - One file per tool in operation-type subfolder (`get/`, `post/`, etc.)
-- Export default with `withStandardDecorators(tool)`
+- Export default with `withStandardDecorators(tool)` — or `withBodyDecorators(tool)` for tools
+  that take a JSON request body (see below)
 - Use Zod schemas from Orval-generated `*.zod.ts` files
 - Set `slices` array for filtering categorization
 - Set `annotations` for MCP hints (`readOnlyHint`, `destructiveHint`, `idempotentHint`)
+- Don't declare an `outputSchema` whose JSON Schema runs to tens of KB. It is sent in every
+  `tools/list`, on every session, and the response content already shows the shape. The three
+  form tools returning a full `FormDesign` used to spend ~60KB — about a fifth of the whole
+  tool surface — on a schema nobody read.
+
+### Shared helpers (`tools/shared/`)
+
+| Module | Purpose |
+|--------|---------|
+| `body-text.ts` | `withBodyDecorators` — the standard decorator stack with a body-appropriate sanitiser |
+| `build-form-design.ts` | Compact spec → full `FormDesign`; `withFormDesignDefaults` backfills a partial design |
+| `form-pages-schema.ts` | Relaxed `pages` schema + `normalizePages` backfill |
+| `form-field-types.ts` | Built-in Forms field-type GUIDs and friendly aliases |
+| `form-design-keys.ts` | The `FormDesign` keys that are server-derivable |
+| `optional-shape.ts` | `makeOptional` — relax selected keys of a generated shape |
+
+### Body tools vs. the default sanitiser
+
+`withStandardDecorators` applies the SDK's `withInputSanitization`, which rejects `?`, `&` and
+`%XX` in *every* string. That is correct for identifiers interpolated into a URL and wrong for a
+form design, where those characters are ordinary content — it made a field labelled
+`What is your name?` impossible to create, and rejected any validation regex containing `?`.
+
+Tools whose input is a JSON body use `withBodyDecorators` from `shared/body-text.ts` instead.
+Same stack, same ordering; the sanitiser permits `?`, `&` and `%XX` while still rejecting
+control characters and path traversal. Reach for it whenever a tool accepts free text that a
+human will read, and keep `withStandardDecorators` for tools whose inputs are IDs and paths.
+
+### Authoring forms
+
+Three tools, in order of preference:
+
+1. **`create-simple-form`** — a name plus a flat list of `{label, type}` fields. Generates every
+   GUID, page, fieldset and default. Use for ordinary forms.
+2. **`add-form-fields`** / **`delete-form-field`** — add or remove fields on an existing form
+   without restating the design. Use for edits.
+3. **`create-form`** / **`update-form`** — the full design, for conditions, workflows, multiple
+   pages or custom field types. Only `name` and `pages` are required (`id` too, on update);
+   everything else is backfilled by `withFormDesignDefaults` and `normalizePages`.
+
+`get-form-scaffold` is no longer a prerequisite for creating a form — the write tools generate
+what they need. It remains useful for inspecting Umbraco's defaults.
+
+When adding a field type to `create-simple-form`, extend `FIELD_TYPE_ALIASES` in
+`shared/form-field-types.ts`; the tool's Zod enum and description derive from it automatically.
 
 ## Testing
 
