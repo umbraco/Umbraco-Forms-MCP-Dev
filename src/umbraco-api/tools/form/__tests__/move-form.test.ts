@@ -2,12 +2,13 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
-  validateToolResponse,
+  getStructuredContent,
   FormBuilder,
   FormTestHelper,
 } from "./setup.js";
 import moveFormTool from "../put/move-form.js";
 import getFormByIdTool from "../get/get-form-by-id.js";
+import type { FormDesign } from "../../../api/generated/umbracoFormsManagementApi.js";
 
 const TEST_FORM_NAME = "_Test Move Form";
 const TEST_FOLDER_NAME = "_Test Move Form Folder";
@@ -42,7 +43,7 @@ describe("move-form", () => {
       { id: builder.getId(), applyDictionaryTranslations: undefined },
       context,
     );
-    const design = validateToolResponse(getFormByIdTool, getResult);
+    const design = getStructuredContent(getResult) as unknown as FormDesign;
     expect(design.folderId).toBe(folderId);
   });
 

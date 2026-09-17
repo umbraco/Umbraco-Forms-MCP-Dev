@@ -2,11 +2,12 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
-  validateToolResponse,
+  getStructuredContent,
   FormBuilder,
 } from "./setup.js";
 import updateFormTool from "../put/update-form.js";
 import getFormByIdTool from "../get/get-form-by-id.js";
+import type { FormDesign } from "../../../api/generated/umbracoFormsManagementApi.js";
 
 const TEST_NAME = "_Test Update Form";
 const TEST_NAME_RENAMED = "_Test Update Form Renamed";
@@ -28,7 +29,7 @@ describe("update-form", () => {
       { id: builder.getId(), applyDictionaryTranslations: undefined },
       context,
     );
-    const design = validateToolResponse(getFormByIdTool, getResult);
+    const design = getStructuredContent(getResult) as unknown as FormDesign;
 
     const result = await updateFormTool.handler(
       { ...design, name: TEST_NAME_RENAMED } as any,
@@ -41,7 +42,7 @@ describe("update-form", () => {
       { id: builder.getId(), applyDictionaryTranslations: undefined },
       context,
     );
-    const verified = validateToolResponse(getFormByIdTool, verifyResult);
+    const verified = getStructuredContent(verifyResult) as unknown as FormDesign;
     expect(verified.name).toBe(TEST_NAME_RENAMED);
   });
 
@@ -53,7 +54,7 @@ describe("update-form", () => {
       { id: builder.getId(), applyDictionaryTranslations: undefined },
       context,
     );
-    const design = validateToolResponse(getFormByIdTool, getResult);
+    const design = getStructuredContent(getResult) as unknown as FormDesign;
 
     const result = await updateFormTool.handler(
       { ...design, id: "00000000-0000-0000-0000-000000000000" } as any,

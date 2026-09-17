@@ -5,11 +5,20 @@
  * lifecycle using the "form" collection's tools, against the real,
  * live Umbraco instance (no mocks exist for the Forms Management API).
  *
- * create-form/update-form take the FULL nested FormDesign schema, so the
- * prompt is deliberately explicit about the scaffold-first flow: fetch
- * get-form-scaffold, change only the "name" field, and submit the rest of
- * the scaffold unchanged — never inventing GUIDs. Uses a timestamp in the
- * name to avoid colliding with any other test data.
+ * This pins the FULL-design path: fetch get-form-scaffold and round-trip a
+ * complete nested FormDesign through create-form and update-form. The prompt
+ * is deliberately explicit about that flow, and the elevated timeout/budget
+ * below are the cost of it — every turn carries a multi-KB object.
+ *
+ * That cost is why create-simple-form and add-form-fields exist. The fast path
+ * is covered separately by form-simple-authoring.test.ts; this test stays as
+ * the guard on create-form/update-form themselves, which remain the way to
+ * express conditions, workflows and multi-page designs.
+ *
+ * Note that create-form no longer *requires* a scaffold — it generates any
+ * GUIDs and defaults left out — so this prompt exercises the scaffold flow by
+ * choice, not necessity. Uses a timestamp in the name to avoid colliding with
+ * any other test data.
  */
 
 import { describe, it } from "@jest/globals";
