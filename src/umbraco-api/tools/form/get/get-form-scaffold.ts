@@ -16,19 +16,26 @@ import type {
   FormDesign,
   getUmbracoFormsManagementAPI,
 } from "../../../api/generated/umbracoFormsManagementApi.js";
-import { getFormScaffoldResponse } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 import { normalizeScaffoldDates } from "./normalize-scaffold-dates.js";
 import { normalizeScaffoldReferences } from "./normalize-scaffold-references.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const outputSchema = getFormScaffoldResponse;
 
-const GetFormScaffoldTool: ToolDefinition<undefined, typeof outputSchema> = {
+/**
+ * The full `FormDesign` output schema is deliberately not declared on this
+ * tool. Serialized to JSON Schema it is ~20KB, and three tools return that
+ * same shape — together roughly a fifth of everything this server sends in
+ * `tools/list`, on every session, whether or not a form is ever touched.
+ *
+ * It buys very little: the design is returned in full as the tool's content,
+ * so its shape is visible in the response itself. Dropping the declaration
+ * changes nothing about what the tool returns.
+ */
+const GetFormScaffoldTool: ToolDefinition<undefined> = {
   name: "get-form-scaffold",
   description:
-    "Gets a blank form design template with default settings and all GUIDs already generated (form ID, page ID, etc.) — the starting point for creating a new form. Edit the name, pages and fields on the returned object, then pass the whole thing to create-form. Never invent your own GUIDs; reuse the ones in this scaffold. Use get-form-scaffold-by-template instead if you want to start from a named template (e.g. a contact form).",
-  outputSchema,
+    "Gets a blank form design with Umbraco's default settings filled in. You rarely need this: to create a form, call create-simple-form with a name and a list of fields, or create-form for a design needing conditions, workflows or multiple pages — both generate any GUIDs you leave out. Reach for this scaffold when you specifically want to see the defaults Umbraco applies before changing them. Use get-form-scaffold-by-template to start from a named template instead.",
   slices: ["read"],
   annotations: {
     readOnlyHint: true,
