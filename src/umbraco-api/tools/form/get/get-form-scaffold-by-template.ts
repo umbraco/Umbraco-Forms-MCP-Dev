@@ -18,7 +18,6 @@ import type {
 } from "../../../api/generated/umbracoFormsManagementApi.js";
 import {
   getFormScaffoldByTemplateParams,
-  getFormScaffoldByTemplateResponse,
 } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 import { normalizeScaffoldDates } from "./normalize-scaffold-dates.js";
 import { normalizeScaffoldReferences } from "./normalize-scaffold-references.js";
@@ -26,14 +25,22 @@ import { normalizeScaffoldReferences } from "./normalize-scaffold-references.js"
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
 const inputSchema = getFormScaffoldByTemplateParams.shape;
-const outputSchema = getFormScaffoldByTemplateResponse;
 
-const GetFormScaffoldByTemplateTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
+/**
+ * The full `FormDesign` output schema is deliberately not declared on this
+ * tool. Serialized to JSON Schema it is ~20KB, and three tools return that
+ * same shape — together roughly a fifth of everything this server sends in
+ * `tools/list`, on every session, whether or not a form is ever touched.
+ *
+ * It buys very little: the design is returned in full as the tool's content,
+ * so its shape is visible in the response itself. Dropping the declaration
+ * changes nothing about what the tool returns.
+ */
+const GetFormScaffoldByTemplateTool: ToolDefinition<typeof inputSchema> = {
   name: "get-form-scaffold-by-template",
   description:
-    "Gets a pre-populated form design based on a named form template (e.g. 'Contact us', 'Newsletter signup') with all GUIDs already generated. Edit the returned design as needed, then pass it to create-form. Never invent your own GUIDs; reuse the ones in this scaffold. Use get-form-scaffold instead for a blank form with no template.",
+    "Gets a form design pre-populated from a named form template (e.g. 'Contact us', 'Newsletter signup') — use list-form-templates to see what is available. Edit the returned design and pass it to create-form to save it. For a form you are designing yourself rather than starting from a template, create-simple-form is quicker: it takes just a name and a list of fields. Use get-form-scaffold for a blank design with no template.",
   inputSchema,
-  outputSchema,
   slices: ["read"],
   annotations: {
     readOnlyHint: true,
