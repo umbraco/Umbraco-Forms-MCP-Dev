@@ -1,12 +1,12 @@
 import * as zod from "zod";
 import {
-  withStandardDecorators,
   createToolResult,
   createToolResultError,
   ToolDefinition,
   HttpResponse,
 } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsDeliveryAPI } from "../../../api/generated/umbracoFormsDeliveryApi.js";
+import { withBodyDecorators } from "../../shared/body-text.js";
 
 const inputSchema = {
   formId: zod.string().uuid().describe("The form ID to submit an entry for. Use list-forms to find form IDs."),
@@ -59,4 +59,4 @@ const SubmitFormEntryTool = {
   },
 } satisfies ToolDefinition<typeof inputSchema, typeof outputSchema>;
 
-export default withStandardDecorators(SubmitFormEntryTool);
+export default withBodyDecorators(SubmitFormEntryTool);
