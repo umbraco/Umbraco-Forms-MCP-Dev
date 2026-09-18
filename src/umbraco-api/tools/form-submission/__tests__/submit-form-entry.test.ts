@@ -35,6 +35,26 @@ describe("submit-form-entry", () => {
     expect(FormTestHelper.normalizeIds(result)).toMatchSnapshot();
   });
 
+  // Regression: the tool used to carry `withStandardDecorators`, whose
+  // URL-oriented sanitiser rejects `?` and `&` in every string. Entry values are
+  // a JSON body of human-written prose, so an ordinary answer containing a
+  // question mark was impossible to submit. See tools/shared/body-text.ts.
+  it("should submit a value containing query-parameter characters", async () => {
+    const context = createMockRequestHandlerExtra();
+    builder = await new FormSubmissionBuilder().withName(TEST_NAME).create();
+
+    const result = await submitFormEntryTool.handler(
+      {
+        formId: builder.getId(),
+        values: { [TEST_FIELD_ALIAS]: ["Why is it slow? Tea & biscuits."] },
+        culture: undefined,
+      },
+      context
+    );
+
+    expect(result.isError).toBeFalsy();
+  });
+
   it("should return error for non-existent form ID", async () => {
     const context = createMockRequestHandlerExtra();
 
