@@ -2,6 +2,7 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  getStructuredContent,
 } from "@umbraco-cms/mcp-server-sdk/testing";
 import {
   configureApiClient,
@@ -29,6 +30,7 @@ export {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  getStructuredContent,
   DataSourceBuilder,
   DataSourceTestHelper,
   TEST_DATA_SOURCE_NAME,

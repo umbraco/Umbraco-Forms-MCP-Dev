@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`copy-form should duplicate a form under a new name 1`] = `
+exports[`create-simple-form should create a form from a name and a list of fields 1`] = `
 {
   "content": [],
   "structuredContent": {

@@ -13,10 +13,15 @@
  */
 
 import {
-  executeVoidApiCall,
+  getApiClient,
+  createToolResult,
+  UmbracoApiError,
   CAPTURE_RAW_HTTP_RESPONSE,
   type ToolDefinition,
+  type HttpResponse,
+  type ProblemDetails,
 } from "@umbraco-cms/mcp-server-sdk";
+import { z } from "zod";
 import type {
   getUmbracoFormsManagementAPI,
   FormDesign,
@@ -35,11 +40,17 @@ const inputSchema = {
   pages: relaxedPagesSchema,
 };
 
-const CreateFormTool: ToolDefinition<typeof inputSchema> = {
+const outputSchema = z.object({
+  success: z.boolean(),
+  id: z.string().describe("The id of the newly created form."),
+});
+
+const CreateFormTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
   name: "create-form",
   description:
     "Creates a new form from a full form design. For an ordinary single-page form, prefer create-simple-form — it takes just a name and a list of fields. Use this tool when the design needs conditional logic, workflows, multiple pages, validation rules, or a custom field type from list-field-types. Only 'name' and 'pages' are required: IDs, timestamps, paths and display defaults are generated server-side when omitted, so there is no need to call get-form-scaffold first or to echo back boilerplate. Supply a GUID for any node only when you need to control it; otherwise leave it out and one is generated. Omit optional keys entirely rather than sending null or a guessed value.",
   inputSchema,
+  outputSchema,
   slices: ["create"],
   annotations: {
     destructiveHint: false,
@@ -50,9 +61,22 @@ const CreateFormTool: ToolDefinition<typeof inputSchema> = {
       formDesign as Record<string, unknown>,
     );
 
-    return executeVoidApiCall<ApiClient>((client) =>
-      client.postForm(complete as FormDesign, CAPTURE_RAW_HTTP_RESPONSE),
-    );
+    const client = getApiClient<ApiClient>();
+    const response = (await client.postForm(
+      complete as FormDesign,
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as HttpResponse<ProblemDetails | void>;
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new UmbracoApiError(
+        (response.data as ProblemDetails) || {
+          status: response.status,
+          detail: response.statusText,
+        },
+      );
+    }
+
+    return createToolResult({ success: true, id: complete.id });
   },
 };
 

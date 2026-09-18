@@ -1,6 +1,8 @@
+import { randomUUID } from "node:crypto";
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  createSnapshotResult,
   getStructuredContent,
   FormTestHelper,
 } from "./setup.js";
@@ -50,8 +52,14 @@ describe("create-simple-form", () => {
 
     expect(result.isError).toBeFalsy();
 
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+
     const found = await FormTestHelper.findByName(TEST_NAME);
     expect(found).toBeDefined();
+    expect(found?.id).toBe(data.id);
+
+    expect(createSnapshotResult(result, data.id)).toMatchSnapshot();
 
     const design = await fetchDesign(found!.id);
     const fields = fieldsOf(design);
@@ -141,6 +149,31 @@ describe("create-simple-form", () => {
     const aliases = fieldsOf(await fetchDesign(found!.id)).map((f) => f.alias);
 
     expect(aliases).toEqual(["address", "address2"]);
+  });
+
+  it("should return an error when creating a form with a duplicate id", async () => {
+    const context = createMockRequestHandlerExtra();
+    const id = randomUUID();
+
+    await createSimpleFormTool.handler(
+      {
+        name: TEST_NAME,
+        id,
+        fields: [{ label: "Full name", type: "text" }],
+      } as never,
+      context,
+    );
+
+    const result = await createSimpleFormTool.handler(
+      {
+        name: TEST_NAME,
+        id,
+        fields: [{ label: "Full name", type: "text" }],
+      } as never,
+      context,
+    );
+
+    expect(result.isError).toBe(true);
   });
 
   it("should return an error for an unknown field type", async () => {
