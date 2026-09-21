@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`normalizePages should backfill a minimal page into the full wire shape 1`] = `
+[
+  {
+    "buttonCondition": null,
+    "caption": null,
+    "condition": null,
+    "fieldSets": [
+      {
+        "caption": null,
+        "condition": null,
+        "containers": [
+          {
+            "caption": null,
+            "fields": [
+              {
+                "alias": "yourName",
+                "allowMultipleFileUploads": false,
+                "allowedUploadTypes": null,
+                "caption": "Your name",
+                "condition": null,
+                "containsSensitiveData": false,
+                "cssClass": null,
+                "dataSourceFieldKey": null,
+                "fieldTypeId": "00000000-0000-0000-0000-000000000000",
+                "id": "00000000-0000-0000-0000-000000000000",
+                "invalidErrorMessage": null,
+                "mandatory": false,
+                "mappedMemberPropertyAlias": null,
+                "memberPrefillMode": "None",
+                "preValues": [],
+                "prevalueSourceId": "00000000-0000-0000-0000-000000000000",
+                "regex": null,
+                "requiredErrorMessage": null,
+                "settings": {},
+                "tooltip": null,
+              },
+            ],
+            "id": "00000000-0000-0000-0000-000000000000",
+            "width": 12,
+          },
+        ],
+        "id": "00000000-0000-0000-0000-000000000000",
+        "page": "00000000-0000-0000-0000-000000000000",
+        "sortOrder": 0,
+      },
+    ],
+    "form": "00000000-0000-0000-0000-000000000000",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "sortOrder": 0,
+  },
+]
+`;
