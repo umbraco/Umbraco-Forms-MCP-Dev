@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`shared schema contract FORMS_FIELD_TYPE_IDS vs the connected instance should report any built-in field type the aliases do not cover: field types without a friendly alias 1`] = `
+[
+  "Recaptcha2",
+  "reCAPTCHA Enterprise with score",
+]
+`;
