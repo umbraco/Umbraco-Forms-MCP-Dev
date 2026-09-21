@@ -8,6 +8,7 @@ import {
   initializeUmbracoFetch,
 } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
+import { DataSourceTypeTestHelper } from "./helpers/data-source-type-test-helper.js";
 
 // Initialize fetch with credentials — required for integration tests hitting the real API
 initializeUmbracoFetch({
@@ -18,4 +19,9 @@ initializeUmbracoFetch({
 
 configureApiClient(() => getUmbracoFormsManagementAPI());
 
-export { setupTestEnvironment, createMockRequestHandlerExtra, createSnapshotResult };
+export {
+  setupTestEnvironment,
+  createMockRequestHandlerExtra,
+  createSnapshotResult,
+  DataSourceTypeTestHelper,
+};
