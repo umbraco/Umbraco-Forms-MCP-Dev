@@ -2,6 +2,7 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  DataSourceTypeTestHelper,
 } from "./setup.js";
 import listDataSourceTypesTool from "../get/list-data-source-types.js";
 
@@ -13,6 +14,10 @@ describe("list-data-source-types", () => {
 
     const result = await listDataSourceTypesTool.handler({}, context);
 
-    expect(createSnapshotResult(result)).toMatchSnapshot();
+    expect(
+      DataSourceTypeTestHelper.normalizeSettingDefaults(
+        createSnapshotResult(result),
+      ),
+    ).toMatchSnapshot();
   });
 });

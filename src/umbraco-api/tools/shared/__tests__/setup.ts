@@ -3,12 +3,13 @@ import {
   createMockRequestHandlerExtra,
   createSnapshotResult,
 } from "@umbraco-cms/mcp-server-sdk/testing";
-import {
-  configureApiClient,
-  initializeUmbracoFetch,
-} from "@umbraco-cms/mcp-server-sdk";
+import { configureApiClient, initializeUmbracoFetch } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
-import { DataSourceTypeTestHelper } from "./helpers/data-source-type-test-helper.js";
+
+// Re-use the form collection's cleanup/normalize helper — the shared helpers
+// under test build real form designs, so the contract test creates and tears
+// down actual forms.
+import { FormTestHelper } from "../../form/__tests__/helpers/form-test-helper.js";
 
 // Initialize fetch with credentials — required for integration tests hitting the real API
 initializeUmbracoFetch({
@@ -23,5 +24,5 @@ export {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
-  DataSourceTypeTestHelper,
+  FormTestHelper,
 };
