@@ -1,6 +1,6 @@
 {
   "name": "@umbraco-forms/mcp-dev",
-  "version": "18.0.0-beta.1",
+  "version": "18.0.0-beta.2",
   "type": "module",
   "description": "MCP server for forms-mcp-server",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "forms-mcp-server": "./dist/index.js"
   },
   "scripts": {
-    "postinstall": "patch-package",
+    "prepare": "patch-package",
     "clean": "rimraf dist",
     "build": "tsup --config tsup.config.ts",
     "postbuild": "umbraco-mcp-generate-types",
