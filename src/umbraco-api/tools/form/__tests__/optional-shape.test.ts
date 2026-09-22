@@ -9,7 +9,7 @@
  */
 
 import { z } from "zod";
-import { makeOptional } from "../optional-shape.js";
+import { makeOptional } from "../shared/optional-shape.js";
 
 const shape = {
   name: z.string(),

@@ -21,9 +21,9 @@ import {
   simpleFieldSchema,
   type SimpleFieldSpec,
   type SimpleFormSpec,
-} from "../build-form-design.js";
-import { FORMS_FIELD_TYPE_IDS } from "../form-field-types.js";
-import { FormTestHelper } from "../../form/__tests__/helpers/form-test-helper.js";
+} from "../shared/build-form-design.js";
+import { FORMS_FIELD_TYPE_IDS } from "../shared/form-field-types.js";
+import { FormTestHelper } from "./helpers/form-test-helper.js";
 
 const spec = (partial: Record<string, unknown>) =>
   partial as unknown as SimpleFormSpec;

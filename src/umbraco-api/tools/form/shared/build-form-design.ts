@@ -21,7 +21,7 @@
 
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import type { FormDesign } from "../../api/generated/umbracoFormsManagementApi.js";
+import type { FormDesign } from "../../../api/generated/umbracoFormsManagementApi.js";
 import {
   FIELD_TYPE_ALIAS_NAMES,
   FIELD_TYPE_ALIASES,

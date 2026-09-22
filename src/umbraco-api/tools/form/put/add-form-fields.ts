@@ -30,7 +30,7 @@ import {
   buildField,
   simpleFieldSchema,
   type SimpleFieldSpec,
-} from "../../shared/build-form-design.js";
+} from "../shared/build-form-design.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 

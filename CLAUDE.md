@@ -103,11 +103,19 @@ Custom fields defined in `config/server-config.ts`.
   form tools returning a full `FormDesign` used to spend ~60KB — about a fifth of the whole
   tool surface — on a schema nobody read.
 
-### Shared helpers (`tools/shared/`)
+### Shared helpers (`tools/shared/` and `tools/form/shared/`)
+
+`tools/shared/` holds only what is genuinely cross-collection:
 
 | Module | Purpose |
 |--------|---------|
 | `body-text.ts` | `withBodyDecorators` — the standard decorator stack with a body-appropriate sanitiser |
+
+Everything else that used to live there is form-only and lives in `tools/form/shared/` instead,
+next to the collection that's the only consumer:
+
+| Module | Purpose |
+|--------|---------|
 | `build-form-design.ts` | Compact spec → full `FormDesign`; `withFormDesignDefaults` backfills a partial design |
 | `form-pages-schema.ts` | Relaxed `pages` schema + `normalizePages` backfill |
 | `form-field-types.ts` | Built-in Forms field-type GUIDs and friendly aliases |
@@ -142,7 +150,7 @@ Three tools, in order of preference:
 what they need. It remains useful for inspecting Umbraco's defaults.
 
 When adding a field type to `create-simple-form`, extend `FIELD_TYPE_ALIASES` in
-`shared/form-field-types.ts`; the tool's Zod enum and description derive from it automatically.
+`form/shared/form-field-types.ts`; the tool's Zod enum and description derive from it automatically.
 
 ## Testing
 
