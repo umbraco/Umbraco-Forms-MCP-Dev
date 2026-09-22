@@ -2,11 +2,12 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
-  validateToolResponse,
+  getStructuredContent,
   FormBuilder,
 } from "./setup.js";
 import copyFormWorkflowsTool from "../post/copy-form-workflows.js";
 import getFormByIdTool from "../get/get-form-by-id.js";
+import type { FormDesign } from "../../../api/generated/umbracoFormsManagementApi.js";
 
 const TEST_SOURCE_NAME = "_Test Copy Workflows Source";
 const TEST_DEST_NAME = "_Test Copy Workflows Destination";
@@ -47,7 +48,7 @@ describe("copy-form-workflows", () => {
       { id: destBuilder.getId(), applyDictionaryTranslations: undefined },
       context,
     );
-    const destDesign = validateToolResponse(getFormByIdTool, destDesignResult);
+    const destDesign = getStructuredContent(destDesignResult) as unknown as FormDesign;
     expect(destDesign.formWorkflows.onSubmit.length).toBe(1);
   });
 

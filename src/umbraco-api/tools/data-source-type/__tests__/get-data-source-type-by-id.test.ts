@@ -2,6 +2,7 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  DataSourceTypeTestHelper,
 } from "./setup.js";
 import getDataSourceTypeByIdTool from "../get/get-data-source-type-by-id.js";
 import listDataSourceTypesTool from "../get/list-data-source-types.js";
@@ -22,7 +23,11 @@ describe("get-data-source-type-by-id", () => {
 
     const result = await getDataSourceTypeByIdTool.handler({ id }, context);
 
-    expect(createSnapshotResult(result, id)).toMatchSnapshot();
+    expect(
+      DataSourceTypeTestHelper.normalizeSettingDefaults(
+        createSnapshotResult(result, id),
+      ),
+    ).toMatchSnapshot();
   });
 
   it("should return error for non-existent id", async () => {

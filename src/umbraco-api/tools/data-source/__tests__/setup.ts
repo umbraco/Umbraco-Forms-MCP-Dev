@@ -2,7 +2,9 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  getStructuredContent,
 } from "@umbraco-cms/mcp-server-sdk/testing";
+import { jest } from "@jest/globals";
 import {
   configureApiClient,
   initializeUmbracoFetch,
@@ -25,10 +27,15 @@ initializeUmbracoFetch({
 
 configureApiClient(() => getUmbracoFormsManagementAPI());
 
+// The data source list endpoint is unpaged (take=2147483647), so a create +
+// list round trip regularly overruns Jest's 5s default on a remote instance.
+jest.setTimeout(30000);
+
 export {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
+  getStructuredContent,
   DataSourceBuilder,
   DataSourceTestHelper,
   TEST_DATA_SOURCE_NAME,

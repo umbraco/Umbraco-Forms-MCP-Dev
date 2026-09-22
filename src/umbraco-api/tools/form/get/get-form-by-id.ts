@@ -14,7 +14,6 @@ import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbrac
 import {
   getFormByIdParams,
   getFormByIdQueryParams,
-  getFormByIdResponse,
 } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
@@ -24,14 +23,22 @@ const inputSchema = {
   ...getFormByIdQueryParams.shape,
 };
 
-const outputSchema = getFormByIdResponse;
 
-const GetFormByIdTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {
+/**
+ * The full `FormDesign` output schema is deliberately not declared on this
+ * tool. Serialized to JSON Schema it is ~20KB, and three tools return that
+ * same shape — together roughly a fifth of everything this server sends in
+ * `tools/list`, on every session, whether or not a form is ever touched.
+ *
+ * It buys very little: the design is returned in full as the tool's content,
+ * so its shape is visible in the response itself. Dropping the declaration
+ * changes nothing about what the tool returns.
+ */
+const GetFormByIdTool: ToolDefinition<typeof inputSchema> = {
   name: "get-form-by-id",
   description:
     "Gets the complete form design for a single Umbraco Forms form by its ID, including its pages, fieldsets, fields, workflows and validation rules. Set applyDictionaryTranslations to true to resolve any dictionary keys used in labels/messages into their translated text. Use this before update-form so the full design (with existing GUIDs) can be edited and sent back unchanged except for the intended modifications.",
   inputSchema,
-  outputSchema,
   slices: ["read"],
   annotations: {
     readOnlyHint: true,

@@ -2,11 +2,12 @@ import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
   createSnapshotResult,
-  validateToolResponse,
+  getStructuredContent,
   FormTestHelper,
 } from "./setup.js";
 import createFormTool from "../post/create-form.js";
 import getFormScaffoldTool from "../get/get-form-scaffold.js";
+import type { FormDesign } from "../../../api/generated/umbracoFormsManagementApi.js";
 
 const TEST_NAME = "_Test Create Form";
 
@@ -20,14 +21,18 @@ describe("create-form", () => {
   it("should create a form from a scaffolded design", async () => {
     const context = createMockRequestHandlerExtra();
 
-    // Must start from a real scaffold — the design carries client-supplied
-    // GUIDs (form ID, page IDs, etc.) that create-form requires.
+    // create-form generates any GUIDs that are left out, but a scaffold is
+    // still a valid starting point — this covers the full-design path.
     const scaffoldResult = await getFormScaffoldTool.handler(context);
-    const scaffold = validateToolResponse(getFormScaffoldTool, scaffoldResult);
+    const scaffold = getStructuredContent(scaffoldResult) as unknown as FormDesign;
 
     const design = { ...scaffold, name: TEST_NAME };
 
     const result = await createFormTool.handler(design as any, context);
+
+    const data = getStructuredContent(result) as { success: boolean; id: string };
+    expect(data.success).toBe(true);
+    expect(data.id).toBe(design.id);
 
     expect(createSnapshotResult(result, design.id)).toMatchSnapshot();
 
@@ -40,7 +45,7 @@ describe("create-form", () => {
     const context = createMockRequestHandlerExtra();
 
     const scaffoldResult = await getFormScaffoldTool.handler(context);
-    const scaffold = validateToolResponse(getFormScaffoldTool, scaffoldResult);
+    const scaffold = getStructuredContent(scaffoldResult) as unknown as FormDesign;
     const design = { ...scaffold, name: TEST_NAME };
 
     await createFormTool.handler(design as any, context);

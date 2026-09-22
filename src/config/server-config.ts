@@ -49,6 +49,15 @@ export interface MyServerCustomConfig {
   externalApiKey?: string;
   /** Maximum items per page for list operations */
   maxPageSize?: string;
+  /**
+   * API key for the Umbraco Forms Delivery API (`/umbraco/forms/delivery/api/v1/*`).
+   * Required by the form-submission collection's get-form-definition and
+   * submit-form-entry tools — the Delivery API authenticates via this
+   * `Api-Key` header rather than the Management API's OAuth flow. Configure
+   * a matching key under Umbraco:Forms:Security:FormsApiKey on the Umbraco
+   * instance (and Umbraco:Forms:Options:EnableFormsApi: true).
+   */
+  formsApiKey?: string;
 }
 
 // ============================================================================
@@ -97,6 +106,12 @@ const customFields: ConfigFieldDefinition[] = [
     name: "maxPageSize",
     envVar: "MY_MAX_PAGE_SIZE",
     cliFlag: "my-max-page-size",
+    type: "string",
+  },
+  {
+    name: "formsApiKey",
+    envVar: "UMBRACO_FORMS_API_KEY",
+    cliFlag: "umbraco-forms-api-key",
     type: "string",
   },
 ];

@@ -1,14 +1,17 @@
 /**
  * Update Form Tool
  *
- * Replaces an existing form's entire design (name, pages, fields, workflows,
- * settings). Fetch the current design with get-form-by-id first, edit only
- * what needs to change, and submit the full object back — this is a full
- * replace, not a partial patch.
+ * Replaces an existing form's entire design. Fetch the current design with
+ * get-form-by-id first, edit what needs to change, and submit it back — this is
+ * a full replace, not a partial patch.
+ *
+ * As with create-form, the properties that carry no design decision are
+ * optional and backfilled. `id` stays required (it is also the path segment)
+ * and so does `pages`, because a full replace with `pages` omitted would
+ * silently empty the form.
  */
 
 import {
-  withStandardDecorators,
   executeVoidApiCall,
   CAPTURE_RAW_HTTP_RESPONSE,
   type ToolDefinition,
@@ -21,31 +24,52 @@ import {
   putFormByIdParams,
   putFormByIdBody,
 } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
+import { withBodyDecorators } from "../../shared/body-text.js";
+import { withFormDesignDefaults } from "../shared/build-form-design.js";
+import { makeOptional } from "../shared/optional-shape.js";
+import { relaxedPagesSchema } from "../shared/form-pages-schema.js";
+import { SERVER_DERIVABLE_FORM_KEYS } from "../shared/form-design-keys.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
+/**
+ * `id` identifies which form is being replaced, so unlike create-form it must
+ * stay required here even though it is otherwise server-derivable.
+ */
+const RELAXABLE_KEYS = SERVER_DERIVABLE_FORM_KEYS.filter(
+  (key) => key !== "id",
+) as Exclude<(typeof SERVER_DERIVABLE_FORM_KEYS)[number], "id">[];
+
 const inputSchema = {
   ...putFormByIdParams.shape,
-  ...putFormByIdBody.shape,
+  ...makeOptional(putFormByIdBody.shape, RELAXABLE_KEYS),
+  pages: relaxedPagesSchema,
 };
 
 const UpdateFormTool: ToolDefinition<typeof inputSchema> = {
   name: "update-form",
   description:
-    "Replaces an existing form's entire design — this is a full replace, not a partial patch. Always call get-form-by-id first, change only the fields/pages/settings you need, and pass the resulting object (including its unchanged id and unique values) back here. Do not invent GUIDs for any new pages/fields you add; reuse existing ones from the fetched design for anything you keep. Any field that is null in the fetched design (e.g. autocompleteAttribute, cssClass, tooltip, dataSourceFieldKey, folderId) is optional — omit it entirely rather than retyping it as null; only required fields and the ones you're actually changing need to be present.",
+    "Replaces an existing form's entire design — a full replace, not a partial patch. Call get-form-by-id first, change only what you need, and send the result back including its 'id' and the complete 'pages' array (omitting pages would empty the form). Reuse the existing GUIDs for anything you keep; leave the GUID out for a page or field you are adding and one is generated. Properties that carry no design decision — timestamps, path, nodeId, display defaults — are optional and filled in server-side, so you do not need to echo them back. To add fields to a form without restating the whole design, use add-form-fields instead.",
   inputSchema,
   slices: ["update"],
   annotations: {
     idempotentHint: true,
   },
   handler: async (formDesign) => {
-    // The form's own "id" is both the path segment and a required field
-    // inside the FormDesign body — keep it in both places rather than
-    // stripping it out.
+    const complete = withFormDesignDefaults(
+      formDesign as Record<string, unknown>,
+    );
+
+    // The form's own `id` is both the path segment and a required property of
+    // the body — keep it in both places rather than stripping it out.
     return executeVoidApiCall<ApiClient>((client) =>
-      client.putFormById(formDesign.id, formDesign as FormDesign, CAPTURE_RAW_HTTP_RESPONSE),
+      client.putFormById(
+        formDesign.id,
+        complete as FormDesign,
+        CAPTURE_RAW_HTTP_RESPONSE,
+      ),
     );
   },
 };
 
-export default withStandardDecorators(UpdateFormTool);
+export default withBodyDecorators(UpdateFormTool);

@@ -16,6 +16,21 @@ describe("get-form-scaffold", () => {
 
     const result = await getFormScaffoldTool.handler(context);
 
+    // FormTestHelper.normalizeIds blanket-replaces every GUID-shaped string with
+    // the same placeholder, so it can't tell a correct cross-reference from a
+    // stale default — assert the real relationships before normalizing for the
+    // snapshot below.
+    const design = result.structuredContent as {
+      id: string;
+      pages: Array<{ id: string; form: string; fieldSets: Array<{ page: string }> }>;
+    };
+    for (const page of design.pages) {
+      expect(page.form).toBe(design.id);
+      for (const fieldSet of page.fieldSets) {
+        expect(fieldSet.page).toBe(page.id);
+      }
+    }
+
     const normalized = {
       ...result,
       structuredContent: FormTestHelper.normalizeIds(result.structuredContent),

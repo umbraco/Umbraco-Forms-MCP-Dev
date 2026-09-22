@@ -2,11 +2,10 @@
 
 exports[`copy-form should duplicate a form under a new name 1`] = `
 {
-  "content": [
-    {
-      "text": "",
-      "type": "text",
-    },
-  ],
+  "content": [],
+  "structuredContent": {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "success": true,
+  },
 }
 `;

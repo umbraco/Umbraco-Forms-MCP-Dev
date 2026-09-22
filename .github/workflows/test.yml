@@ -29,6 +29,7 @@ jobs:
       UMBRACO_CLIENT_ID: umbraco-back-office-mcp
       UMBRACO_CLIENT_SECRET: '1234567890'
       UMBRACO_BASE_URL: https://localhost:44390
+      UMBRACO_FORMS_API_KEY: test-forms-api-key-1234567890
       NODE_TLS_REJECT_UNAUTHORIZED: '0'
       TEST_SQL_DATA_SOURCE_CONNECTION: 'Server=localhost,1433;Database=forms-mcp-ci;User Id=sa;Password=Moloko99;TrustServerCertificate=True;Encrypt=False'
 

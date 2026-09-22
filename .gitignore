@@ -17,6 +17,9 @@ node_modules/
 # Written by jest-failure-reporter.ts on any test failure; auto-deleted on a clean run
 test-failures.log
 
+# Left behind only if run-evals-isolated.mjs is killed before it can restore .mcp.json
+.mcp.json.evals-bak
+
 # OS
 .DS_Store
 Thumbs.db
