@@ -1,203 +1,238 @@
-# forms-mcp-server
+# @umbraco-forms/mcp-dev
 
-MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`. Exposes forms, data sources, records, workflows, and related Forms management APIs as MCP tools.
+An [MCP](https://modelcontextprotocol.io) server for **Umbraco Forms**. Point it at an Umbraco
+instance and your AI assistant can build forms, manage data sources and prevalue sources, read
+submissions, query analytics, and submit entries — 102 tools across 24 collections.
 
-## Prerequisites
+Built on [`@umbraco-cms/mcp-server-sdk`](https://www.npmjs.com/package/@umbraco-cms/mcp-server-sdk).
 
-- Node.js 22+
-- .NET SDK 10.0 and SQL Server reachable at `localhost:1433` — **only if you're running the
-  bundled `demo-site/`** (see below). Pointing this server at an existing Umbraco Forms
-  instance instead needs neither.
+## Requirements
 
-## Quick Start
+- **Node.js 22+**
+- An **Umbraco instance with Umbraco Forms installed**, reachable over HTTP(S)
+- An **API user** on that instance (see below)
 
-> **Already have an Umbraco Forms instance?** This server works against any Umbraco Forms
-> install — the `demo-site/` in steps 2–4 below is only there to give you something to run
-> against out of the box. If you already have an instance running (locally or remotely), skip
-> straight to step 5 and point `.env` at it: set `UMBRACO_BASE_URL` to its URL, and
-> `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET` to an API user on *that* instance (create one via
-> its backoffice, or run `npm run create-api-user <base-url> <admin-email> <admin-password>`
-> against it instead of the demo defaults).
+This server targets **Umbraco 18**. Connecting to a different major version warns and blocks the
+first tool call; set `UMBRACO_EXPECTED_MAJOR` to override if you know what you're doing.
 
-### 1. Install dependencies
+## 1. Create an API user in Umbraco
+
+In the Umbraco backoffice:
+
+1. Go to **Settings → Users**
+2. Create a new **API user**
+3. Note its **Client ID** and **Client Secret**
+4. Grant it permissions for the Forms sections you want the assistant to reach
+
+The server authenticates with those credentials via OAuth client credentials.
+
+## 2. Add it to your MCP client
+
+### Claude Code / Claude Desktop
+
+Add to your `.mcp.json` (or `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "umbraco-forms": {
+      "command": "npx",
+      "args": ["-y", "@umbraco-forms/mcp-dev"],
+      "env": {
+        "UMBRACO_BASE_URL": "https://your-site.example.com",
+        "UMBRACO_CLIENT_ID": "your-client-id",
+        "UMBRACO_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+
+Restart your client and the tools appear.
+
+### Any other MCP client
+
+The server speaks MCP over stdio. Run it however your client spawns servers:
 
 ```bash
-npm install
+UMBRACO_BASE_URL=https://your-site.example.com \
+UMBRACO_CLIENT_ID=your-client-id \
+UMBRACO_CLIENT_SECRET=your-client-secret \
+npx -y @umbraco-forms/mcp-dev
 ```
 
-### 2. Start SQL Server and create the database
+### Local Umbraco with a self-signed certificate
+
+Add `"NODE_TLS_REJECT_UNAUTHORIZED": "0"` to `env`. Only do this against local development
+instances — it disables certificate verification process-wide.
+
+## 3. Check it works
+
+Without wiring up a client:
 
 ```bash
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=MyStrong!Passw0rd" \
-  -p 1433:1433 --name forms-mcp-sql -d mcr.microsoft.com/mssql/server:2022-latest
+# List every tool this server exposes
+npx -y @umbraco-forms/mcp-dev --list-tools
 
-docker exec forms-mcp-sql /opt/mssql-tools18/bin/sqlcmd \
-  -S localhost -U sa -P 'MyStrong!Passw0rd' -C -Q "CREATE DATABASE FormsMcpDb"
+# Show resolved configuration and where each value came from
+npx -y @umbraco-forms/mcp-dev --debug-config
+
+# Call a tool directly
+UMBRACO_BASE_URL=... UMBRACO_CLIENT_ID=... UMBRACO_CLIENT_SECRET=... \
+  npx -y @umbraco-forms/mcp-dev --call list-forms --call-args '{}'
 ```
 
-### 3. Start the demo Umbraco + Forms instance
+`--describe-tool <name>` prints a single tool's full input schema.
 
-`demo-site/` is a working Umbraco Forms install already checked into this repo.
+## Configuration
 
-```bash
-npm run start:umbraco
+Every option is an environment variable, and most also have a CLI flag (`--help` lists them).
+
+### Connection
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `UMBRACO_BASE_URL` | yes | Base URL of your Umbraco instance |
+| `UMBRACO_CLIENT_ID` | yes | API user's client ID |
+| `UMBRACO_CLIENT_SECRET` | yes | API user's client secret |
+| `UMBRACO_FORMS_API_KEY` | no | Forms Delivery API key — see below |
+| `UMBRACO_EXPECTED_MAJOR` | no | Override the expected Umbraco major version |
+
+### Limiting the tool surface
+
+102 tools is a lot of context. Narrow it down:
+
+| Variable | Purpose |
+|----------|---------|
+| `UMBRACO_TOOL_MODES` | Enable named groups of collections (see below) |
+| `UMBRACO_INCLUDE_TOOL_COLLECTIONS` | Only these collections |
+| `UMBRACO_EXCLUDE_TOOL_COLLECTIONS` | Everything except these |
+| `UMBRACO_INCLUDE_TOOLS` / `UMBRACO_EXCLUDE_TOOLS` | Individual tools by name |
+| `UMBRACO_INCLUDE_SLICES` / `UMBRACO_EXCLUDE_SLICES` | By operation type, e.g. `delete` |
+| `UMBRACO_READONLY` | Block every write operation |
+| `UMBRACO_DRY_RUN` | Log writes instead of performing them |
+
+Available modes:
+
+| Mode | Includes |
+|------|----------|
+| `forms-authoring` | Building forms: forms, templates, field types, pickers, folders, themes |
+| `data-sources` | Data sources and prevalue sources |
+| `submissions` | Submitted records, analytics, workflow types |
+| `admin` | Config, licensing, updates, members, email templates, export/import |
+| `forms-management-all` | All 21 Forms management collections |
+| `umbraco-server` | Server information only |
+
+```json
+"env": {
+  "UMBRACO_TOOL_MODES": "forms-authoring,submissions",
+  "UMBRACO_READONLY": "true"
+}
 ```
 
-The first run performs an unattended install and creates the admin user (`admin@admin.com` / `1234567890`, see `demo-site/appsettings.Development.json`). Leave it running — subsequent steps talk to it at `https://localhost:44390`.
+> **Note:** the Delivery API tools (`form-submission`) aren't part of any mode. If you set
+> `UMBRACO_TOOL_MODES`, add `"UMBRACO_INCLUDE_TOOL_COLLECTIONS": "form-submission"` to keep them.
 
-### 4. Create the MCP API user
+## What you get
 
-In a new terminal, once Umbraco is up:
+| Collection | Tools | What it covers |
+|------------|-------|----------------|
+| `form` | 28 | Create, edit, copy, move, export and inspect forms |
+| `data-source` / `data-source-type` | 12 | External data sources backing form fields |
+| `prevalue-source` / `prevalue-source-type` | 12 | Dropdown/checkbox value sources |
+| `record` | 9 | Submitted entries — search, read, update, workflow actions |
+| `folder` | 7 | Organising forms into folders |
+| `analytics` | 6 | Submission and workflow analytics |
+| `picker` | 4 | Document type and data type pickers |
+| `field-type` | 4 | Available field types and validation patterns |
+| `export` | 3 | Export forms and submissions |
+| `form-submission` | 2 | Delivery API: read definitions, submit entries |
+| `member`, `email-template`, `workflow-type` | 6 | Members, email templates, workflow types |
+| `config`, `licensing`, `updates`, `theme`, `media`, `form-template`, `acceptance-tests`, `umbraco-server` | 8 | Server-wide settings and status |
+| `chained` | 1 | Info about the chained CMS server |
 
-```bash
-npm run create-api-user
+Run `--list-tools` for the full list with descriptions.
+
+### Authoring forms
+
+Three ways, in order of preference:
+
+1. **`create-simple-form`** — a name and a flat list of `{label, type}` fields. Generates every
+   GUID, page, fieldset and default for you. Use this for ordinary forms.
+2. **`add-form-fields`** / **`delete-form-field`** — edit an existing form without restating it.
+3. **`create-form`** / **`update-form`** — the full design, for conditions, workflows, multiple
+   pages or custom field types.
+
+## Forms Delivery API (optional)
+
+Two tools — `get-form-definition` and `submit-form-entry` — use Umbraco's public Forms **Delivery**
+API rather than the Management API. They let an assistant read a form the way a frontend sees it
+(including field **aliases**) and submit entries against it.
+
+These need extra setup, because the Delivery API is **off by default** and authenticates with an
+`Api-Key` header instead of OAuth.
+
+In your Umbraco project's `appsettings.json`:
+
+```json
+{
+  "Umbraco": {
+    "Forms": {
+      "Options": {
+        "EnableFormsApi": true
+      },
+      "Security": {
+        "EnableAntiForgeryTokenForFormsApi": false,
+        "FormsApiKey": "<a long random string>"
+      }
+    }
+  }
+}
 ```
 
-This provisions an API user (Client ID `umbraco-back-office-mcp` / Secret `1234567890`) via the Management API — see `CLAUDE.md` for the manual backoffice alternative and version-specific caveats (e.g. the Swagger OAuth redirect path).
+- `EnableFormsApi` — the master switch; defaults to `false`.
+- `FormsApiKey` — the shared secret sent as the `Api-Key` header.
+- `EnableAntiForgeryTokenForFormsApi: false` — needed for server-to-server callers. The default
+  (`true`) expects a browser-issued antiforgery token that an MCP server can't obtain, so leaving
+  it on rejects requests that carry a valid key.
 
-### 5. Configure environment
+Restart the site, then set the matching key:
 
-```bash
-cp .env.example .env
+```json
+"env": {
+  "UMBRACO_FORMS_API_KEY": "<the same value as FormsApiKey>"
+}
 ```
 
-Fill in (or confirm) these values to match the demo site:
+> **Treat the key as a credential.** Turning off the antiforgery token disables CSRF protection for
+> the Forms API on that instance, and anyone holding `FormsApiKey` can submit entries to any form
+> on it. Consider carefully before enabling this on production.
 
-```
-UMBRACO_CLIENT_ID=umbraco-back-office-mcp
-UMBRACO_CLIENT_SECRET=1234567890
-UMBRACO_BASE_URL=https://localhost:44390
-NODE_TLS_REJECT_UNAUTHORIZED=0
-```
+Full details in Umbraco's [Headless/AJAX Forms docs](https://docs.umbraco.com/umbraco-forms/developer/ajaxforms).
 
-### 6. Build and try it
+## Umbraco CMS tools
 
-```bash
-npm run build
+By default this server also chains to [`@umbraco-cms/mcp-dev`](https://www.npmjs.com/package/@umbraco-cms/mcp-dev),
+exposing CMS tools (documents, media, members) alongside the Forms ones, prefixed `cms--`
+(e.g. `cms--get-document`). It reuses the same credentials.
 
-# Test with MCP Inspector
-npm run inspect
-```
+Set `DISABLE_MCP_CHAINING=true` to turn this off and run Forms tools only.
 
-Or open this project directory in Claude Code — `.mcp.json` registers the server automatically (it runs `node --env-file=.env ./dist/index.js`, so no secrets leave `.env`).
+## Troubleshooting
 
-## Project Structure
+| Symptom | Likely cause |
+|---------|--------------|
+| `401` on every tool | Wrong `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET`, or the API user lacks permissions |
+| Self-signed certificate errors | Local HTTPS instance — set `NODE_TLS_REJECT_UNAUTHORIZED=0` |
+| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 18 — set `UMBRACO_EXPECTED_MAJOR` |
+| `403` from the Delivery API tools | `UMBRACO_FORMS_API_KEY` missing or not matching `FormsApiKey`, or `EnableAntiForgeryTokenForFormsApi` is still `true` |
+| `404` from the Delivery API for a form that exists | `EnableFormsApi` isn't `true`, or the site wasn't restarted |
+| A tool you expected isn't listed | Check `UMBRACO_TOOL_MODES` and the include/exclude variables with `--debug-config` |
 
-```
-├── src/
-│   ├── umbraco-api/
-│   │   ├── api/
-│   │   │   ├── client.ts              # API client configuration
-│   │   │   └── generated/             # Orval-generated client and Zod schemas
-│   │   └── tools/
-│   │       └── {collection}/          # e.g. form, data-source, record, workflow-type...
-│   │           ├── index.ts           # ToolCollectionExport
-│   │           ├── get/ post/ put/ delete/
-│   │           └── __tests__/
-│   ├── config/                        # Custom fields, slice/mode registries
-│   ├── mocks/                         # MSW handlers for unit tests
-│   └── index.ts                       # Server entry point
-├── demo-site/                         # Local Umbraco Forms instance for dev/testing
-├── scripts/
-│   ├── create-api-user.mjs            # Provisions the MCP API user
-│   ├── test-changed.mjs               # Runs only tests related to the current diff
-│   ├── rerun-failures.mjs             # Reruns only the last run's failures
-│   └── start-umbraco.sh / .ps1        # Runs demo-site/
-├── umbraco/                            # Composer snippets to copy into YOUR OWN Umbraco project
-│   └── McpOAuthComposer.cs            # if self-hosting the MCP server as a Worker
-├── tests/evals/                       # LLM-based acceptance tests
-├── .github/workflows/                 # CI (test.yml) and release (release-tag.yml)
-└── .env.example
-```
+## Contributing
 
-Full tool conventions, registries, and the Umbraco-version check are documented in `CLAUDE.md`.
-
-## Adding Your Own Tools
-
-1. Create a folder under `src/umbraco-api/tools/` for your tool collection
-2. Add tool files in the matching subfolder — `get/`, `post/`, `put/`, `delete/`
-3. Add an `index.ts` that exports the collection (`ToolCollectionExport`)
-4. Register the collection in `src/collections.ts` and `src/index.ts`
-
-### Tool Pattern Example
-
-```typescript
-import { z } from "zod";
-import {
-  withStandardDecorators,
-  executeGetApiCall,
-  CAPTURE_RAW_HTTP_RESPONSE,
-  ToolDefinition,
-} from "@umbraco-cms/mcp-server-sdk";
-
-const inputSchema = {
-  id: z.string().uuid(),
-};
-
-const myTool: ToolDefinition<typeof inputSchema> = {
-  name: "my-tool",
-  description: "Does something useful",
-  inputSchema,
-  slices: ["read"],
-  annotations: { readOnlyHint: true },
-  handler: async ({ id }) => {
-    return executeGetApiCall((client) =>
-      client.getMyItem(id, CAPTURE_RAW_HTTP_RESPONSE)
-    );
-  },
-};
-
-export default withStandardDecorators(myTool);
-```
-
-## Testing
-
-Integration tests run against the real Umbraco instance from the Quick Start above (no mocking):
-
-```bash
-npm test                      # full integration suite
-npm run test:changed          # only tests related to files changed vs dev/main
-npm run test:rerun-failures   # re-run only what failed last time (reads test-failures.log)
-npm run test:evals            # LLM-based acceptance tests (needs Claude Code subscription or ANTHROPIC_API_KEY)
-```
-
-Tests use Jest with the MCP toolkit's testing helpers:
-
-```typescript
-import {
-  setupTestEnvironment,
-  createSnapshotResult,
-  createMockRequestHandlerExtra,
-} from "@umbraco-cms/mcp-server-sdk/testing";
-
-describe("my-tool", () => {
-  setupTestEnvironment();
-
-  it("should do something", async () => {
-    const result = await myTool.handler({ id: "..." }, createMockRequestHandlerExtra());
-    expect(createSnapshotResult(result)).toMatchSnapshot();
-  });
-});
-```
-
-## Regenerating the API Client
-
-If the Umbraco Forms Management API changes, point `orval.config.ts` at your instance and regenerate:
-
-```bash
-npm run generate
-```
-
-This also re-stamps `src/config/umbraco-target.generated.ts` from your connected instance's actual version — see `CLAUDE.md` for why there's no spec-based fallback.
-
-## CI
-
-- `.github/workflows/test.yml` spins up SQL Server + a real Umbraco instance and runs the integration suite per tool collection on every push/PR to `dev`/`main`.
-- `.github/workflows/release-tag.yml` tags `v<version>` and creates a GitHub Release whenever `package.json`'s version changes on `main`.
-
-## Deploying as a Hosted Worker
-
-See `src/worker.ts` and `CLAUDE.md`'s "Hosted Worker" section. The `umbraco/` folder holds Composer snippets to copy into your own Umbraco project so it can authenticate a Worker-hosted MCP server.
+Setting up the repo, running the demo Umbraco site and the test suites: see
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
