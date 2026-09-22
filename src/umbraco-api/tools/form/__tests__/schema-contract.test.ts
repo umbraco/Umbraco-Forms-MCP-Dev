@@ -1,5 +1,5 @@
 /**
- * Schema drift alarm for the hardcoded constants in `tools/shared/`.
+ * Schema drift alarm for the hardcoded constants in `tools/form/shared/`.
  *
  * `form-field-types.ts` and `form-design-keys.ts` are a copy of Umbraco Forms'
  * schema frozen at the time they were written: 16 field-type GUIDs and the list
@@ -30,13 +30,13 @@ import { postFormBody } from "../../../api/generated/umbracoFormsManagementApi.z
 import {
   FORMS_FIELD_TYPE_IDS,
   FIELD_TYPE_ALIASES,
-} from "../form-field-types.js";
-import { SERVER_DERIVABLE_FORM_KEYS } from "../form-design-keys.js";
+} from "../shared/form-field-types.js";
+import { SERVER_DERIVABLE_FORM_KEYS } from "../shared/form-design-keys.js";
 import {
   buildFormDesign,
   withFormDesignDefaults,
   type SimpleFormSpec,
-} from "../build-form-design.js";
+} from "../shared/build-form-design.js";
 
 /**
  * The only two `FormDesign` properties a caller is expected to supply. Every
@@ -83,7 +83,7 @@ describe("shared schema contract", () => {
 
       assertNoDrift(
         missing,
-        "FORMS_FIELD_TYPE_IDS names field types this Umbraco Forms instance does not ship. Update src/umbraco-api/tools/shared/form-field-types.ts:",
+        "FORMS_FIELD_TYPE_IDS names field types this Umbraco Forms instance does not ship. Update src/umbraco-api/tools/form/shared/form-field-types.ts:",
       );
     });
 

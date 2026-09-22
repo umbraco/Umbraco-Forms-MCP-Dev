@@ -28,10 +28,10 @@ import type {
 } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { postFormBody } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 import { withBodyDecorators } from "../../shared/body-text.js";
-import { withFormDesignDefaults } from "../../shared/build-form-design.js";
-import { makeOptional } from "../../shared/optional-shape.js";
-import { relaxedPagesSchema } from "../../shared/form-pages-schema.js";
-import { SERVER_DERIVABLE_FORM_KEYS } from "../../shared/form-design-keys.js";
+import { withFormDesignDefaults } from "../shared/build-form-design.js";
+import { makeOptional } from "../shared/optional-shape.js";
+import { relaxedPagesSchema } from "../shared/form-pages-schema.js";
+import { SERVER_DERIVABLE_FORM_KEYS } from "../shared/form-design-keys.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 

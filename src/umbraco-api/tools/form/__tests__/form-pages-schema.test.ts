@@ -10,9 +10,9 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { relaxedPagesSchema, normalizePages } from "../form-pages-schema.js";
-import { FORMS_FIELD_TYPE_IDS } from "../form-field-types.js";
-import { FormTestHelper } from "../../form/__tests__/helpers/form-test-helper.js";
+import { relaxedPagesSchema, normalizePages } from "../shared/form-pages-schema.js";
+import { FORMS_FIELD_TYPE_IDS } from "../shared/form-field-types.js";
+import { FormTestHelper } from "./helpers/form-test-helper.js";
 
 const FORM_ID = "11111111-1111-1111-1111-111111111111";
 

@@ -26,8 +26,8 @@ import {
   buildFormDesign,
   simpleFormShape,
   type SimpleFormSpec,
-} from "../../shared/build-form-design.js";
-import { FIELD_TYPE_ALIAS_NAMES } from "../../shared/form-field-types.js";
+} from "../shared/build-form-design.js";
+import { FIELD_TYPE_ALIAS_NAMES } from "../shared/form-field-types.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
