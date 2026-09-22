@@ -24,6 +24,7 @@ import {
   configureVersionCheckHook,
   getVersionCheckMessage,
   registerToolCollection,
+  useDraft202012ToolSchemas,
   UmbracoManagementClient,
   CAPTURE_RAW_HTTP_RESPONSE,
   SERVER_INFORMATION_PATH,
@@ -299,6 +300,16 @@ async function main() {
       // Continue without proxied tools - local tools still work
     }
   }
+
+  // Emit tool schemas as JSON Schema draft-2020-12 rather than the MCP SDK's
+  // draft-07 default. Previously forced via a patch-package patch against
+  // @modelcontextprotocol/sdk; the base SDK provides this properly from
+  // 1.0.0-beta.37 onwards.
+  //
+  // Must run AFTER every registerTool call — including the proxied tools above.
+  // McpServer.registerTool() installs its own tools/list handler on first use,
+  // which would overwrite this one if it ran earlier.
+  useDraft202012ToolSchemas(server);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
