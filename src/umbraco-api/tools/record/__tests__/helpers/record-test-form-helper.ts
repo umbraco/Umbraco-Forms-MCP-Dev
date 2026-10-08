@@ -1,8 +1,14 @@
-import { CAPTURE_RAW_HTTP_RESPONSE, type HttpResponse } from "@umbraco-cms/mcp-server-sdk";
+import {
+  CAPTURE_RAW_HTTP_RESPONSE,
+  UmbracoManagementClient,
+  type HttpResponse,
+} from "@umbraco-cms/mcp-server-sdk";
 import {
   getUmbracoFormsManagementAPI,
   type FormDesign,
+  type FormSecurityForUser,
 } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeForm } from "../../../../../testing/purge.js";
 
 const TEST_RECORD_FORM_NAME = "_Test Record Form";
 
@@ -63,11 +69,40 @@ export class RecordTestFormHelper {
   static async deleteTestForm(id: string): Promise<void> {
     if (!id) return;
 
+    await purgeForm(id);
+  }
+
+  /** IDs of every field on a form, in design order. */
+  static async getFieldIds(formId: string): Promise<string[]> {
+    const form = (await getUmbracoFormsManagementAPI().getFormById(formId)) as FormDesign;
+    return form.pages.flatMap((page) =>
+      page.fieldSets.flatMap((fieldset) =>
+        fieldset.containers.flatMap((container) => container.fields.map((field) => field.id)),
+      ),
+    );
+  }
+
+  /**
+   * Runs `fn` with the "delete entries" Forms permission granted to the current
+   * (API) user, then puts the user's permissions back. Forms gives even
+   * administrators every entry permission except that one by default.
+   */
+  static async withDeleteEntriesPermission<T>(fn: () => Promise<T>): Promise<T> {
     const client = getUmbracoFormsManagementAPI();
+    const me = (await UmbracoManagementClient<{ id: string }>(
+      { method: "GET", url: "/umbraco/management/api/v1/user/current" },
+      CAPTURE_RAW_HTTP_RESPONSE,
+    )) as unknown as HttpResponse<{ id: string }>;
+    const original = (await client.getSecurityUserByIdFormSecurity(me.data.id)) as FormSecurityForUser;
+
+    await client.putSecurityUserByIdFormSecurity(me.data.id, {
+      ...original,
+      userSecurity: { ...original.userSecurity, deleteEntries: true },
+    });
     try {
-      await client.deleteFormById(id, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures in cleanup
+      return await fn();
+    } finally {
+      await client.putSecurityUserByIdFormSecurity(me.data.id, original);
     }
   }
 

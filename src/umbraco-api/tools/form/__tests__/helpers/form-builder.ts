@@ -18,6 +18,7 @@ import {
   getUmbracoFormsManagementAPI,
   type FormDesign,
 } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeForm } from "../../../../../testing/purge.js";
 
 export const TEST_FORM_NAME = "_Test Form";
 
@@ -97,7 +98,8 @@ export class FormBuilder {
             workflowTypeDescription: "",
             workflowTypeIcon: "",
             workflowTypeGroup: "",
-            settings: {},
+            // Forms 17.6 / 18.2 refuse to save a workflow whose mandatory settings are empty.
+            settings: { Email: "test@example.com", Subject: "Test", Message: "Test" },
             isMandatory: false,
             condition: null,
           },
@@ -124,13 +126,7 @@ export class FormBuilder {
 
   async delete(): Promise<void> {
     if (!this.createdId) return;
-    const client = getUmbracoFormsManagementAPI();
-    try {
-      await client.deleteFormById(this.createdId, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures in cleanup — the instance is shared and the
-      // form may already have been removed by the test itself.
-    }
+    await purgeForm(this.createdId);
     this.createdId = undefined;
   }
 

@@ -4,7 +4,7 @@ exports[`get-updates-version should return the latest available Umbraco Forms ve
 {
   "content": [],
   "structuredContent": {
-    "version": "17.5.2",
+    "version": "17.6.1",
   },
 }
 `;
