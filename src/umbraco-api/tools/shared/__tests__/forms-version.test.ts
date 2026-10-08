@@ -28,6 +28,10 @@ describe("formsVersionSupports", () => {
     expect(formsVersionSupports("prevalueSourceTextFile", "17.4.0")).toBe(true);
     expect(formsVersionSupports("memberForms", "17.4.8")).toBe(false);
     expect(formsVersionSupports("memberForms", "17.5.0")).toBe(true);
+    for (const feature of ["recycleBin", "formVersions", "formAuditLog", "recordWrite"] as const) {
+      expect(formsVersionSupports(feature, "17.5.2")).toBe(false);
+      expect(formsVersionSupports(feature, "17.6.0")).toBe(true);
+    }
   });
 
   it("should judge each major by its own minimum, not by the newest line's", () => {
@@ -35,6 +39,10 @@ describe("formsVersionSupports", () => {
     expect(formsVersionSupports("memberForms", "17.5.2")).toBe(true);
     expect(formsVersionSupports("memberForms", "18.0.6")).toBe(false);
     expect(formsVersionSupports("memberForms", "18.1.0")).toBe(true);
+    // 17.6 is below 18.2 numerically but has the 18.2 recycle bin.
+    expect(formsVersionSupports("recycleBin", "17.6.1")).toBe(true);
+    expect(formsVersionSupports("recycleBin", "18.1.3")).toBe(false);
+    expect(formsVersionSupports("recycleBin", "18.2.0")).toBe(true);
     // Everything else was in 18.0.0 already.
     expect(formsVersionSupports("formCollection", "18.0.0")).toBe(true);
   });

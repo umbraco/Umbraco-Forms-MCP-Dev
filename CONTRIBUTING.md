@@ -57,7 +57,7 @@ On Apple silicon add `--platform linux/amd64` to `docker run`.
 ### 3. Start the demo Umbraco + Forms instance
 
 `demo-site/` is a working Umbraco Forms install already checked into this repo. On this `v17/*`
-line it is Umbraco 17.7 with Umbraco Forms 17.5 and Clean 7; `main`/`dev` carry the Umbraco 18
+line it is Umbraco 17.7 with Umbraco Forms 17.6 and Clean 7; `main`/`dev` carry the Umbraco 18
 version of it.
 
 Give each major its **own database**. Umbraco only migrates forward: a database an Umbraco 18 site

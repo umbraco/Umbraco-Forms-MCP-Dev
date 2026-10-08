@@ -25,7 +25,7 @@ Mirrors the Umbraco CMS MCP's and Automate MCP's `v17/*` branches:
   (3.1) and `/umbraco/openapi/oauth2-redirect.html`.
 - `orval.config.ts` reads the spec from `UMBRACO_BASE_URL`, the same instance the target-major
   transformer queries, so `npm run generate` can't mix one install's spec with another's version.
-- The demo site is Umbraco.Cms 17.7.0, Umbraco.Forms 17.5.2, Clean 7.0.8, with its own database
+- The demo site is Umbraco.Cms 17.7.0, Umbraco.Forms 17.6.1, Clean 7.0.8, with its own database
   (`FormsMcpDbV17`) - Umbraco can't migrate down, so never point it at a database a v18 site has
   used. To run it beside a v18 site, start it on other ports (e.g. 44391/9220).
 - Swashbuckle's spec differs from Umbraco 18's in ways the generated code shows: enum references
@@ -55,6 +55,10 @@ the bare 404 with a message naming the version needed. Successful calls cost not
 | `analytics` | `POST /analytics/*` | 17.3.0 | 18.0.0 |
 | `prevalueSourceTextFile` | `GET /prevalue-source/{id}/text-file/{fileName}` | 17.4.0 | 18.0.0 |
 | `memberForms` | `GET /member/linkable-properties`, `/member/{memberKey}/form-summaries` | 17.5.0 | 18.1.0 |
+| `recycleBin` | `PUT /{form,folder}/{id}/restore`, `DELETE .../permanent`, `GET .../original-parent`, `GET /tree/recycle-bin/*`, `DELETE /recycle-bin/empty` | 17.6.0 | 18.2.0 |
+| `formVersions` | `GET /form/{id}/version`, `GET /form/version/{versionId}`, `POST .../rollback`, `PUT .../prevent-cleanup` | 17.6.0 | 18.2.0 |
+| `formAuditLog` | `GET /form/{id}/audit-log` | 17.6.0 | 18.2.0 |
+| `recordWrite` | `POST /form/{formId}/record`, `DELETE /form/{formId}/record/{recordId}` | 17.6.0 | 18.2.0 |
 
 **Response properties** - `MID_LINE_PROPERTIES` in `api/relax-mid-line-fields.ts`, an orval input
 transformer that drops them from `required`, so output schemas accept responses from releases that

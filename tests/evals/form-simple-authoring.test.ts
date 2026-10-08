@@ -29,6 +29,7 @@ const TOOLS = [
   "list-forms",
   "get-form-by-id",
   "delete-form",
+  "delete-form-permanently",
 ] as const;
 
 // Comfortably under form-crud's 180s: the payloads here are small, but this
@@ -51,7 +52,7 @@ describe("Simple Form Authoring", () => {
 3. Call list-forms and confirm the form appears in the results.
 4. Add one more field to that existing form: a long-answer field labelled "Anything else?". Do not recreate the form.
 5. Call get-form-by-id and confirm the form now has five fields, including "Anything else?".
-6. Call delete-form to permanently delete the form.
+6. Call delete-form to move the form to the recycle bin, then delete-form-permanently to remove it for good.
 7. Say "SIMPLE FORM WORKFLOW COMPLETE" once all steps succeed.`,
       tools: [...TOOLS],
       requiredTools: [
@@ -60,6 +61,7 @@ describe("Simple Form Authoring", () => {
         "list-forms",
         "get-form-by-id",
         "delete-form",
+        "delete-form-permanently",
       ],
       successPattern: "SIMPLE FORM WORKFLOW COMPLETE",
       verbose: true,

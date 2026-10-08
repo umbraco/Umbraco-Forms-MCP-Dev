@@ -31,6 +31,7 @@ const FORM_TOOLS = [
   "get-form-by-id",
   "update-form",
   "delete-form",
+  "delete-form-permanently",
 ] as const;
 
 // The form design payload (scaffold, create, get-by-id, update) is much
@@ -54,7 +55,7 @@ describe("Form CRUD Operations", () => {
 4. Call list-forms and confirm a form named "Eval Test Form {timestamp}" appears in the results.
 5. Call get-form-by-id using the form's id (the same id from the scaffold) to fetch its full current design.
 6. Call update-form to rename the form: take the exact design object returned by get-form-by-id, change ONLY the "name" field to "Eval Test Form {timestamp} Renamed", and pass everything else through unchanged (including the same id).
-7. Call delete-form using the form's id to permanently delete it.
+7. Call delete-form using the form's id (this moves it to the recycle bin), then delete-form-permanently to remove it for good.
 8. Say "FORM CRUD WORKFLOW COMPLETE" once all steps succeed.`,
       tools: [...FORM_TOOLS],
       requiredTools: [
@@ -64,6 +65,7 @@ describe("Form CRUD Operations", () => {
         "get-form-by-id",
         "update-form",
         "delete-form",
+        "delete-form-permanently",
       ],
       successPattern: "FORM CRUD WORKFLOW COMPLETE",
       verbose: true,

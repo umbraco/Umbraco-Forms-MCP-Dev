@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-form-restore-destination should name the folder a trashed form was deleted from 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "destinationId": "FOLDER_ID",
+    "itemName": "_Test Form Restore Destination",
+  },
+}
+`;

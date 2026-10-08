@@ -1,7 +1,8 @@
 /**
  * Delete Form Tool
  *
- * Permanently deletes a form definition by its ID.
+ * Deletes a form by its ID: moves it to the recycle bin on Umbraco Forms 17.6+,
+ * deletes it permanently on earlier releases.
  */
 
 import {
@@ -20,7 +21,7 @@ const inputSchema = deleteFormByIdParams.shape;
 const DeleteFormTool: ToolDefinition<typeof inputSchema> = {
   name: "delete-form",
   description:
-    "Permanently deletes an Umbraco Forms form by its ID. This removes the form definition itself, not its submitted entries. Use has-relations/relations tools first to check whether the form is referenced elsewhere (e.g. embedded on content pages) before deleting. This action cannot be undone and is not idempotent — calling it again on the same ID returns a 404.",
+    "Deletes an Umbraco Forms form by its ID. On Umbraco Forms 17.6 and later the form is moved to the Forms recycle bin, from where restore-form brings it back and delete-form-permanently removes it for good; earlier releases delete it permanently. It acts on the form definition, not its submitted entries. Use get-form-has-relations / get-form-relations first to check whether the form is referenced elsewhere (e.g. embedded on content pages) before deleting. Calling it on an ID that no longer exists returns a 404.",
   inputSchema,
   slices: ["delete"],
   annotations: {

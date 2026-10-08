@@ -33,14 +33,14 @@ export const toolModes: ToolModeDefinition[] = [
     {
     name: 'forms-management-all',
     displayName: 'All Forms Management Tools',
-    description: 'All 21 Forms Management collections combined',
-    collections: ['acceptance-tests', 'analytics', 'config', 'data-source', 'data-source-type', 'email-template', 'export', 'field-type', 'folder', 'form', 'form-template', 'licensing', 'media', 'member', 'picker', 'prevalue-source', 'prevalue-source-type', 'record', 'theme', 'updates', 'workflow-type']
+    description: 'All 22 Forms Management collections combined',
+    collections: ['acceptance-tests', 'analytics', 'config', 'data-source', 'data-source-type', 'email-template', 'export', 'field-type', 'folder', 'form', 'form-template', 'licensing', 'media', 'member', 'picker', 'prevalue-source', 'prevalue-source-type', 'record', 'recycle-bin', 'theme', 'updates', 'workflow-type']
   },
   {
     name: 'forms-authoring',
     displayName: 'Forms Authoring',
-    description: 'Build and structure forms: forms, templates, field types, pickers, folders, themes',
-    collections: ['form', 'form-template', 'field-type', 'picker', 'folder', 'theme']
+    description: 'Build and structure forms: forms, templates, field types, pickers, folders, recycle bin, themes',
+    collections: ['form', 'form-template', 'field-type', 'picker', 'folder', 'recycle-bin', 'theme']
   },
   {
     name: 'data-sources',

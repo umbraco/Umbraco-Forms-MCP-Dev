@@ -4,9 +4,8 @@ import {
   createSnapshotResult,
   validateToolResponse,
 } from "./setup.js";
-import { CAPTURE_RAW_HTTP_RESPONSE } from "@umbraco-cms/mcp-server-sdk";
-import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import createFolderTool from "../post/create-folder.js";
+import { purgeFolder } from "../../../../testing/purge.js";
 
 const TEST_NAME = "_Test Create Folder";
 
@@ -17,12 +16,7 @@ describe("create-folder", () => {
 
   afterEach(async () => {
     if (createdId) {
-      const client = getUmbracoFormsManagementAPI();
-      try {
-        await client.deleteFolderById(createdId, CAPTURE_RAW_HTTP_RESPONSE);
-      } catch {
-        // Ignore cleanup failures
-      }
+      await purgeFolder(createdId);
       createdId = undefined;
     }
   });
