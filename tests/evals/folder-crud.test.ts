@@ -20,6 +20,7 @@ const FOLDER_TOOLS = [
   "is-folder-empty",
   "update-folder",
   "delete-folder",
+  "delete-folder-permanently",
 ] as const;
 
 describe("Folder CRUD Operations", () => {
@@ -36,7 +37,7 @@ describe("Folder CRUD Operations", () => {
 3. Check that the folder you just created is empty.
 4. Get the folder by its ID to confirm its name matches what you created.
 5. Rename the folder to "Eval Test Folder {timestamp} Renamed".
-6. Delete the folder you created.
+6. Delete the folder you created (this moves it to the recycle bin), then delete it permanently.
 7. Say "FOLDER CRUD WORKFLOW COMPLETE" once all steps succeed.`,
       tools: [...FOLDER_TOOLS],
       requiredTools: [
@@ -44,6 +45,7 @@ describe("Folder CRUD Operations", () => {
         "get-folder-by-id",
         "update-folder",
         "delete-folder",
+        "delete-folder-permanently",
       ],
       successPattern: "FOLDER CRUD WORKFLOW COMPLETE",
       verbose: true,

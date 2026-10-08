@@ -6,13 +6,14 @@
 
 import {
   withStandardDecorators,
-  executeVoidApiCall,
+  executeVoidApiCallWithOptions,
   CAPTURE_RAW_HTTP_RESPONSE,
   type ToolDefinition,
 } from "@umbraco-cms/mcp-server-sdk";
 import type { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import { deleteFolderByIdPermanentParams } from "../../../api/generated/umbracoFormsManagementApi.zod.js";
 import { withFormsFeature } from "../../shared/forms-version.js";
+import { textErrorBodyAsProblemDetails } from "../shared/text-error-body.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
@@ -32,8 +33,9 @@ const DeleteFolderPermanentlyTool: ToolDefinition<typeof inputSchema> = {
     destructiveHint: true,
   },
   handler: async ({ id }) => {
-    return executeVoidApiCall<ApiClient>((client) =>
-      client.deleteFolderByIdPermanent(id, CAPTURE_RAW_HTTP_RESPONSE),
+    return executeVoidApiCallWithOptions<ApiClient>(
+      (client) => client.deleteFolderByIdPermanent(id, CAPTURE_RAW_HTTP_RESPONSE),
+      { transformError: textErrorBodyAsProblemDetails },
     );
   },
 };
