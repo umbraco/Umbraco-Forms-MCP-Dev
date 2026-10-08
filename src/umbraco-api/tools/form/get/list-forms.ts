@@ -19,7 +19,9 @@ import { withFormsFeature } from "../../shared/forms-version.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
-const inputSchema = getFormCollectionQueryParams.shape;
+// Forms 17.6/18.2 added a name `filter`; older releases ignore it and return every
+// form, which would read as a filtered result. search-forms filters on every version.
+const inputSchema = getFormCollectionQueryParams.omit({ filter: true }).shape;
 const outputSchema = getFormCollectionResponse;
 
 const ListFormsTool: ToolDefinition<typeof inputSchema, typeof outputSchema> = {

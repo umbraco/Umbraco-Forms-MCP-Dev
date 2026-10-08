@@ -22,6 +22,7 @@ import {
   type FormDesign,
   type FieldTypeWithSettings,
 } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeForm } from "../../../../../testing/purge.js";
 
 export const TEST_FORM_NAME = "_Test Form Submission";
 export const TEST_FIELD_ALIAS = "shortAnswer";
@@ -100,12 +101,7 @@ export class FormSubmissionBuilder {
 
   async delete(): Promise<void> {
     if (!this.createdId) return;
-    const client = getUmbracoFormsManagementAPI();
-    try {
-      await client.deleteFormById(this.createdId, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures during cleanup.
-    }
+    await purgeForm(this.createdId);
     this.createdId = undefined;
   }
 
