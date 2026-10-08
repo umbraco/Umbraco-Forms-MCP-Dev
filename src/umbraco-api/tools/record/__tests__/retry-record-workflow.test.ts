@@ -1,15 +1,13 @@
-import { setupTestEnvironment, createMockRequestHandlerExtra, RecordTestFormHelper } from "./setup.js";
+import {
+  setupTestEnvironment,
+  createMockRequestHandlerExtra,
+  createSnapshotResult,
+  RecordTestFormHelper,
+} from "./setup.js";
 import retryRecordWorkflowTool from "../post/retry-record-workflow.js";
+import { RecordEntryHelper } from "./helpers/record-entry-helper.js";
+import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 
-/**
- * ERROR-PATH ONLY — genuine gap, not worked around here.
- *
- * Same underlying blocker as get-record-audit-trail.test.ts: retrying a workflow
- * requires a real record with a real prior workflow execution, but this instance has no
- * forms with real submitted records (and therefore no workflow runs) and no Management
- * API endpoint exists to create either. Only the error path (retrying against an unknown
- * record/workflow on a real form) can be tested honestly.
- */
 describe("retry-record-workflow", () => {
   setupTestEnvironment();
 
@@ -21,6 +19,33 @@ describe("retry-record-workflow", () => {
 
   afterAll(async () => {
     await RecordTestFormHelper.deleteTestForm(formId);
+  });
+
+  it("should run a workflow again for an entry", async () => {
+    const context = createMockRequestHandlerExtra();
+    const { builder, recordId } = await RecordEntryHelper.submitEntryWithWorkflow();
+    const client = getUmbracoFormsManagementAPI();
+    const auditTrail = async () =>
+      (await client.getFormByFormIdRecordByRecordIdWorkflowAuditTrail(builder.getId(), recordId)) as unknown as Array<{
+        workflowKey: string;
+        name: string;
+      }>;
+
+    try {
+      const before = await auditTrail();
+      const workflow = before.find((entry) => entry.name === "_Test Send Email Workflow")!;
+
+      const result = await retryRecordWorkflowTool.handler(
+        { formId: builder.getId(), recordId, workflowId: workflow.workflowKey },
+        context,
+      );
+
+      expect(createSnapshotResult(result)).toMatchSnapshot();
+      const runs = (await auditTrail()).filter((entry) => entry.workflowKey === workflow.workflowKey);
+      expect(runs.length).toBeGreaterThan(1);
+    } finally {
+      await builder.delete();
+    }
   });
 
   it("should return error when retrying a workflow for a record that doesn't exist", async () => {

@@ -7,8 +7,8 @@
  * folders created by tests.
  */
 
-import { CAPTURE_RAW_HTTP_RESPONSE } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeFolder } from "../../../../../testing/purge.js";
 
 interface FolderTreeItem {
   id: string;
@@ -74,11 +74,7 @@ export class FolderTestHelper {
       // Ignore failures listing children — fall through to attempt delete.
     }
 
-    try {
-      await client.deleteFolderById(folderId, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures during cleanup.
-    }
+    await purgeFolder(folderId);
   }
 
   /**

@@ -5,6 +5,7 @@ exports[`get-form-scaffold should return a blank form design with generated ids 
   "content": [],
   "structuredContent": {
     "autocompleteAttribute": "",
+    "concurrencyToken": null,
     "created": "NORMALIZED_DATE",
     "createdBy": null,
     "createdByName": null,
@@ -129,6 +130,7 @@ exports[`get-form-scaffold should return a blank form design with generated ids 
     "storeRecordsLocally": true,
     "submitLabel": "Submit",
     "summaryLabel": "Summary of Entry",
+    "trashed": false,
     "unique": "00000000-0000-0000-0000-000000000000",
     "updated": "2000-01-01T00:00:00.000Z",
     "updatedBy": null,

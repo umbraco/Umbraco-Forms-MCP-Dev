@@ -6,6 +6,7 @@ import {
   FormTestHelper,
 } from "./setup.js";
 import deleteFormTool from "../delete/delete-form.js";
+import { purgeForm } from "../../../../testing/purge.js";
 
 const TEST_NAME = "_Test Delete Form";
 
@@ -20,8 +21,11 @@ describe("delete-form", () => {
 
     expect(createSnapshotResult(result)).toMatchSnapshot();
 
+    // Gone from the live forms; on Forms 17.6 / 18.2 it is in the recycle bin instead.
     const found = await FormTestHelper.findByName(TEST_NAME);
     expect(found).toBeUndefined();
+
+    await purgeForm(builder.getId());
   });
 
   it("should return an error for a non-existent id", async () => {

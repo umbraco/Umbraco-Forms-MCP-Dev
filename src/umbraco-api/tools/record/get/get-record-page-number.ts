@@ -27,7 +27,9 @@ const inputSchema = {
   formId: getFormByFormIdRecordPageNumberParams.shape.formId.describe(
     "ID of the form whose records to page through.",
   ),
-  ...getFormByFormIdRecordPageNumberQueryParams.shape,
+  // IncludeAdditionalData (Forms 18.2) is forced on by the server for searches and has no
+  // bearing on counts or page numbers, so it is not offered.
+  ...getFormByFormIdRecordPageNumberQueryParams.omit({ IncludeAdditionalData: true }).shape,
   recordId: getFormByFormIdRecordPageNumberQueryParams.shape.recordId
     .unwrap()
     .describe("ID of the record to locate. Required — this tool is meaningless without it."),
