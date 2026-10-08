@@ -45,6 +45,8 @@ describe("delete-folder-permanently", () => {
     const result = await deleteFolderPermanentlyTool.handler({ id: folderId }, context);
 
     expect(result.isError).toBe(true);
+    // The server answers with plain text; it must reach the client as an object (MCP requires one).
+    expect(result.structuredContent).toMatchObject({ status: 400, detail: expect.stringContaining("not in the recycle bin") });
   });
 
   it("should return an error for an unknown id", async () => {

@@ -41,6 +41,8 @@ describe("delete-form-permanently", () => {
     const result = await deleteFormPermanentlyTool.handler({ id: formId }, context);
 
     expect(result.isError).toBe(true);
+    // The server answers with plain text; it must reach the client as an object (MCP requires one).
+    expect(result.structuredContent).toMatchObject({ status: 400, detail: expect.stringContaining("not in the recycle bin") });
     const form = await getFormByIdTool.handler({ id: formId, applyDictionaryTranslations: undefined }, context);
     expect(form.structuredContent).toMatchObject({ trashed: false });
   });
