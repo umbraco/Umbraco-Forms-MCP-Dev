@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`get-folder-restore-destination should name the folder a trashed folder was deleted from 1`] = `
+{
+  "content": [],
+  "structuredContent": {
+    "destinationId": "PARENT_ID",
+    "itemName": "_Test Folder Restore Destination Child",
+  },
+}
+`;
