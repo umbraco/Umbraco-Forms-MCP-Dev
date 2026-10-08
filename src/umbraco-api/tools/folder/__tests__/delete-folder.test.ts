@@ -6,6 +6,7 @@ import {
 } from "./setup.js";
 import deleteFolderTool from "../delete/delete-folder.js";
 import getFolderByIdTool from "../get/get-folder-by-id.js";
+import { purgeFolder } from "../../../../testing/purge.js";
 
 const TEST_NAME = "_Test Delete Folder";
 
@@ -21,9 +22,11 @@ describe("delete-folder", () => {
 
     expect(createSnapshotResult(result)).toMatchSnapshot();
 
-    // Confirm the folder is actually gone rather than just trusting the response.
+    // Forms 17.6 / 18.2 move a deleted folder to the recycle bin rather than removing it.
     const getResult = await getFolderByIdTool.handler({ id }, context);
-    expect(getResult.isError).toBe(true);
+    expect(getResult.structuredContent).toMatchObject({ trashed: true });
+
+    await purgeFolder(id);
   });
 
   it("should return an error for a non-existent ID", async () => {

@@ -10,6 +10,7 @@
 import { randomUUID } from "node:crypto";
 import { CAPTURE_RAW_HTTP_RESPONSE, type HttpResponse } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeFolder } from "../../../../../testing/purge.js";
 
 export const TEST_FOLDER_NAME = "_Test Folder";
 
@@ -61,13 +62,7 @@ export class FolderBuilder {
 
   async delete(): Promise<void> {
     if (!this.createdId) return;
-    const client = getUmbracoFormsManagementAPI();
-    try {
-      await client.deleteFolderById(this.createdId, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures in cleanup — the instance is shared and the
-      // folder may already have been removed by the test itself.
-    }
+    await purgeFolder(this.createdId);
     this.createdId = undefined;
   }
 

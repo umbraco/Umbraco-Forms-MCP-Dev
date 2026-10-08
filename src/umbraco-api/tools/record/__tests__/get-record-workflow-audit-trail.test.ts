@@ -1,15 +1,12 @@
-import { setupTestEnvironment, createMockRequestHandlerExtra, RecordTestFormHelper } from "./setup.js";
+import {
+  setupTestEnvironment,
+  createMockRequestHandlerExtra,
+  validateToolResponse,
+  RecordTestFormHelper,
+} from "./setup.js";
+import { RecordEntryHelper } from "./helpers/record-entry-helper.js";
 import getRecordWorkflowAuditTrailTool from "../get/get-record-workflow-audit-trail.js";
 
-/**
- * ERROR-PATH ONLY — genuine gap, not worked around here.
- *
- * Same underlying blocker as get-record-audit-trail.test.ts: this tool needs a real
- * recordId (and a workflow having actually run against it) to exercise a happy path, but
- * this instance has no forms with real submitted records and no Management API endpoint
- * exists to create one. Only the error path (an unknown recordId on a real form) can be
- * tested honestly.
- */
 describe("get-record-workflow-audit-trail", () => {
   setupTestEnvironment();
 
@@ -21,6 +18,26 @@ describe("get-record-workflow-audit-trail", () => {
 
   afterAll(async () => {
     await RecordTestFormHelper.deleteTestForm(formId);
+  });
+
+  it("should list the workflows that ran for an entry", async () => {
+    const context = createMockRequestHandlerExtra();
+    const { builder, recordId } = await RecordEntryHelper.submitEntryWithWorkflow();
+
+    try {
+      const result = await getRecordWorkflowAuditTrailTool.handler({ formId: builder.getId(), recordId }, context);
+
+      // The form's own "Send email" workflow ran on submit. (The site may add
+      // workflows of its own; the outcome depends on its SMTP settings.)
+      const data = validateToolResponse(getRecordWorkflowAuditTrailTool, result);
+      expect(data.items).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: "_Test Send Email Workflow", executionStage: "Submitted" }),
+        ]),
+      );
+    } finally {
+      await builder.delete();
+    }
   });
 
   it("should return error for a record that doesn't exist", async () => {

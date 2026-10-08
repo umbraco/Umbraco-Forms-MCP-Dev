@@ -5,6 +5,7 @@ exports[`get-form-by-id should return the full form design by id 1`] = `
   "content": [],
   "structuredContent": {
     "autocompleteAttribute": "",
+    "concurrencyToken": "NORMALIZED_CONCURRENCY_TOKEN",
     "created": "NORMALIZED_DATE",
     "createdBy": 1,
     "createdByName": "MCP API User",
@@ -129,6 +130,7 @@ exports[`get-form-by-id should return the full form design by id 1`] = `
     "storeRecordsLocally": true,
     "submitLabel": "Submit",
     "summaryLabel": "Summary of Entry",
+    "trashed": false,
     "unique": "00000000-0000-0000-0000-000000000000",
     "updated": "2000-01-01T00:00:00.000Z",
     "updatedBy": 1,

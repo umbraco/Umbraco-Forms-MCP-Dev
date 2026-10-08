@@ -10,6 +10,7 @@ import { ToolCollectionExport } from "@umbraco-cms/mcp-server-sdk";
 import deleteFormTool from "./delete/delete-form.js";
 
 import exportFormTool from "./get/export-form.js";
+import getFormAuditLogTool from "./get/get-form-audit-log.js";
 import getFormByIdTool from "./get/get-form-by-id.js";
 import getFormHasRelationsTool from "./get/get-form-has-relations.js";
 import getFormItemsByIdsTool from "./get/get-form-items-by-ids.js";
@@ -21,9 +22,11 @@ import getFormScaffoldTool from "./get/get-form-scaffold.js";
 import getFormTreeAncestorsTool from "./get/get-form-tree-ancestors.js";
 import getFormTreeChildrenTool from "./get/get-form-tree-children.js";
 import getFormTreeRootTool from "./get/get-form-tree-root.js";
+import getFormVersionTool from "./get/get-form-version.js";
 import getFormsAreReferencedTool from "./get/get-forms-are-referenced.js";
 import listAllFormsTool from "./get/list-all-forms.js";
 import listFormsTool from "./get/list-forms.js";
+import listFormVersionsTool from "./get/list-form-versions.js";
 import searchFormsTool from "./get/search-forms.js";
 
 import copyFormWorkflowsTool from "./post/copy-form-workflows.js";
@@ -31,12 +34,14 @@ import copyFormTool from "./post/copy-form.js";
 import createFormTool from "./post/create-form.js";
 import createSimpleFormTool from "./post/create-simple-form.js";
 import importFormTool from "./post/import-form.js";
+import rollbackFormVersionTool from "./post/rollback-form-version.js";
 import validateFormFieldSettingsTool from "./post/validate-form-field-settings.js";
 import validateFormWorkflowSettingsTool from "./post/validate-form-workflow-settings.js";
 
 import addFormFieldsTool from "./put/add-form-fields.js";
 import deleteFormFieldTool from "./put/delete-form-field.js";
 import moveFormTool from "./put/move-form.js";
+import setFormVersionPreventCleanupTool from "./put/set-form-version-prevent-cleanup.js";
 import updateFormTool from "./put/update-form.js";
 
 const collection: ToolCollectionExport = {
@@ -44,11 +49,12 @@ const collection: ToolCollectionExport = {
     name: "form",
     displayName: "Forms",
     description:
-      "Create, read, update, delete, copy, move, import/export and search Umbraco Forms form definitions, and browse them in the Forms tree.",
+      "Create, read, update, delete, copy, move, import/export and search Umbraco Forms form definitions, browse them in the Forms tree, and review or roll back their version history and audit log.",
   },
   tools: () => [
     deleteFormTool,
     exportFormTool,
+    getFormAuditLogTool,
     getFormByIdTool,
     getFormHasRelationsTool,
     getFormItemsByIdsTool,
@@ -60,20 +66,24 @@ const collection: ToolCollectionExport = {
     getFormTreeAncestorsTool,
     getFormTreeChildrenTool,
     getFormTreeRootTool,
+    getFormVersionTool,
     getFormsAreReferencedTool,
     listAllFormsTool,
     listFormsTool,
+    listFormVersionsTool,
     searchFormsTool,
     copyFormWorkflowsTool,
     copyFormTool,
     createFormTool,
     createSimpleFormTool,
     importFormTool,
+    rollbackFormVersionTool,
     validateFormFieldSettingsTool,
     validateFormWorkflowSettingsTool,
     addFormFieldsTool,
     deleteFormFieldTool,
     moveFormTool,
+    setFormVersionPreventCleanupTool,
     updateFormTool,
   ],
 };
