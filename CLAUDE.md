@@ -33,6 +33,10 @@ the bare 404 with a message naming the version needed. Successful calls cost not
 
 | Feature | Endpoints | 18.x | 17.x |
 |---------|-----------|------|------|
+| `recycleBin` | `PUT /{form,folder}/{id}/restore`, `DELETE .../permanent`, `GET .../original-parent`, `GET /tree/recycle-bin/*`, `DELETE /recycle-bin/empty` | 18.2.0 | 17.6.0 |
+| `formVersions` | `GET /form/{id}/version`, `GET /form/version/{versionId}`, `POST .../rollback`, `PUT .../prevent-cleanup` | 18.2.0 | 17.6.0 |
+| `formAuditLog` | `GET /form/{id}/audit-log` | 18.2.0 | 17.6.0 |
+| `recordWrite` | `POST /form/{formId}/record`, `DELETE /form/{formId}/record/{recordId}` | 18.2.0 | 17.6.0 |
 | `memberForms` | `GET /member/linkable-properties`, `/member/{memberKey}/form-summaries` | 18.1.0 | 17.5.0 |
 | `prevalueSourceTextFile` | `GET /prevalue-source/{id}/text-file/{fileName}` | 18.0.0 | 17.4.0 |
 | `formCollection` | `GET /form/collection` | 18.0.0 | 17.3.0 |
@@ -44,7 +48,8 @@ the bare 404 with a message naming the version needed. Successful calls cost not
 **Response properties** - `MID_LINE_PROPERTIES` in `api/relax-mid-line-fields.ts`, an orval input
 transformer that drops them from `required`, so output schemas accept responses from releases that
 don't send them yet (on 18.x: `Field.memberPrefillMode` and `WorkflowTypeWithSettings.isConfigured`
-before 18.1). The file lists the first release for each.
+before 18.1, `trashed` and the record search's `additionalData`/`isDateField` before 18.2). The file
+lists the first release for each.
 
 Never gate on a single version ("18.1 or later") - that refuses the feature on 17.x releases that
 have it. When a regenerated spec gains an endpoint or a required response property, find the first

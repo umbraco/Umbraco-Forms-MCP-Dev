@@ -328,7 +328,7 @@ export const getDatasourceWizardByIdScaffoldResponse = zod.object({
   "availablePrevalueValueFields": zod.array(zod.string()),
   "isForeignKey": zod.boolean(),
   "isMandatory": zod.boolean(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string(),
   "fieldTypeId": zod.guid(),
   "isPrimaryKey": zod.boolean(),
@@ -350,7 +350,7 @@ export const postDatasourceWizardCreateFormBody = zod.object({
   "availablePrevalueValueFields": zod.array(zod.string()),
   "isForeignKey": zod.boolean(),
   "isMandatory": zod.boolean(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string(),
   "fieldTypeId": zod.guid(),
   "isPrimaryKey": zod.boolean(),
@@ -503,7 +503,8 @@ export const postExportQueryParams = zod.object({
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
   "recordId": zod.guid().optional(),
-  "recordIds": zod.array(zod.guid()).optional()
+  "recordIds": zod.array(zod.guid()).optional(),
+  "IncludeAdditionalData": zod.coerce.boolean().optional()
 })
 
 export const postExportResponse = zod.object({
@@ -647,7 +648,8 @@ export const getFolderByIdResponse = zod.object({
   "id": zod.guid(),
   "name": zod.string(),
   "created": zod.iso.datetime({"local":true,"offset":true}),
-  "parentId": zod.guid().nullish()
+  "parentId": zod.guid().nullish(),
+  "trashed": zod.boolean().optional()
 })
 
 
@@ -678,6 +680,30 @@ export const putFolderByIdMoveBody = zod.object({
 })
 
 export const putFolderByIdMoveResponse = zod.unknown()
+
+
+export const getFolderByIdOriginalParentParams = zod.object({
+  "id": zod.guid()
+})
+
+export const getFolderByIdOriginalParentResponse = zod.object({
+  "itemName": zod.string(),
+  "destinationId": zod.guid().nullish()
+})
+
+
+export const deleteFolderByIdPermanentParams = zod.object({
+  "id": zod.guid()
+})
+
+export const deleteFolderByIdPermanentResponse = zod.unknown()
+
+
+export const putFolderByIdRestoreParams = zod.object({
+  "id": zod.guid()
+})
+
+export const putFolderByIdRestoreResponse = zod.unknown()
 
 
 export const getItemFolderQueryParams = zod.object({
@@ -782,6 +808,7 @@ export const postFormBody = zod.object({
 }))
 }),
   "path": zod.string(),
+  "concurrencyToken": zod.string().nullish(),
   "name": zod.string(),
   "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.int().nullish(),
@@ -912,7 +939,7 @@ export const postFormBody = zod.object({
   "prevalueKeyfield": zod.string(),
   "prevalueValueField": zod.string(),
   "prevalueTable": zod.string(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string()
 }))
 })]).optional(),
@@ -921,6 +948,7 @@ export const postFormBody = zod.object({
   "prevLabel": zod.string().nullish(),
   "folderId": zod.guid().nullish(),
   "nodeId": zod.int(),
+  "trashed": zod.boolean().optional(),
   "showPagingOnMultiPageForms": zod.enum(['None', 'ShowAtTop', 'ShowAtBottom']),
   "pagingDetailsFormat": zod.string(),
   "pageCaptionFormat": zod.string(),
@@ -1074,6 +1102,7 @@ export const getFormByIdResponse = zod.object({
 }))
 }),
   "path": zod.string(),
+  "concurrencyToken": zod.string().nullish(),
   "name": zod.string(),
   "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.int().nullish(),
@@ -1204,7 +1233,7 @@ export const getFormByIdResponse = zod.object({
   "prevalueKeyfield": zod.string(),
   "prevalueValueField": zod.string(),
   "prevalueTable": zod.string(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string()
 }))
 })]).optional(),
@@ -1213,6 +1242,7 @@ export const getFormByIdResponse = zod.object({
   "prevLabel": zod.string().nullish(),
   "folderId": zod.guid().nullish(),
   "nodeId": zod.int(),
+  "trashed": zod.boolean().optional(),
   "showPagingOnMultiPageForms": zod.enum(['None', 'ShowAtTop', 'ShowAtBottom']),
   "pagingDetailsFormat": zod.string(),
   "pageCaptionFormat": zod.string(),
@@ -1313,6 +1343,7 @@ export const putFormByIdBody = zod.object({
 }))
 }),
   "path": zod.string(),
+  "concurrencyToken": zod.string().nullish(),
   "name": zod.string(),
   "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.int().nullish(),
@@ -1443,7 +1474,7 @@ export const putFormByIdBody = zod.object({
   "prevalueKeyfield": zod.string(),
   "prevalueValueField": zod.string(),
   "prevalueTable": zod.string(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string()
 }))
 })]).optional(),
@@ -1452,6 +1483,7 @@ export const putFormByIdBody = zod.object({
   "prevLabel": zod.string().nullish(),
   "folderId": zod.guid().nullish(),
   "nodeId": zod.int(),
+  "trashed": zod.boolean().optional(),
   "showPagingOnMultiPageForms": zod.enum(['None', 'ShowAtTop', 'ShowAtBottom']),
   "pagingDetailsFormat": zod.string(),
   "pageCaptionFormat": zod.string(),
@@ -1460,6 +1492,34 @@ export const putFormByIdBody = zod.object({
 })
 
 export const putFormByIdResponse = zod.unknown()
+
+
+export const getFormByIdAuditLogParams = zod.object({
+  "id": zod.guid()
+})
+
+export const getFormByIdAuditLogQuerySkipDefault = 0;
+export const getFormByIdAuditLogQueryTakeDefault = 100;
+
+export const getFormByIdAuditLogQueryParams = zod.object({
+  "orderDirection": zod.enum(['Ascending', 'Descending']).optional(),
+  "sinceDate": zod.iso.datetime({"local":true,"offset":true}).optional(),
+  "skip": zod.coerce.number().int().optional(),
+  "take": zod.coerce.number().int().default(getFormByIdAuditLogQueryTakeDefault)
+})
+
+export const getFormByIdAuditLogResponse = zod.object({
+  "total": zod.int(),
+  "items": zod.array(zod.object({
+  "user": zod.object({
+  "id": zod.guid()
+}),
+  "timestamp": zod.iso.datetime({"local":true,"offset":true}),
+  "logType": zod.enum(['New', 'Save', 'SaveVariant', 'Open', 'Delete', 'Publish', 'PublishVariant', 'SendToPublish', 'SendToPublishVariant', 'Unpublish', 'UnpublishVariant', 'Move', 'Copy', 'AssignDomain', 'PublicAccess', 'Sort', 'Notify', 'System', 'RollBack', 'PackagerInstall', 'PackagerUninstall', 'Custom', 'ContentVersionPreventCleanup', 'ContentVersionEnableCleanup']),
+  "comment": zod.string().nullish(),
+  "parameters": zod.string().nullish()
+}))
+})
 
 
 export const postFormByIdCopyParams = zod.object({
@@ -1503,6 +1563,23 @@ export const putFormByIdMoveBody = zod.object({
 })
 
 export const putFormByIdMoveResponse = zod.unknown()
+
+
+export const getFormByIdOriginalParentParams = zod.object({
+  "id": zod.guid()
+})
+
+export const getFormByIdOriginalParentResponse = zod.object({
+  "itemName": zod.string(),
+  "destinationId": zod.guid().nullish()
+})
+
+
+export const deleteFormByIdPermanentParams = zod.object({
+  "id": zod.guid()
+})
+
+export const deleteFormByIdPermanentResponse = zod.unknown()
 
 
 export const getFormByIdReferencedByParams = zod.object({
@@ -1669,6 +1746,42 @@ export const getFormByIdRelationsResponse = zod.object({
 })
 
 
+export const putFormByIdRestoreParams = zod.object({
+  "id": zod.guid()
+})
+
+export const putFormByIdRestoreResponse = zod.unknown()
+
+
+export const getFormByIdVersionParams = zod.object({
+  "id": zod.guid()
+})
+
+export const getFormByIdVersionQuerySkipDefault = 0;
+export const getFormByIdVersionQueryTakeDefault = 100;
+
+export const getFormByIdVersionQueryParams = zod.object({
+  "skip": zod.coerce.number().int().optional(),
+  "take": zod.coerce.number().int().default(getFormByIdVersionQueryTakeDefault)
+})
+
+export const getFormByIdVersionResponse = zod.object({
+  "total": zod.int(),
+  "items": zod.array(zod.object({
+  "id": zod.guid(),
+  "form": zod.object({
+  "id": zod.guid()
+}),
+  "name": zod.string(),
+  "createDate": zod.iso.datetime({"local":true,"offset":true}),
+  "user": zod.object({
+  "id": zod.guid()
+}),
+  "preventCleanup": zod.boolean()
+}))
+})
+
+
 export const getFormAreReferencedQuerySkipDefault = 0;
 export const getFormAreReferencedQueryTakeDefault = 20;
 
@@ -1686,10 +1799,12 @@ export const getFormAreReferencedResponse = zod.object({
 })
 
 
+export const getFormCollectionQueryFilterDefault = ``;
 export const getFormCollectionQuerySkipDefault = 0;
 export const getFormCollectionQueryTakeDefault = 2147483647;
 
 export const getFormCollectionQueryParams = zod.object({
+  "filter": zod.string().optional(),
   "skip": zod.coerce.number().int().optional(),
   "take": zod.coerce.number().int().default(getFormCollectionQueryTakeDefault)
 })
@@ -1811,6 +1926,7 @@ export const getFormScaffoldResponse = zod.object({
 }))
 }),
   "path": zod.string(),
+  "concurrencyToken": zod.string().nullish(),
   "name": zod.string(),
   "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.int().nullish(),
@@ -1941,7 +2057,7 @@ export const getFormScaffoldResponse = zod.object({
   "prevalueKeyfield": zod.string(),
   "prevalueValueField": zod.string(),
   "prevalueTable": zod.string(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string()
 }))
 })]).optional(),
@@ -1950,6 +2066,7 @@ export const getFormScaffoldResponse = zod.object({
   "prevLabel": zod.string().nullish(),
   "folderId": zod.guid().nullish(),
   "nodeId": zod.int(),
+  "trashed": zod.boolean().optional(),
   "showPagingOnMultiPageForms": zod.enum(['None', 'ShowAtTop', 'ShowAtBottom']),
   "pagingDetailsFormat": zod.string(),
   "pageCaptionFormat": zod.string(),
@@ -2050,6 +2167,7 @@ export const getFormScaffoldByTemplateResponse = zod.object({
 }))
 }),
   "path": zod.string(),
+  "concurrencyToken": zod.string().nullish(),
   "name": zod.string(),
   "created": zod.iso.datetime({"local":true,"offset":true}),
   "createdBy": zod.int().nullish(),
@@ -2180,7 +2298,7 @@ export const getFormScaffoldByTemplateResponse = zod.object({
   "prevalueKeyfield": zod.string(),
   "prevalueValueField": zod.string(),
   "prevalueTable": zod.string(),
-  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit']),
+  "dataType": zod.enum(['String', 'LongString', 'Integer', 'DateTime', 'Bit', 'Decimal']),
   "defaultValue": zod.string()
 }))
 })]).optional(),
@@ -2189,6 +2307,7 @@ export const getFormScaffoldByTemplateResponse = zod.object({
   "prevLabel": zod.string().nullish(),
   "folderId": zod.guid().nullish(),
   "nodeId": zod.int(),
+  "trashed": zod.boolean().optional(),
   "showPagingOnMultiPageForms": zod.enum(['None', 'ShowAtTop', 'ShowAtBottom']),
   "pagingDetailsFormat": zod.string(),
   "pageCaptionFormat": zod.string(),
@@ -2217,6 +2336,44 @@ export const getFormSearchResponse = zod.object({
   "entries": zod.int()
 }))
 })
+
+
+export const getFormVersionByVersionIdParams = zod.object({
+  "versionId": zod.guid()
+})
+
+export const getFormVersionByVersionIdResponse = zod.object({
+  "id": zod.guid(),
+  "form": zod.object({
+  "id": zod.guid()
+}),
+  "name": zod.string(),
+  "createDate": zod.iso.datetime({"local":true,"offset":true}),
+  "user": zod.object({
+  "id": zod.guid()
+}),
+  "preventCleanup": zod.boolean(),
+  "definition": zod.string(),
+  "workflows": zod.string().nullish()
+})
+
+
+export const putFormVersionByVersionIdPreventCleanupParams = zod.object({
+  "versionId": zod.guid()
+})
+
+export const putFormVersionByVersionIdPreventCleanupQueryParams = zod.object({
+  "preventCleanup": zod.coerce.boolean().optional()
+})
+
+export const putFormVersionByVersionIdPreventCleanupResponse = zod.unknown()
+
+
+export const postFormVersionByVersionIdRollbackParams = zod.object({
+  "versionId": zod.guid()
+})
+
+export const postFormVersionByVersionIdRollbackResponse = zod.unknown()
 
 
 export const getItemFormQueryParams = zod.object({
@@ -2682,6 +2839,18 @@ export const getPrevalueSourceTypeByIdResponse = zod.object({
 })
 
 
+export const postFormByFormIdRecordParams = zod.object({
+  "formId": zod.guid()
+})
+
+export const postFormByFormIdRecordBody = zod.union([zod.null(),zod.array(zod.object({
+  "fieldId": zod.guid(),
+  "values": zod.array(zod.unknown())
+}))])
+
+export const postFormByFormIdRecordResponse = zod.void()
+
+
 export const getFormByFormIdRecordParams = zod.object({
   "formId": zod.guid()
 })
@@ -2697,7 +2866,8 @@ export const getFormByFormIdRecordQueryParams = zod.object({
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
   "recordId": zod.guid().optional(),
-  "recordIds": zod.array(zod.guid()).optional()
+  "recordIds": zod.array(zod.guid()).optional(),
+  "IncludeAdditionalData": zod.coerce.boolean().optional()
 })
 
 export const getFormByFormIdRecordResponse = zod.object({
@@ -2710,7 +2880,8 @@ export const getFormByFormIdRecordResponse = zod.object({
   "editView": zod.string(),
   "id": zod.string(),
   "containsSensitiveData": zod.boolean(),
-  "showOnListingScreen": zod.boolean()
+  "showOnListingScreen": zod.boolean(),
+  "isDateField": zod.boolean().optional()
 })),
   "results": zod.array(zod.object({
   "id": zod.int(),
@@ -2724,6 +2895,10 @@ export const getFormByFormIdRecordResponse = zod.object({
   "fieldId": zod.string(),
   "value": zod.unknown().optional()
 })),
+  "additionalData": zod.array(zod.object({
+  "key": zod.string(),
+  "value": zod.string().nullish()
+})).optional(),
   "member": zod.union([zod.null(),zod.object({
   "name": zod.string(),
   "email": zod.string(),
@@ -2739,6 +2914,14 @@ export const getFormByFormIdRecordResponse = zod.object({
   "numberOfWorkflowsCompleted": zod.int()
 }))
 })
+
+
+export const deleteFormByFormIdRecordByRecordIdParams = zod.object({
+  "formId": zod.guid(),
+  "recordId": zod.guid()
+})
+
+export const deleteFormByFormIdRecordByRecordIdResponse = zod.unknown()
 
 
 export const putFormByFormIdRecordByRecordIdParams = zod.object({
@@ -2821,7 +3004,8 @@ export const getFormByFormIdRecordMetadataQueryParams = zod.object({
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
   "recordId": zod.guid().optional(),
-  "recordIds": zod.array(zod.guid()).optional()
+  "recordIds": zod.array(zod.guid()).optional(),
+  "IncludeAdditionalData": zod.coerce.boolean().optional()
 })
 
 export const getFormByFormIdRecordMetadataResponse = zod.object({
@@ -2845,7 +3029,8 @@ export const getFormByFormIdRecordPageNumberQueryParams = zod.object({
   "filter": zod.string().optional(),
   "states": zod.array(zod.enum(['Opened', 'Resumed', 'PartiallySubmitted', 'Submitted', 'Approved', 'Deleted', 'Rejected'])).optional(),
   "recordId": zod.guid().optional(),
-  "recordIds": zod.array(zod.guid()).optional()
+  "recordIds": zod.array(zod.guid()).optional(),
+  "IncludeAdditionalData": zod.coerce.boolean().optional()
 })
 
 export const getFormByFormIdRecordPageNumberResponse = zod.int()
@@ -2863,6 +3048,50 @@ export const getRecordSetActionsResponseItem = zod.object({
   "group": zod.string()
 })
 export const getRecordSetActionsResponse = zod.array(getRecordSetActionsResponseItem)
+
+
+export const getTreeRecycleBinChildrenByParentIdParams = zod.object({
+  "parentId": zod.guid()
+})
+
+export const getTreeRecycleBinChildrenByParentIdResponseItem = zod.object({
+  "path": zod.string(),
+  "icon": zod.string(),
+  "entries": zod.int().nullish(),
+  "isFolder": zod.boolean(),
+  "noAccess": zod.boolean(),
+  "name": zod.string(),
+  "id": zod.guid(),
+  "parent": zod.union([zod.null(),zod.object({
+  "id": zod.guid()
+})]).optional(),
+  "flags": zod.array(zod.object({
+  "alias": zod.string()
+})),
+  "hasChildren": zod.boolean()
+})
+export const getTreeRecycleBinChildrenByParentIdResponse = zod.array(getTreeRecycleBinChildrenByParentIdResponseItem)
+
+
+export const getTreeRecycleBinRootResponse = zod.object({
+  "total": zod.int(),
+  "items": zod.array(zod.object({
+  "path": zod.string(),
+  "icon": zod.string(),
+  "entries": zod.int().nullish(),
+  "isFolder": zod.boolean(),
+  "noAccess": zod.boolean(),
+  "name": zod.string(),
+  "id": zod.guid(),
+  "parent": zod.union([zod.null(),zod.object({
+  "id": zod.guid()
+})]).optional(),
+  "flags": zod.array(zod.object({
+  "alias": zod.string()
+})),
+  "hasChildren": zod.boolean()
+}))
+})
 
 
 export const postSecurityUserGroupByIdFormSecurityParams = zod.object({
@@ -3221,6 +3450,9 @@ export const getThemeResponse = zod.array(getThemeResponseItem)
 
 
 export const getUpdatesVersionResponse = zod.string()
+
+
+export const deleteRecycleBinEmptyResponse = zod.unknown()
 
 
 export const getWorkflowTypeResponseItem = zod.object({

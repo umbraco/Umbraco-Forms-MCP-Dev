@@ -8,8 +8,8 @@ exports[`validate-form-workflow-settings should validate a workflow's settings a
     "detail": "One or more settings did not pass validation.",
     "errors": [
       "'Recipient Email' setting has not been set (Parameter 'Email')",
-      "'Subject' setting has not been set' (Parameter 'Subject')",
-      "'Message' setting has not been set'",
+      "'Subject' setting has not been set (Parameter 'Subject')",
+      "'Message' setting has not been set",
     ],
     "status": 400,
     "title": "Settings validation failed",

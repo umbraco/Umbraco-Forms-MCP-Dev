@@ -24,7 +24,9 @@ const inputSchema = {
   formId: getFormByFormIdRecordParams.shape.formId.describe(
     "ID of the form whose submitted records to search.",
   ),
-  ...getFormByFormIdRecordQueryParams.shape,
+  // IncludeAdditionalData (Forms 18.2) is forced on by the server for searches and has no
+  // bearing on counts or page numbers, so it is not offered.
+  ...getFormByFormIdRecordQueryParams.omit({ IncludeAdditionalData: true }).shape,
 };
 
 const outputSchema = getFormByFormIdRecordResponse;

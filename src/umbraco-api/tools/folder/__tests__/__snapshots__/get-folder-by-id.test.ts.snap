@@ -8,6 +8,7 @@ exports[`get-folder-by-id should return a folder by ID 1`] = `
     "id": "00000000-0000-0000-0000-000000000000",
     "name": "_Test Get Folder By Id",
     "parentId": null,
+    "trashed": false,
   },
 }
 `;

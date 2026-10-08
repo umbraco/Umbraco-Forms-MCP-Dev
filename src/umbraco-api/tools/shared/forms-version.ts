@@ -40,6 +40,17 @@ export const FORMS_FEATURE_MIN_VERSIONS = {
   prevalueSourceTextFile: { 17: "17.4.0", 18: "18.0.0" },
   /** GET /member/linkable-properties and /member/{memberKey}/form-summaries. */
   memberForms: { 17: "17.5.0", 18: "18.1.0" },
+  /**
+   * PUT /{form,folder}/{id}/restore, DELETE /{form,folder}/{id}/permanent,
+   * GET /{form,folder}/{id}/original-parent, GET /tree/recycle-bin/* and DELETE /recycle-bin/empty.
+   */
+  recycleBin: { 17: "17.6.0", 18: "18.2.0" },
+  /** GET /form/{id}/version, GET /form/version/{versionId}, POST .../rollback and PUT .../prevent-cleanup. */
+  formVersions: { 17: "17.6.0", 18: "18.2.0" },
+  /** GET /form/{id}/audit-log. */
+  formAuditLog: { 17: "17.6.0", 18: "18.2.0" },
+  /** POST /form/{formId}/record and DELETE /form/{formId}/record/{recordId}. */
+  recordWrite: { 17: "17.6.0", 18: "18.2.0" },
 } as const satisfies Record<string, Record<number, string>>;
 
 export type FormsFeature = keyof typeof FORMS_FEATURE_MIN_VERSIONS;

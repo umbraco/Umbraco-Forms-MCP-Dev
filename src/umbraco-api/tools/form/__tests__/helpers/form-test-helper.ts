@@ -10,6 +10,7 @@
 import { CAPTURE_RAW_HTTP_RESPONSE, type HttpResponse } from "@umbraco-cms/mcp-server-sdk";
 import { randomUUID } from "node:crypto";
 import { getUmbracoFormsManagementAPI } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeFolder, purgeForm } from "../../../../../testing/purge.js";
 
 interface BasicFormItem {
   id: string;
@@ -38,11 +39,7 @@ export class FormTestHelper {
     const toDelete = forms.filter((form) => form.name.startsWith(namePrefix));
 
     for (const form of toDelete) {
-      try {
-        await client.deleteFormById(form.id, CAPTURE_RAW_HTTP_RESPONSE);
-      } catch {
-        // Ignore delete failures during cleanup.
-      }
+      await purgeForm(form.id);
     }
   }
 
@@ -70,12 +67,7 @@ export class FormTestHelper {
   }
 
   static async deleteFolder(id: string): Promise<void> {
-    const client = getUmbracoFormsManagementAPI();
-    try {
-      await client.deleteFolderById(id, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures during cleanup.
-    }
+    await purgeFolder(id);
   }
 
   /**
@@ -85,7 +77,8 @@ export class FormTestHelper {
    * carries dozens of client-generated GUIDs at every depth — form id,
    * unique, page ids, fieldset ids, field ids, workflow ids, and the
    * workflow's own "form" foreign key — plus a "path" string with an
-   * embedded GUID and a numeric "nodeId" that increments per test run.
+   * embedded GUID, a numeric "nodeId" that increments per test run and a
+   * "concurrencyToken" that changes on every save.
    * `createSnapshotResult`'s built-in normalization only touches the
    * top-level `id` and a fixed date-field allowlist, so this helper instead
    * does a blanket regex replace of any GUID-shaped substring (whole-value
@@ -111,6 +104,9 @@ export class FormTestHelper {
           normalized[key] = 0;
         } else if ((key === "created" || key === "updated") && typeof value === "string") {
           normalized[key] = "2000-01-01T00:00:00.000Z";
+        } else if (key === "concurrencyToken" && typeof value === "string") {
+          // Forms 17.6 / 18.2: the saved version's timestamp in ticks.
+          normalized[key] = "NORMALIZED_CONCURRENCY_TOKEN";
         } else if (value && typeof value === "object") {
           normalized[key] = this.normalizeIds(value);
         }

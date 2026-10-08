@@ -16,6 +16,7 @@ import {
 } from "./setup.js";
 import { FormBuilder } from "../../form/__tests__/helpers/form-builder.js";
 import createFormFromDataSourceTool from "../post/create-form-from-data-source.js";
+import { purgeForm } from "../../../../testing/purge.js";
 
 type ApiClient = ReturnType<typeof getUmbracoFormsManagementAPI>;
 
@@ -32,15 +33,6 @@ async function findFormIdByName(name: string): Promise<string | undefined> {
   return response.data.find((form) => form.name === name)?.id;
 }
 
-async function deleteFormById(id: string): Promise<void> {
-  const client = getApiClient<ApiClient>();
-  try {
-    await client.deleteFormById(id, CAPTURE_RAW_HTTP_RESPONSE);
-  } catch {
-    // Ignore delete failures in cleanup
-  }
-}
-
 describe("create-form-from-data-source", () => {
   setupTestEnvironment();
 
@@ -52,7 +44,7 @@ describe("create-form-from-data-source", () => {
     // The generated form is a separate entity type from this collection — clean it up
     // via the raw client rather than the form tool collection's own helpers.
     if (createdFormId) {
-      await deleteFormById(createdFormId);
+      await purgeForm(createdFormId);
       createdFormId = undefined;
     }
     if (decoyForm) {

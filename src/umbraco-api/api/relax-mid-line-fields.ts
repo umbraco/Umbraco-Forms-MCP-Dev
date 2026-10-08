@@ -21,10 +21,17 @@
  * | DataTypeDetail.propertyEditorUiAlias          | 17.3.0 | 18.0.0 |
  * | Field.memberPrefillMode                       | 17.5.0 | 18.1.0 |
  * | WorkflowTypeWithSettings.isConfigured/-Errors | 17.5.0 | 18.1.0 |
+ * | EntrySearchResult.additionalData              | 17.6.0 | 18.2.0 |
+ * | EntrySearchResultSchema.isDateField           | 17.6.0 | 18.2.0 |
+ * | Folder.trashed, FormDesign.trashed            | 17.6.0 | 18.2.0 |
  */
 
 export const MID_LINE_PROPERTIES: Record<string, string[]> = {
+  EntrySearchResult: ["additionalData"],
+  EntrySearchResultSchema: ["isDateField"],
   Field: ["memberPrefillMode"],
+  Folder: ["trashed"],
+  FormDesign: ["trashed"],
   WorkflowTypeWithSettings: ["configurationErrors", "isConfigured"],
 };
 

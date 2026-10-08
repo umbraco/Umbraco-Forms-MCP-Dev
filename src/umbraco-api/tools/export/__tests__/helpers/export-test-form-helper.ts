@@ -3,6 +3,7 @@ import {
   getUmbracoFormsManagementAPI,
   type FormDesign,
 } from "../../../../api/generated/umbracoFormsManagementApi.js";
+import { purgeForm } from "../../../../../testing/purge.js";
 
 const TEST_EXPORT_FORM_NAME = "_Test Export Form";
 
@@ -61,12 +62,7 @@ export class ExportTestFormHelper {
   static async deleteTestForm(id: string): Promise<void> {
     if (!id) return;
 
-    const client = getUmbracoFormsManagementAPI();
-    try {
-      await client.deleteFormById(id, CAPTURE_RAW_HTTP_RESPONSE);
-    } catch {
-      // Ignore delete failures in cleanup
-    }
+    await purgeForm(id);
   }
 }
 

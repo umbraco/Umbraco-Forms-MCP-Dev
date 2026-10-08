@@ -24,7 +24,9 @@ const inputSchema = {
   formId: getFormByFormIdRecordMetadataParams.shape.formId.describe(
     "ID of the form whose record metadata to fetch.",
   ),
-  ...getFormByFormIdRecordMetadataQueryParams.shape,
+  // IncludeAdditionalData (Forms 18.2) is forced on by the server for searches and has no
+  // bearing on counts or page numbers, so it is not offered.
+  ...getFormByFormIdRecordMetadataQueryParams.omit({ IncludeAdditionalData: true }).shape,
 };
 
 const outputSchema = getFormByFormIdRecordMetadataResponse;

@@ -40,6 +40,7 @@ exports[`get-form-definition should return form definition from Delivery API 1`]
                       "acceptCopy": "Yes, I give permission to store and process my data",
                       "showLabel": "",
                     },
+                    "settingsRichText": {},
                     "type": {
                       "id": "00000000-0000-0000-0000-000000000000",
                       "name": "Data Consent",
@@ -67,6 +68,7 @@ exports[`get-form-definition should return form definition from Delivery API 1`]
                       "placeholder": "",
                       "showLabel": "True",
                     },
+                    "settingsRichText": {},
                     "type": {
                       "id": "00000000-0000-0000-0000-000000000000",
                       "name": "Short answer",

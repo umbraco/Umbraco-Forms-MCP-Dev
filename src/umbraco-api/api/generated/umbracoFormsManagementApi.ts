@@ -6,6 +6,12 @@
  * OpenAPI spec version: Latest
  */
 import { customInstance } from '../client.js';
+export interface AdditionalDataItem {
+  key: string;
+  /** @nullable */
+  value?: string | null;
+}
+
 export interface AllowedUploadType {
   type: string;
   name: string;
@@ -109,6 +115,50 @@ export interface AnalyticsQueryResult {
   uniqueMembers: number;
 }
 
+export interface ReferenceByIdModel {
+  id: string;
+}
+
+export type AuditTypeModel = typeof AuditTypeModel[keyof typeof AuditTypeModel];
+
+
+export const AuditTypeModel = {
+  New: 'New',
+  Save: 'Save',
+  SaveVariant: 'SaveVariant',
+  Open: 'Open',
+  Delete: 'Delete',
+  Publish: 'Publish',
+  PublishVariant: 'PublishVariant',
+  SendToPublish: 'SendToPublish',
+  SendToPublishVariant: 'SendToPublishVariant',
+  Unpublish: 'Unpublish',
+  UnpublishVariant: 'UnpublishVariant',
+  Move: 'Move',
+  Copy: 'Copy',
+  AssignDomain: 'AssignDomain',
+  PublicAccess: 'PublicAccess',
+  Sort: 'Sort',
+  Notify: 'Notify',
+  System: 'System',
+  RollBack: 'RollBack',
+  PackagerInstall: 'PackagerInstall',
+  PackagerUninstall: 'PackagerUninstall',
+  Custom: 'Custom',
+  ContentVersionPreventCleanup: 'ContentVersionPreventCleanup',
+  ContentVersionEnableCleanup: 'ContentVersionEnableCleanup',
+} as const;
+
+export interface AuditLogResponseModel {
+  user: ReferenceByIdModel;
+  timestamp: string;
+  logType: AuditTypeModel;
+  /** @nullable */
+  comment?: string | null;
+  /** @nullable */
+  parameters?: string | null;
+}
+
 export interface BackOfficeConfig {
   maxNumberOfColumnsInFormGroup: number;
   manageSecurityWithUserGroups: boolean;
@@ -146,10 +196,6 @@ export interface CreateFolderModel {
   /** @nullable */
   parentId?: string | null;
   name: string;
-}
-
-export interface ReferenceByIdModel {
-  id: string;
 }
 
 export interface FlagModel {
@@ -200,6 +246,7 @@ export const FieldDataType = {
   Integer: 'Integer',
   DateTime: 'DateTime',
   Bit: 'Bit',
+  Decimal: 'Decimal',
 } as const;
 
 export interface DataSourceWizardFieldMapping {
@@ -252,6 +299,14 @@ export interface DefaultReferenceResponseModel {
   /** @nullable */
   name?: string | null;
 }
+
+export type DirectionModel = typeof DirectionModel[keyof typeof DirectionModel];
+
+
+export const DirectionModel = {
+  Ascending: 'Ascending',
+  Descending: 'Descending',
+} as const;
 
 export type DocumentReferenceResponseModelType = typeof DocumentReferenceResponseModelType[keyof typeof DocumentReferenceResponseModelType];
 
@@ -385,6 +440,7 @@ export interface EntrySearchResult {
   updated: string;
   uniqueId: string;
   fields: FieldData[];
+  additionalData?: AdditionalDataItem[];
   member?: null | MemberData;
   umbracoPage?: null | UmbracoPageDetail;
   culture: string;
@@ -400,6 +456,7 @@ export interface EntrySearchResultSchema {
   id: string;
   containsSensitiveData: boolean;
   showOnListingScreen: boolean;
+  isDateField?: boolean;
 }
 
 export interface EntrySearchResultCollection {
@@ -622,6 +679,7 @@ export interface Folder {
   created: string;
   /** @nullable */
   parentId?: string | null;
+  trashed?: boolean;
 }
 
 export interface FolderItemResponseModel {
@@ -746,6 +804,8 @@ export const MultiPageNavigationOption = {
 export interface FormDesign {
   formWorkflows: FormWorkflows;
   path: string;
+  /** @nullable */
+  concurrencyToken?: string | null;
   name: string;
   created: string;
   /** @nullable */
@@ -802,6 +862,7 @@ export interface FormDesign {
   /** @nullable */
   folderId?: string | null;
   nodeId: number;
+  trashed?: boolean;
   showPagingOnMultiPageForms: MultiPageNavigationOption;
   pagingDetailsFormat: string;
   pageCaptionFormat: string;
@@ -937,6 +998,27 @@ export interface FormTreeItemResponseModel {
   parent?: null | ReferenceByIdModel;
   flags: FlagModel[];
   hasChildren: boolean;
+}
+
+export interface FormVersionItemResponseModel {
+  id: string;
+  form: ReferenceByIdModel;
+  name: string;
+  createDate: string;
+  user: ReferenceByIdModel;
+  preventCleanup: boolean;
+}
+
+export interface FormVersionResponseModel {
+  id: string;
+  form: ReferenceByIdModel;
+  name: string;
+  createDate: string;
+  user: ReferenceByIdModel;
+  preventCleanup: boolean;
+  definition: string;
+  /** @nullable */
+  workflows?: string | null;
 }
 
 export interface GenerateExportResponseModel {
@@ -1104,6 +1186,17 @@ export interface MoveFormModel {
   parentId?: string | null;
 }
 
+export interface OriginalParentResponseModel {
+  itemName: string;
+  /** @nullable */
+  destinationId?: string | null;
+}
+
+export interface PagedAuditLogResponseModel {
+  total: number;
+  items: AuditLogResponseModel[];
+}
+
 export interface PagedBasicFormModel {
   total: number;
   items: BasicForm[];
@@ -1132,6 +1225,11 @@ export interface PagedFormDataSourceModel {
 export interface PagedFormTreeItemResponseModel {
   total: number;
   items: FormTreeItemResponseModel[];
+}
+
+export interface PagedFormVersionItemResponseModel {
+  total: number;
+  items: FormVersionItemResponseModel[];
 }
 
 export interface PagedIReferenceResponseModel {
@@ -1386,6 +1484,7 @@ filter?: string;
 states?: FormState[];
 recordId?: string;
 recordIds?: string[];
+IncludeAdditionalData?: boolean;
 };
 
 export type GetExportTypesParams = {
@@ -1400,12 +1499,24 @@ export type GetFormByIdParams = {
 applyDictionaryTranslations?: boolean;
 };
 
+export type GetFormByIdAuditLogParams = {
+orderDirection?: DirectionModel;
+sinceDate?: string;
+skip?: number;
+take?: number;
+};
+
 export type GetFormByIdReferencedByParams = {
 skip?: number;
 take?: number;
 };
 
 export type GetFormByIdReferencedDescendantsParams = {
+skip?: number;
+take?: number;
+};
+
+export type GetFormByIdVersionParams = {
 skip?: number;
 take?: number;
 };
@@ -1417,6 +1528,7 @@ take?: number;
 };
 
 export type GetFormCollectionParams = {
+filter?: string;
 skip?: number;
 take?: number;
 };
@@ -1429,6 +1541,10 @@ export type GetFormSearchParams = {
 query?: string;
 skip?: number;
 take?: number;
+};
+
+export type PutFormVersionByVersionIdPreventCleanupParams = {
+preventCleanup?: boolean;
 };
 
 export type GetItemFormParams = {
@@ -1483,6 +1599,7 @@ filter?: string;
 states?: FormState[];
 recordId?: string;
 recordIds?: string[];
+IncludeAdditionalData?: boolean;
 };
 
 export type GetFormByFormIdRecordMetadataParams = {
@@ -1497,6 +1614,7 @@ filter?: string;
 states?: FormState[];
 recordId?: string;
 recordIds?: string[];
+IncludeAdditionalData?: boolean;
 };
 
 export type GetFormByFormIdRecordPageNumberParams = {
@@ -1511,6 +1629,7 @@ filter?: string;
 states?: FormState[];
 recordId?: string;
 recordIds?: string[];
+IncludeAdditionalData?: boolean;
 };
 
 export type GetSecurityUserByIdFormSecurityParams = {
@@ -1877,6 +1996,33 @@ const putFolderByIdMove = (
       options);
     }
 
+const getFolderByIdOriginalParent = (
+    id: string,
+ options?: SecondParameter<typeof customInstance<OriginalParentResponseModel>>,) => {
+      return customInstance<OriginalParentResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/folder/${id}/original-parent`, method: 'GET'
+    },
+      options);
+    }
+
+const deleteFolderByIdPermanent = (
+    id: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/folder/${id}/permanent`, method: 'DELETE'
+    },
+      options);
+    }
+
+const putFolderByIdRestore = (
+    id: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/folder/${id}/restore`, method: 'PUT'
+    },
+      options);
+    }
+
 const getItemFolder = (
     params?: GetItemFolderParams,
  options?: SecondParameter<typeof customInstance<FolderItemResponseModel[]>>,) => {
@@ -1963,6 +2109,17 @@ const putFormById = (
       options);
     }
 
+const getFormByIdAuditLog = (
+    id: string,
+    params?: GetFormByIdAuditLogParams,
+ options?: SecondParameter<typeof customInstance<PagedAuditLogResponseModel>>,) => {
+      return customInstance<PagedAuditLogResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/audit-log`, method: 'GET',
+        params
+    },
+      options);
+    }
+
 const postFormByIdCopy = (
     id: string,
     copyFormModel: CopyFormModel,
@@ -2008,6 +2165,24 @@ const putFormByIdMove = (
       options);
     }
 
+const getFormByIdOriginalParent = (
+    id: string,
+ options?: SecondParameter<typeof customInstance<OriginalParentResponseModel>>,) => {
+      return customInstance<OriginalParentResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/original-parent`, method: 'GET'
+    },
+      options);
+    }
+
+const deleteFormByIdPermanent = (
+    id: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/permanent`, method: 'DELETE'
+    },
+      options);
+    }
+
 const getFormByIdReferencedBy = (
     id: string,
     params?: GetFormByIdReferencedByParams,
@@ -2035,6 +2210,26 @@ const getFormByIdRelations = (
  options?: SecondParameter<typeof customInstance<PagedModelRelationItemModel>>,) => {
       return customInstance<PagedModelRelationItemModel>(
       {url: `/umbraco/forms/management/api/v1/form/${id}/relations`, method: 'GET'
+    },
+      options);
+    }
+
+const putFormByIdRestore = (
+    id: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/restore`, method: 'PUT'
+    },
+      options);
+    }
+
+const getFormByIdVersion = (
+    id: string,
+    params?: GetFormByIdVersionParams,
+ options?: SecondParameter<typeof customInstance<PagedFormVersionItemResponseModel>>,) => {
+      return customInstance<PagedFormVersionItemResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/form/${id}/version`, method: 'GET',
+        params
     },
       options);
     }
@@ -2104,6 +2299,35 @@ const getFormSearch = (
       return customInstance<PagedBasicFormModel>(
       {url: `/umbraco/forms/management/api/v1/form/search`, method: 'GET',
         params
+    },
+      options);
+    }
+
+const getFormVersionByVersionId = (
+    versionId: string,
+ options?: SecondParameter<typeof customInstance<FormVersionResponseModel>>,) => {
+      return customInstance<FormVersionResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/form/version/${versionId}`, method: 'GET'
+    },
+      options);
+    }
+
+const putFormVersionByVersionIdPreventCleanup = (
+    versionId: string,
+    params?: PutFormVersionByVersionIdPreventCleanupParams,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/form/version/${versionId}/prevent-cleanup`, method: 'PUT',
+        params
+    },
+      options);
+    }
+
+const postFormVersionByVersionIdRollback = (
+    versionId: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/form/version/${versionId}/rollback`, method: 'POST'
     },
       options);
     }
@@ -2353,6 +2577,18 @@ const getPrevalueSourceTypeById = (
       options);
     }
 
+const postFormByFormIdRecord = (
+    formId: string,
+    nullUpdateRecordField?: null | UpdateRecordField[],
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/form/${formId}/record`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: nullUpdateRecordField
+    },
+      options);
+    }
+
 const getFormByFormIdRecord = (
     formId: string,
     params?: GetFormByFormIdRecordParams,
@@ -2360,6 +2596,16 @@ const getFormByFormIdRecord = (
       return customInstance<EntrySearchResultCollection>(
       {url: `/umbraco/forms/management/api/v1/form/${formId}/record`, method: 'GET',
         params
+    },
+      options);
+    }
+
+const deleteFormByFormIdRecordByRecordId = (
+    formId: string,
+    recordId: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/form/${formId}/record/${recordId}`, method: 'DELETE'
     },
       options);
     }
@@ -2448,6 +2694,24 @@ const getRecordSetActions = (
  options?: SecondParameter<typeof customInstance<RecordSetActionType[]>>,) => {
       return customInstance<RecordSetActionType[]>(
       {url: `/umbraco/forms/management/api/v1/record-set-actions`, method: 'GET'
+    },
+      options);
+    }
+
+const getTreeRecycleBinChildrenByParentId = (
+    parentId: string,
+ options?: SecondParameter<typeof customInstance<FormTreeItemResponseModel[]>>,) => {
+      return customInstance<FormTreeItemResponseModel[]>(
+      {url: `/umbraco/forms/management/api/v1/tree/recycle-bin/children/${parentId}`, method: 'GET'
+    },
+      options);
+    }
+
+const getTreeRecycleBinRoot = (
+
+ options?: SecondParameter<typeof customInstance<PagedFormTreeItemResponseModel>>,) => {
+      return customInstance<PagedFormTreeItemResponseModel>(
+      {url: `/umbraco/forms/management/api/v1/tree/recycle-bin/root`, method: 'GET'
     },
       options);
     }
@@ -2603,6 +2867,15 @@ const getUpdatesVersion = (
       options);
     }
 
+const deleteRecycleBinEmpty = (
+
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/umbraco/forms/management/api/v1/recycle-bin/empty`, method: 'DELETE'
+    },
+      options);
+    }
+
 const getWorkflowType = (
 
  options?: SecondParameter<typeof customInstance<WorkflowTypeWithSettings[]>>,) => {
@@ -2621,7 +2894,7 @@ const getWorkflowTypeById = (
       options);
     }
 
-return {getAcceptanceTestsSystemInfo,postAnalyticsOrigins,postAnalyticsOriginsOverview,postAnalyticsOverview,postAnalyticsSubmissions,postAnalyticsSubmissionsHourly,postAnalyticsWorkflows,getConfig,postDataSource,getDataSource,deleteDataSourceById,getDataSourceById,putDataSourceById,getDataSourceScaffold,getDatasourceWizardByIdScaffold,postDatasourceWizardCreateForm,getTreeDataSourceAncestors,getTreeDataSourceRoot,getDataSourceType,getDataSourceTypeById,getTreeEmailTemplateChildrenByParentPath,getTreeEmailTemplateRoot,getExport,postExport,getExportTypes,getFieldType,getFieldTypeById,getFieldTypeRichtextDatatype,getFieldTypeValidationPattern,postFolder,deleteFolderById,getFolderById,putFolderById,getFolderByIdIsEmpty,putFolderByIdMove,getItemFolder,postForm,getForm,postFormFieldByIdValidateSettings,postFormWorkflowByIdValidateSettings,deleteFormById,getFormById,putFormById,postFormByIdCopy,postFormByIdCopyWorkflows,getFormByIdHasRelations,putFormByIdMove,getFormByIdReferencedBy,getFormByIdReferencedDescendants,getFormByIdRelations,getFormAreReferenced,getFormCollection,getFormExport,postFormImport,getFormScaffold,getFormScaffoldByTemplate,getFormSearch,getItemForm,getTreeFormAncestors,getTreeFormChildrenByParentId,getTreeFormRoot,getFormTemplate,getLicensingStatus,getMediaByPath,getMemberByMemberKeyFormSummaries,getMemberLinkableProperties,getPickerDataType,getPickerDocumentType,getPickerDocumentTypeByAliasProperties,postPickerDocumentTypeMappingsRefresh,postPrevalueSource,getPrevalueSource,deletePrevalueSourceById,getPrevalueSourceById,putPrevalueSourceById,getPrevalueSourceByIdTextFileByFileName,getPrevalueSourceByIdValues,getPrevalueSourceScaffold,getTreePrevalueSourceAncestors,getTreePrevalueSourceRoot,getPrevalueSourceType,getPrevalueSourceTypeById,getFormByFormIdRecord,putFormByFormIdRecordByRecordId,getFormByFormIdRecordByRecordIdAuditTrail,getFormByFormIdRecordByRecordIdWorkflowAuditTrail,postFormByFormIdRecordByRecordIdWorkflowByWorkflowIdRetry,postFormByFormIdRecordActionsByActionIdExecute,getFormByFormIdRecordMetadata,getFormByFormIdRecordPageNumber,getRecordSetActions,postSecurityUserGroupByIdFormSecurity,deleteSecurityUserGroupByIdFormSecurity,getSecurityUserGroupByIdFormSecurity,putSecurityUserGroupByIdFormSecurity,postSecurityUserByIdFormSecurity,deleteSecurityUserByIdFormSecurity,getSecurityUserByIdFormSecurity,putSecurityUserByIdFormSecurity,getSecurityUserCurrentFormSecurity,getSecurityUserUsersToAssign,getTreeSecurityAncestors,getTreeSecurityChildrenByParentId,getTreeSecurityRoot,getTheme,getUpdatesVersion,getWorkflowType,getWorkflowTypeById}};
+return {getAcceptanceTestsSystemInfo,postAnalyticsOrigins,postAnalyticsOriginsOverview,postAnalyticsOverview,postAnalyticsSubmissions,postAnalyticsSubmissionsHourly,postAnalyticsWorkflows,getConfig,postDataSource,getDataSource,deleteDataSourceById,getDataSourceById,putDataSourceById,getDataSourceScaffold,getDatasourceWizardByIdScaffold,postDatasourceWizardCreateForm,getTreeDataSourceAncestors,getTreeDataSourceRoot,getDataSourceType,getDataSourceTypeById,getTreeEmailTemplateChildrenByParentPath,getTreeEmailTemplateRoot,getExport,postExport,getExportTypes,getFieldType,getFieldTypeById,getFieldTypeRichtextDatatype,getFieldTypeValidationPattern,postFolder,deleteFolderById,getFolderById,putFolderById,getFolderByIdIsEmpty,putFolderByIdMove,getFolderByIdOriginalParent,deleteFolderByIdPermanent,putFolderByIdRestore,getItemFolder,postForm,getForm,postFormFieldByIdValidateSettings,postFormWorkflowByIdValidateSettings,deleteFormById,getFormById,putFormById,getFormByIdAuditLog,postFormByIdCopy,postFormByIdCopyWorkflows,getFormByIdHasRelations,putFormByIdMove,getFormByIdOriginalParent,deleteFormByIdPermanent,getFormByIdReferencedBy,getFormByIdReferencedDescendants,getFormByIdRelations,putFormByIdRestore,getFormByIdVersion,getFormAreReferenced,getFormCollection,getFormExport,postFormImport,getFormScaffold,getFormScaffoldByTemplate,getFormSearch,getFormVersionByVersionId,putFormVersionByVersionIdPreventCleanup,postFormVersionByVersionIdRollback,getItemForm,getTreeFormAncestors,getTreeFormChildrenByParentId,getTreeFormRoot,getFormTemplate,getLicensingStatus,getMediaByPath,getMemberByMemberKeyFormSummaries,getMemberLinkableProperties,getPickerDataType,getPickerDocumentType,getPickerDocumentTypeByAliasProperties,postPickerDocumentTypeMappingsRefresh,postPrevalueSource,getPrevalueSource,deletePrevalueSourceById,getPrevalueSourceById,putPrevalueSourceById,getPrevalueSourceByIdTextFileByFileName,getPrevalueSourceByIdValues,getPrevalueSourceScaffold,getTreePrevalueSourceAncestors,getTreePrevalueSourceRoot,getPrevalueSourceType,getPrevalueSourceTypeById,postFormByFormIdRecord,getFormByFormIdRecord,deleteFormByFormIdRecordByRecordId,putFormByFormIdRecordByRecordId,getFormByFormIdRecordByRecordIdAuditTrail,getFormByFormIdRecordByRecordIdWorkflowAuditTrail,postFormByFormIdRecordByRecordIdWorkflowByWorkflowIdRetry,postFormByFormIdRecordActionsByActionIdExecute,getFormByFormIdRecordMetadata,getFormByFormIdRecordPageNumber,getRecordSetActions,getTreeRecycleBinChildrenByParentId,getTreeRecycleBinRoot,postSecurityUserGroupByIdFormSecurity,deleteSecurityUserGroupByIdFormSecurity,getSecurityUserGroupByIdFormSecurity,putSecurityUserGroupByIdFormSecurity,postSecurityUserByIdFormSecurity,deleteSecurityUserByIdFormSecurity,getSecurityUserByIdFormSecurity,putSecurityUserByIdFormSecurity,getSecurityUserCurrentFormSecurity,getSecurityUserUsersToAssign,getTreeSecurityAncestors,getTreeSecurityChildrenByParentId,getTreeSecurityRoot,getTheme,getUpdatesVersion,deleteRecycleBinEmpty,getWorkflowType,getWorkflowTypeById}};
 export type GetAcceptanceTestsSystemInfoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getAcceptanceTestsSystemInfo']>>>
 export type PostAnalyticsOriginsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postAnalyticsOrigins']>>>
 export type PostAnalyticsOriginsOverviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postAnalyticsOriginsOverview']>>>
@@ -2657,6 +2930,9 @@ export type GetFolderByIdResult = NonNullable<Awaited<ReturnType<ReturnType<type
 export type PutFolderByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFolderById']>>>
 export type GetFolderByIdIsEmptyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFolderByIdIsEmpty']>>>
 export type PutFolderByIdMoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFolderByIdMove']>>>
+export type GetFolderByIdOriginalParentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFolderByIdOriginalParent']>>>
+export type DeleteFolderByIdPermanentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['deleteFolderByIdPermanent']>>>
+export type PutFolderByIdRestoreResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFolderByIdRestore']>>>
 export type GetItemFolderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getItemFolder']>>>
 export type PostFormResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postForm']>>>
 export type GetFormResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getForm']>>>
@@ -2665,13 +2941,18 @@ export type PostFormWorkflowByIdValidateSettingsResult = NonNullable<Awaited<Ret
 export type DeleteFormByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['deleteFormById']>>>
 export type GetFormByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormById']>>>
 export type PutFormByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFormById']>>>
+export type GetFormByIdAuditLogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdAuditLog']>>>
 export type PostFormByIdCopyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postFormByIdCopy']>>>
 export type PostFormByIdCopyWorkflowsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postFormByIdCopyWorkflows']>>>
 export type GetFormByIdHasRelationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdHasRelations']>>>
 export type PutFormByIdMoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFormByIdMove']>>>
+export type GetFormByIdOriginalParentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdOriginalParent']>>>
+export type DeleteFormByIdPermanentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['deleteFormByIdPermanent']>>>
 export type GetFormByIdReferencedByResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdReferencedBy']>>>
 export type GetFormByIdReferencedDescendantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdReferencedDescendants']>>>
 export type GetFormByIdRelationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdRelations']>>>
+export type PutFormByIdRestoreResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFormByIdRestore']>>>
+export type GetFormByIdVersionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByIdVersion']>>>
 export type GetFormAreReferencedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormAreReferenced']>>>
 export type GetFormCollectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormCollection']>>>
 export type GetFormExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormExport']>>>
@@ -2679,6 +2960,9 @@ export type PostFormImportResult = NonNullable<Awaited<ReturnType<ReturnType<typ
 export type GetFormScaffoldResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormScaffold']>>>
 export type GetFormScaffoldByTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormScaffoldByTemplate']>>>
 export type GetFormSearchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormSearch']>>>
+export type GetFormVersionByVersionIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormVersionByVersionId']>>>
+export type PutFormVersionByVersionIdPreventCleanupResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFormVersionByVersionIdPreventCleanup']>>>
+export type PostFormVersionByVersionIdRollbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postFormVersionByVersionIdRollback']>>>
 export type GetItemFormResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getItemForm']>>>
 export type GetTreeFormAncestorsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeFormAncestors']>>>
 export type GetTreeFormChildrenByParentIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeFormChildrenByParentId']>>>
@@ -2704,7 +2988,9 @@ export type GetTreePrevalueSourceAncestorsResult = NonNullable<Awaited<ReturnTyp
 export type GetTreePrevalueSourceRootResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreePrevalueSourceRoot']>>>
 export type GetPrevalueSourceTypeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getPrevalueSourceType']>>>
 export type GetPrevalueSourceTypeByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getPrevalueSourceTypeById']>>>
+export type PostFormByFormIdRecordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postFormByFormIdRecord']>>>
 export type GetFormByFormIdRecordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByFormIdRecord']>>>
+export type DeleteFormByFormIdRecordByRecordIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['deleteFormByFormIdRecordByRecordId']>>>
 export type PutFormByFormIdRecordByRecordIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['putFormByFormIdRecordByRecordId']>>>
 export type GetFormByFormIdRecordByRecordIdAuditTrailResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByFormIdRecordByRecordIdAuditTrail']>>>
 export type GetFormByFormIdRecordByRecordIdWorkflowAuditTrailResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByFormIdRecordByRecordIdWorkflowAuditTrail']>>>
@@ -2713,6 +2999,8 @@ export type PostFormByFormIdRecordActionsByActionIdExecuteResult = NonNullable<A
 export type GetFormByFormIdRecordMetadataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByFormIdRecordMetadata']>>>
 export type GetFormByFormIdRecordPageNumberResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getFormByFormIdRecordPageNumber']>>>
 export type GetRecordSetActionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getRecordSetActions']>>>
+export type GetTreeRecycleBinChildrenByParentIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeRecycleBinChildrenByParentId']>>>
+export type GetTreeRecycleBinRootResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeRecycleBinRoot']>>>
 export type PostSecurityUserGroupByIdFormSecurityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['postSecurityUserGroupByIdFormSecurity']>>>
 export type DeleteSecurityUserGroupByIdFormSecurityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['deleteSecurityUserGroupByIdFormSecurity']>>>
 export type GetSecurityUserGroupByIdFormSecurityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getSecurityUserGroupByIdFormSecurity']>>>
@@ -2728,5 +3016,6 @@ export type GetTreeSecurityChildrenByParentIdResult = NonNullable<Awaited<Return
 export type GetTreeSecurityRootResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTreeSecurityRoot']>>>
 export type GetThemeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getTheme']>>>
 export type GetUpdatesVersionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getUpdatesVersion']>>>
+export type DeleteRecycleBinEmptyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['deleteRecycleBinEmpty']>>>
 export type GetWorkflowTypeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getWorkflowType']>>>
 export type GetWorkflowTypeByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUmbracoFormsManagementAPI>['getWorkflowTypeById']>>>
