@@ -46,6 +46,28 @@ describe("update-form", () => {
     expect(verified.name).toBe(TEST_NAME_RENAMED);
   });
 
+  it("should refuse a design read before someone else saved the form", async () => {
+    // Forms 17.6 / 18.2 hand out a concurrencyToken with the design and reject a
+    // save carrying one that is no longer current, rather than silently
+    // overwriting the other change.
+    const context = createMockRequestHandlerExtra();
+    builder = await new FormBuilder().withName(TEST_NAME).create();
+    const stale = getStructuredContent(
+      await getFormByIdTool.handler({ id: builder.getId(), applyDictionaryTranslations: undefined }, context),
+    ) as unknown as FormDesign;
+    expect(stale.concurrencyToken).toBeTruthy();
+
+    await updateFormTool.handler({ ...stale, name: TEST_NAME_RENAMED } as any, context);
+    const result = await updateFormTool.handler({ ...stale, name: `${TEST_NAME} Overwrite` } as any, context);
+
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent).toMatchObject({ status: 409 });
+    const current = getStructuredContent(
+      await getFormByIdTool.handler({ id: builder.getId(), applyDictionaryTranslations: undefined }, context),
+    ) as unknown as FormDesign;
+    expect(current.name).toBe(TEST_NAME_RENAMED);
+  });
+
   it("should return an error for a non-existent form id", async () => {
     const context = createMockRequestHandlerExtra();
     builder = await new FormBuilder().withName(TEST_NAME).create();
