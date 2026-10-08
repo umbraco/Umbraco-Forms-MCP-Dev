@@ -6,6 +6,8 @@
 
 import { MID_LINE_PROPERTIES, relaxMidLineFields } from "../relax-mid-line-fields.js";
 import {
+  getFolderByIdResponse,
+  getFormByFormIdRecordResponse,
   getFormByIdResponse,
   getWorkflowTypeResponseItem,
 } from "../generated/umbracoFormsManagementApi.zod.js";
@@ -59,5 +61,18 @@ describe("generated schemas", () => {
     const field = getFormByIdResponse.shape.pages.element.shape.fieldSets.element.shape.containers
       .element.shape.fields.element;
     expect(field.shape.memberPrefillMode.safeParse(undefined).success).toBe(true);
+  });
+});
+
+describe("generated schemas - properties Forms 17.6 / 18.2 added", () => {
+  it("should not require trashed on a folder or a form", () => {
+    expect(getFolderByIdResponse.shape.trashed.safeParse(undefined).success).toBe(true);
+    expect(getFormByIdResponse.shape.trashed.safeParse(undefined).success).toBe(true);
+  });
+
+  it("should not require additionalData or isDateField on a record search", () => {
+    const shape = getFormByFormIdRecordResponse.shape;
+    expect(shape.results.element.shape.additionalData.safeParse(undefined).success).toBe(true);
+    expect(shape.schema.element.shape.isDateField.safeParse(undefined).success).toBe(true);
   });
 });

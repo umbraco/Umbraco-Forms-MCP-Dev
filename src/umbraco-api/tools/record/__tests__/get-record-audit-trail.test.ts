@@ -1,18 +1,13 @@
-import { setupTestEnvironment, createMockRequestHandlerExtra, RecordTestFormHelper } from "./setup.js";
+import {
+  setupTestEnvironment,
+  createMockRequestHandlerExtra,
+  validateToolResponse,
+  RecordTestFormHelper,
+} from "./setup.js";
+import { RecordEntryHelper } from "./helpers/record-entry-helper.js";
+import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
 import getRecordAuditTrailTool from "../get/get-record-audit-trail.js";
 
-/**
- * ERROR-PATH ONLY — genuine gap, not worked around here.
- *
- * This tool needs a recordId that actually exists to exercise a real happy path. Records
- * (submitted form entries) can only be created through Umbraco Forms' public front-end
- * submission flow, which is not part of the Management API this MCP wraps and isn't
- * reachable from these tests (verified: this instance has zero forms with existing
- * submissions — see search-records.test.ts and record-test-form-helper.ts). There is no
- * Management API endpoint to create a record directly. So there is no real recordId to
- * fetch an audit trail for; only the error path (an unknown recordId on a real form) can
- * be tested honestly.
- */
 describe("get-record-audit-trail", () => {
   setupTestEnvironment();
 
@@ -24,6 +19,20 @@ describe("get-record-audit-trail", () => {
 
   afterAll(async () => {
     await RecordTestFormHelper.deleteTestForm(formId);
+  });
+
+  it("should list the changes made to an entry", async () => {
+    const context = createMockRequestHandlerExtra();
+    const [fieldId] = await RecordTestFormHelper.getFieldIds(formId);
+    const recordId = await RecordEntryHelper.createEntry(formId, fieldId, "true");
+    await getUmbracoFormsManagementAPI().putFormByFormIdRecordByRecordId(formId, recordId, [
+      { fieldId, values: ["true"] },
+    ]);
+
+    const result = await getRecordAuditTrailTool.handler({ formId, recordId }, context);
+
+    const data = validateToolResponse(getRecordAuditTrailTool, result);
+    expect(data.items.length).toBeGreaterThan(0);
   });
 
   it("should return error for a record that doesn't exist", async () => {
