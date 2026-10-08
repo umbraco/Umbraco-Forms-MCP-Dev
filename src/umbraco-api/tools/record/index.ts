@@ -15,13 +15,15 @@ import getRecordSetActionsTool from "./get/get-record-set-actions.js";
 import updateRecordTool from "./put/update-record.js";
 import retryRecordWorkflowTool from "./post/retry-record-workflow.js";
 import executeRecordActionTool from "./post/execute-record-action.js";
+import createRecordTool from "./post/create-record.js";
+import deleteRecordTool from "./delete/delete-record.js";
 
 const collection: ToolCollectionExport = {
   metadata: {
     name: "record",
     displayName: "Records",
     description:
-      "Search, update, and manage submitted form entries (records): audit trails, workflow retries, and bulk record actions.",
+      "Search, create, update, delete and manage submitted form entries (records): audit trails, workflow retries, and bulk record actions.",
   },
   tools: () => [
     searchRecordsTool,
@@ -33,6 +35,8 @@ const collection: ToolCollectionExport = {
     updateRecordTool,
     retryRecordWorkflowTool,
     executeRecordActionTool,
+    createRecordTool,
+    deleteRecordTool,
   ],
 };
 

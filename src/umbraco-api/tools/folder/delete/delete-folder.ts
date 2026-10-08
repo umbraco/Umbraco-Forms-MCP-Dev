@@ -1,9 +1,8 @@
 /**
  * Delete Folder Tool
  *
- * Permanently deletes an Umbraco Forms folder by ID. This is not idempotent —
- * a second call against the same ID returns a 404 since the folder no longer
- * exists.
+ * Deletes an Umbraco Forms folder by ID: moves it, with its contents, to the
+ * recycle bin on Umbraco Forms 18.2+, deletes it permanently on earlier releases.
  */
 
 import {
@@ -24,10 +23,12 @@ const inputSchema = {
 const DeleteFolderTool: ToolDefinition<typeof inputSchema> = {
   name: "delete-folder",
   description:
-    "Permanently deletes a Forms folder by ID. The folder should typically be empty first — " +
-    "use is-folder-empty to check before deleting. This is a destructive, irreversible " +
-    "action and is not idempotent: calling it again on the same ID fails because the " +
-    "folder no longer exists.",
+    "Deletes a Forms folder by ID. On Umbraco Forms 18.2 and later the folder, and every " +
+    "form and folder inside it, is moved to the Forms recycle bin, from where restore-folder " +
+    "brings it back and delete-folder-permanently removes it for good. Earlier releases " +
+    "delete it permanently, and the folder " +
+    "should be empty first — use is-folder-empty to check. Calling it on an ID that no " +
+    "longer exists fails.",
   inputSchema,
   slices: ["delete"],
   annotations: { destructiveHint: true },
