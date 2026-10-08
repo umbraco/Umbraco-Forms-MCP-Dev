@@ -2,7 +2,7 @@
 
 An [MCP](https://modelcontextprotocol.io) server for **Umbraco Forms**. Point it at an Umbraco
 instance and your AI assistant can build forms, manage data sources and prevalue sources, read
-submissions, query analytics, and submit entries — 102 tools across 24 collections.
+submissions, query analytics, and submit entries — 118 tools across 25 collections.
 
 Built on [`@umbraco-cms/mcp-server-sdk`](https://www.npmjs.com/package/@umbraco-cms/mcp-server-sdk).
 
@@ -35,11 +35,15 @@ message naming the version they need, and the rest are unaffected:
 
 | Tools | Forms 18.x | Forms 17.x |
 |-------|------------|------------|
+| The nine `recycle-bin` tools, `list-form-versions`, `get-form-version`, `rollback-form-version`, `set-form-version-prevent-cleanup`, `get-form-audit-log`, `create-record`, `delete-record` | 18.2+ | 17.6+ |
 | `get-member-linkable-properties`, `get-member-form-summaries` | 18.1+ | 17.5+ |
 | `get-prevalue-source-text-file` | 18.0+ | 17.4+ |
 | `list-forms` (use `list-all-forms` before 17.3), the six `query-analytics-*` tools | 18.0+ | 17.3+ |
 | `search-forms`, `get-forms-are-referenced`, `get-form-referenced-by`, `get-form-referenced-descendants` | 18.0+ | 17.2+ |
 | `get-form-tree-ancestors`, `get-data-source-ancestors`, `get-prevalue-source-ancestors` | 18.0+ | 17.1+ |
+
+From Forms 18.2, `delete-form` and `delete-folder` move items to the Forms recycle bin instead of
+deleting them; the `recycle-bin` tools restore them or delete them for good.
 
 ## 1. Create an API user in Umbraco
 
@@ -126,7 +130,7 @@ Every option is an environment variable, and most also have a CLI flag (`--help`
 
 ### Limiting the tool surface
 
-102 tools is a lot of context. Narrow it down:
+118 tools is a lot of context. Narrow it down:
 
 | Variable | Purpose |
 |----------|---------|
@@ -142,11 +146,11 @@ Available modes:
 
 | Mode | Includes |
 |------|----------|
-| `forms-authoring` | Building forms: forms, templates, field types, pickers, folders, themes |
+| `forms-authoring` | Building forms: forms, templates, field types, pickers, folders, recycle bin, themes |
 | `data-sources` | Data sources and prevalue sources |
 | `submissions` | Submitted records, analytics, workflow types |
 | `admin` | Config, licensing, updates, members, email templates, export/import |
-| `forms-management-all` | All 21 Forms management collections |
+| `forms-management-all` | All 22 Forms management collections |
 | `umbraco-server` | Server information only |
 
 ```json
@@ -163,10 +167,11 @@ Available modes:
 
 | Collection | Tools | What it covers |
 |------------|-------|----------------|
-| `form` | 28 | Create, edit, copy, move, export and inspect forms |
+| `form` | 33 | Create, edit, copy, move, export and inspect forms; version history and audit log |
 | `data-source` / `data-source-type` | 12 | External data sources backing form fields |
 | `prevalue-source` / `prevalue-source-type` | 12 | Dropdown/checkbox value sources |
-| `record` | 9 | Submitted entries — search, read, update, workflow actions |
+| `record` | 11 | Submitted entries — search, read, create, update, delete, workflow actions |
+| `recycle-bin` | 9 | Browse, restore and permanently delete trashed forms and folders |
 | `folder` | 7 | Organising forms into folders |
 | `analytics` | 6 | Submission and workflow analytics |
 | `picker` | 4 | Document type and data type pickers |
