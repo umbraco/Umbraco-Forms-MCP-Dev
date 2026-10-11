@@ -1,6 +1,6 @@
 {
   "name": "@umbraco-forms/mcp-dev",
-  "version": "17.6.1-beta.3",
+  "version": "17.6.1-beta.4",
   "type": "module",
   "description": "MCP server for forms-mcp-server",
   "main": "dist/index.js",
