@@ -2,11 +2,12 @@
 
 exports[`generate-form-export documents the current server response when generating an export for a form with no submitted records (see blocker comment above) 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"status":500,"detail":""}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "",
-    "status": 500,
-  },
 }
 `;

@@ -2,13 +2,12 @@
 
 exports[`query-analytics-origins-overview should return a per-form origins summary using default metrics and dimensions 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"type":"Error","title":"Invalid query","status":400,"detail":"A form identifier is required for the origins overview."}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "A form identifier is required for the origins overview.",
-    "status": 400,
-    "title": "Invalid query",
-    "type": "Error",
-  },
 }
 `;
