@@ -2,13 +2,12 @@
 
 exports[`query-analytics-workflows should return workflow run analytics using default metrics and dimensions 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"type":"Error","title":"Invalid query","status":400,"detail":"A form identifier is required for the workflows overview."}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "A form identifier is required for the workflows overview.",
-    "status": 400,
-    "title": "Invalid query",
-    "type": "Error",
-  },
 }
 `;

@@ -1,6 +1,7 @@
 import {
   setupTestEnvironment,
   createMockRequestHandlerExtra,
+  validateErrorResult,
   FormTestHelper,
   FormSubmissionBuilder,
 } from "./setup.js";
@@ -68,10 +69,6 @@ describe("submit-form-entry", () => {
     );
 
     expect(result.isError).toBe(true);
-    expect(
-      result.structuredContent &&
-        typeof result.structuredContent === "object" &&
-        "error" in result.structuredContent
-    ).toBe(true);
+    expect(validateErrorResult(result)).toHaveProperty("error");
   });
 });
