@@ -58,10 +58,17 @@ export const simpleFieldSchema = z.object({
   alias: z
     .string()
     .optional()
-    .describe("Field alias. Derived from the label when omitted."),
+    .describe(
+      "Field alias, unique within the form. Derived from the label when omitted - set it when something refers to the field by name: Umbraco Automate's Form Submitted trigger exposes each value as `${trigger.fields.<alias>}` (alias camel-cased), and magic strings use it too.",
+    ),
   placeholder: z.string().optional().describe("HTML5 placeholder text."),
   helpText: z.string().optional().describe("Tooltip / help text shown with the field."),
-  defaultValue: z.string().optional().describe("Pre-filled value."),
+  defaultValue: z
+    .string()
+    .optional()
+    .describe(
+      "Pre-filled value. Accepts Forms magic strings, e.g. `[#pageKey]` (the current page's key) or `[#pageName]` on a hidden field.",
+    ),
   options: z
     .array(optionSchema)
     .optional()
@@ -75,7 +82,9 @@ export const simpleFieldSchema = z.object({
   sensitive: z
     .boolean()
     .optional()
-    .describe("Marks the field as containing sensitive data, which restricts who can view submissions."),
+    .describe(
+      "Marks the field as containing sensitive data, which restricts who can view submissions. Values of sensitive fields are also left out of Umbraco Automate trigger output.",
+    ),
   requiredErrorMessage: z.string().optional().describe("Message shown when a mandatory field is empty."),
   invalidErrorMessage: z.string().optional().describe("Message shown when the value fails validation."),
   bodyText: z
@@ -154,6 +163,11 @@ function deriveAlias(label: string, taken: Set<string>): string {
   return candidate;
 }
 
+/** The aliases fields supply explicitly, so a derived alias never takes one a later field asks for. */
+export function explicitAliases(fields: SimpleFieldSpec[]): Set<string> {
+  return new Set(fields.map((field) => field.alias).filter((alias): alias is string => Boolean(alias)));
+}
+
 /** Normalizes the two accepted option shapes into the API's `{value, caption}`. */
 function buildPreValues(
   options: SimpleFieldSpec["options"],
@@ -171,9 +185,10 @@ function buildPreValues(
  *
  * `takenAliases` is mutated to reserve the alias this field ends up with, so a
  * caller adding fields to an existing form can seed it with the aliases already
- * in use and get collision-free names back.
+ * in use and get collision-free names back. `reservedAliases` are aliases other
+ * fields in the same request supply explicitly: a derived alias avoids them too.
  */
-export function buildField(spec: SimpleFieldSpec, takenAliases: Set<string>) {
+export function buildField(spec: SimpleFieldSpec, takenAliases: Set<string>, reservedAliases?: ReadonlySet<string>) {
   const mapping = FIELD_TYPE_ALIASES[spec.type];
   if (!mapping) {
     throw new Error(
@@ -226,10 +241,18 @@ export function buildField(spec: SimpleFieldSpec, takenAliases: Set<string>) {
   // collide with it.
   let alias: string;
   if (spec.alias) {
+    // Two fields with one alias would share a value wherever the alias is the key
+    // (Umbraco Automate's trigger fields, magic strings), so refuse instead.
+    if (takenAliases.has(spec.alias)) {
+      throw new Error(
+        `Another field on this form already uses the alias '${spec.alias}'. Field aliases must be unique within a form - choose a different alias, or omit it to have one derived from the label.`,
+      );
+    }
     alias = spec.alias;
     takenAliases.add(alias);
   } else {
-    alias = deriveAlias(spec.label, takenAliases);
+    alias = deriveAlias(spec.label, new Set([...takenAliases, ...(reservedAliases ?? [])]));
+    takenAliases.add(alias);
   }
 
   return {
@@ -273,6 +296,7 @@ export function buildFormDesign(spec: SimpleFormSpec): FormDesign {
   const formId = spec.id ?? randomUUID();
   const pageId = randomUUID();
   const takenAliases = new Set<string>();
+  const reservedAliases = explicitAliases(spec.fields);
 
   // Group consecutive fields sharing a `group` into one fieldset.
   const groups: Array<{ caption: string | null; fields: SimpleFieldSpec[] }> = [];
@@ -294,7 +318,7 @@ export function buildFormDesign(spec: SimpleFormSpec): FormDesign {
         id: randomUUID(),
         caption: null,
         width: 12,
-        fields: group.fields.map((field) => buildField(field, takenAliases)),
+        fields: group.fields.map((field) => buildField(field, takenAliases, reservedAliases)),
       },
     ],
   }));

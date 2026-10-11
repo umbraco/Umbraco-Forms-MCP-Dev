@@ -95,6 +95,23 @@ describe("buildFormDesign", () => {
 
     expect(design.id).toBe(id);
   });
+
+  it("should not let a derived alias take one a later field supplies", () => {
+    const design = buildFormDesign(
+      spec({
+        name: "Feedback",
+        fields: [
+          { label: "Comment", type: "textarea" },
+          { label: "Your comment", type: "textarea", alias: "comment" },
+        ],
+      }),
+    );
+
+    const aliases = design.pages[0].fieldSets.flatMap((set: any) =>
+      set.containers.flatMap((container: any) => container.fields.map((f: any) => f.alias)),
+    );
+    expect(aliases).toEqual(["comment2", "comment"]);
+  });
 });
 
 describe("buildField", () => {
@@ -130,6 +147,13 @@ describe("buildField", () => {
       expect(aliasFor("Name", taken)).toBe("name");
       expect(aliasFor("Name", taken)).toBe("name2");
       expect(aliasFor("Name", taken)).toBe("name3");
+    });
+
+    it("should reject an explicit alias another field already uses", () => {
+      const taken = new Set(["comment"]);
+      expect(() => buildField(field({ label: "Your comment", type: "textarea", alias: "comment" }), taken)).toThrow(
+        /alias 'comment'/,
+      );
     });
 
     it("should prefer an explicitly supplied alias", () => {
