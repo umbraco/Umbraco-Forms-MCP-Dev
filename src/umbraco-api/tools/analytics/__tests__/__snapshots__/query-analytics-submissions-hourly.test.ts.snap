@@ -2,11 +2,12 @@
 
 exports[`query-analytics-submissions-hourly should return a submissions-by-hour breakdown using default metrics and dimensions 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"status":500,"detail":""}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "",
-    "status": 500,
-  },
 }
 `;

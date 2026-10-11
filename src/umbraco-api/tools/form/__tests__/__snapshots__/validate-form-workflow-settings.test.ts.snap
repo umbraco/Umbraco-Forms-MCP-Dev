@@ -2,21 +2,12 @@
 
 exports[`validate-form-workflow-settings should validate a workflow's settings against a real workflow type 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"type":"Error","title":"Settings validation failed","status":400,"detail":"One or more settings did not pass validation.","errors":["'Recipient Email' setting has not been set (Parameter 'Email')","'Subject' setting has not been set (Parameter 'Subject')","'Message' setting has not been set"],"workflowTypeId":"e96badd7-05be-4978-b8d9-b3d733de70a5","workflowTypeName":"Send email","workflowName":"_Test Send Email Workflow"}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "One or more settings did not pass validation.",
-    "errors": [
-      "'Recipient Email' setting has not been set (Parameter 'Email')",
-      "'Subject' setting has not been set (Parameter 'Subject')",
-      "'Message' setting has not been set",
-    ],
-    "status": 400,
-    "title": "Settings validation failed",
-    "type": "Error",
-    "workflowName": "_Test Send Email Workflow",
-    "workflowTypeId": "e96badd7-05be-4978-b8d9-b3d733de70a5",
-    "workflowTypeName": "Send email",
-  },
 }
 `;
