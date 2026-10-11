@@ -2,11 +2,12 @@
 
 exports[`query-analytics-origins should return submission origins broken down by page/URL using default metrics and dimensions 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"status":500,"detail":""}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "",
-    "status": 500,
-  },
 }
 `;
