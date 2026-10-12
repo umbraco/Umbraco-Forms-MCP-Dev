@@ -4,7 +4,7 @@ exports[`generate-form-export documents the current server response when generat
 {
   "content": [
     {
-      "text": "{"status":500,"detail":""}",
+      "text": "{"status":500}",
       "type": "text",
     },
   ],
