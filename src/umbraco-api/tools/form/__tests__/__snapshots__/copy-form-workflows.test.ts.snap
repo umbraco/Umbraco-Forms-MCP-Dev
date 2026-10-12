@@ -4,7 +4,7 @@ exports[`copy-form-workflows should copy a workflow from the source form onto th
 {
   "content": [
     {
-      "text": "{"status":500,"detail":""}",
+      "text": "{"status":500}",
       "type": "text",
     },
   ],
