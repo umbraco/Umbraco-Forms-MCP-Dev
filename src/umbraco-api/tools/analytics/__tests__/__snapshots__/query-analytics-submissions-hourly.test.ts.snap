@@ -4,7 +4,7 @@ exports[`query-analytics-submissions-hourly should return a submissions-by-hour 
 {
   "content": [
     {
-      "text": "{"status":500,"detail":""}",
+      "text": "{"status":500}",
       "type": "text",
     },
   ],
