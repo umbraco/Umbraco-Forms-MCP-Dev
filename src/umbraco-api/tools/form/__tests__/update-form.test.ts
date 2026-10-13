@@ -3,6 +3,7 @@ import {
   createMockRequestHandlerExtra,
   createSnapshotResult,
   getStructuredContent,
+  validateErrorResult,
   FormBuilder,
 } from "./setup.js";
 import updateFormTool from "../put/update-form.js";
@@ -61,7 +62,7 @@ describe("update-form", () => {
     const result = await updateFormTool.handler({ ...stale, name: `${TEST_NAME} Overwrite` } as any, context);
 
     expect(result.isError).toBe(true);
-    expect(result.structuredContent).toMatchObject({ status: 409 });
+    expect(validateErrorResult(result)).toMatchObject({ status: 409 });
     const current = getStructuredContent(
       await getFormByIdTool.handler({ id: builder.getId(), applyDictionaryTranslations: undefined }, context),
     ) as unknown as FormDesign;

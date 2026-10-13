@@ -38,7 +38,12 @@ const fieldSchema = z.looseObject({
     .string()
     .describe("Field type GUID. Use list-field-types to look one up."),
   id: z.string().optional().describe("Field GUID. Generated when omitted."),
-  alias: z.string().optional().describe("Field alias. Derived from the caption when omitted."),
+  alias: z
+    .string()
+    .optional()
+    .describe(
+      "Field alias, unique within the form. Derived from the caption when omitted - set it when something refers to the field by name: Umbraco Automate's Form Submitted trigger exposes each value as `${trigger.fields.<alias>}` (alias camel-cased), and magic strings use it too.",
+    ),
   mandatory: z.boolean().optional().describe("Whether the field is required. Default false."),
   tooltip: z.string().nullable().optional().describe("Help text shown with the field."),
   regex: z
@@ -48,7 +53,12 @@ const fieldSchema = z.looseObject({
     .describe("Regular expression the value must match."),
   requiredErrorMessage: z.string().nullable().optional(),
   invalidErrorMessage: z.string().nullable().optional(),
-  containsSensitiveData: z.boolean().optional().describe("Default false."),
+  containsSensitiveData: z
+    .boolean()
+    .optional()
+    .describe(
+      "Marks the field as containing sensitive data, which restricts who can view submissions and leaves its value out of Umbraco Automate trigger output. Default false.",
+    ),
   settings: z
     .record(z.string(), z.string())
     .optional()

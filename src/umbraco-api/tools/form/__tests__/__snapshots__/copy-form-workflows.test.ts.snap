@@ -2,11 +2,12 @@
 
 exports[`copy-form-workflows should copy a workflow from the source form onto the destination form 1`] = `
 {
-  "content": [],
+  "content": [
+    {
+      "text": "{"status":500}",
+      "type": "text",
+    },
+  ],
   "isError": true,
-  "structuredContent": {
-    "detail": "",
-    "status": 500,
-  },
 }
 `;
