@@ -3,6 +3,7 @@ import {
   createMockRequestHandlerExtra,
   createSnapshotResult,
   validateToolResponse,
+  validateErrorResult,
   RecordTestFormHelper,
 } from "./setup.js";
 import deleteRecordTool from "../delete/delete-record.js";
@@ -52,6 +53,6 @@ describe("delete-record", () => {
     const result = await deleteRecordTool.handler({ formId, recordId }, context);
 
     expect(result.isError).toBe(true);
-    expect(result.structuredContent).toMatchObject({ status: 403 });
+    expect(validateErrorResult(result)).toMatchObject({ status: 403 });
   });
 });

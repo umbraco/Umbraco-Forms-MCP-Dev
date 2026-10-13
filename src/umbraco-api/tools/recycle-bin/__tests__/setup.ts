@@ -3,6 +3,7 @@ import {
   createMockRequestHandlerExtra,
   createSnapshotResult,
   validateToolResponse,
+  validateErrorResult,
 } from "@umbraco-cms/mcp-server-sdk/testing";
 import { configureApiClient, initializeUmbracoFetch, CAPTURE_RAW_HTTP_RESPONSE } from "@umbraco-cms/mcp-server-sdk";
 import { getUmbracoFormsManagementAPI } from "../../../api/generated/umbracoFormsManagementApi.js";
@@ -35,6 +36,7 @@ export {
   createMockRequestHandlerExtra,
   createSnapshotResult,
   validateToolResponse,
+  validateErrorResult,
   FormBuilder,
   FormTestHelper,
   purgeForm,

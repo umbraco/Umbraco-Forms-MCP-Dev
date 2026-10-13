@@ -28,6 +28,7 @@ import type {
 import { withBodyDecorators } from "../../shared/body-text.js";
 import {
   buildField,
+  explicitAliases,
   simpleFieldSchema,
   type SimpleFieldSpec,
 } from "../shared/build-form-design.js";
@@ -68,7 +69,7 @@ const inputSchema = {
 const AddFormFieldsTool = {
   name: "add-form-fields",
   description:
-    "Adds one or more fields to an existing form without needing the full form design as input. Fetches the current design, appends the fields, and saves the rest of the form unchanged. Prefer this over update-form whenever you are only adding fields — it avoids reproducing the entire form object. Each field takes a label and a type, plus optionally required, group, placeholder, helpText, options, pattern and maxLength. A field's 'group' targets the fieldset with that caption, creating it if absent; fields without a group are appended to the last fieldset. Aliases are generated so they do not collide with fields already on the form.",
+    "Adds one or more fields to an existing form without needing the full form design as input. Fetches the current design, appends the fields, and saves the rest of the form unchanged. Prefer this over update-form whenever you are only adding fields — it avoids reproducing the entire form object. Each field takes a label and a type, plus optionally alias, required, group, placeholder, helpText, defaultValue, options, pattern, maxLength and sensitive. A field's 'group' targets the fieldset with that caption, creating it if absent; fields without a group are appended to the last fieldset. An alias left out is derived from the label so it does not collide with fields already on the form; an explicit alias another field already uses is refused.",
   inputSchema,
   slices: ["update"],
   annotations: {
@@ -143,6 +144,7 @@ const AddFormFieldsTool = {
       return created;
     };
 
+    const reservedAliases = explicitAliases(fields as SimpleFieldSpec[]);
     for (const spec of fields as SimpleFieldSpec[]) {
       const fieldSet = resolveFieldSet(spec.group);
 
@@ -152,7 +154,7 @@ const AddFormFieldsTool = {
         fieldSet.containers.push(container);
       }
 
-      container.fields.push(buildField(spec, takenAliases) as FieldNode);
+      container.fields.push(buildField(spec, takenAliases, reservedAliases) as FieldNode);
     }
 
     const payload = { ...existing, pages } as unknown as FormDesign;
