@@ -4,7 +4,7 @@ exports[`query-analytics-origins should return submission origins broken down by
 {
   "content": [
     {
-      "text": "{"status":500}",
+      "text": "{"status":500,"title":"Internal Server Error"}",
       "type": "text",
     },
   ],
