@@ -4,7 +4,7 @@ exports[`generate-form-export documents the current server response when generat
 {
   "content": [
     {
-      "text": "{"status":500}",
+      "text": "{"status":500,"title":"Internal Server Error"}",
       "type": "text",
     },
   ],
