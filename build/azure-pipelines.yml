@@ -7,12 +7,28 @@ trigger:
     - v*/dev
     - feature/*
 
+resources:
+  repositories:
+  - repository: build
+    type: github
+    name: Umbraco/Umbraco.Build
+    endpoint: github.com_umbraco
+
+parameters:
+  - name: sbom_generate
+    displayName: Generate SBOM
+    type: boolean
+    default: false
+
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
   - name: nodeVersion
     value: '22.x'
+  # Dependency-Track product name
+  - name: productName
+    value: 'Umbraco.Forms.Mcp-Dev'
   - name: myGetRegistry
     value: 'https://www.myget.org/F/umbracoprereleases/npm/'
   # npm-type service connection in ADO holding the MyGet API key.
@@ -58,11 +74,32 @@ stages:
         targetPath: '$(Build.ArtifactStagingDirectory)'
         artifact: 'npm-package'
 
+# Runs in parallel with the build and gates both release stages: a failed SBOM (e.g. a license policy
+# violation) must stop a publish. Runs on main, or on any branch when sbom_generate is set (a forced
+# run is not flagged isLatest in Dependency-Track).
+- stage: GenerateSBOM
+  displayName: Generate SBOM
+  dependsOn: []
+  condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq('${{ parameters.sbom_generate }}', 'true'))
+  jobs:
+  - job: GenerateSBOM
+    displayName: Generate SBOM
+    steps:
+    - template: devops/templates/generate-sbom-template.yml@build
+      parameters:
+        sbom_nuget: false
+        sbom_npm_paths: ['.']
+        sbom_version_from: package.json # v<major> of package.json, e.g. 18.2.1-beta.3 -> v18
+        # a run forced with sbom_generate must not displace the latest version in Dependency-Track
+        ${{ if eq(parameters.sbom_generate, true) }}:
+          sbom_is_latest: 'false'
+
 - stage: Deploy_Prerelease
   displayName: Prerelease (MyGet)
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   dependsOn:
     - BuildAndTest
+    - GenerateSBOM
   jobs:
     - job: Publish
       displayName: Push to MyGet
@@ -115,6 +152,7 @@ stages:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   dependsOn:
     - BuildAndTest
+    - GenerateSBOM
   jobs:
     - job: Publish
       displayName: Push to NPM
