@@ -81,6 +81,8 @@ stages:
   displayName: Generate SBOM
   dependsOn: []
   condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq('${{ parameters.sbom_generate }}', 'true'))
+  variables:
+  - group: dependency-track
   jobs:
   - job: GenerateSBOM
     displayName: Generate SBOM
