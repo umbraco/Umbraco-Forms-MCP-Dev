@@ -8,7 +8,7 @@ Built on [`@umbraco-cms/mcp-server-sdk`](https://www.npmjs.com/package/@umbraco-
 
 ## Requirements
 
-- **Node.js 22+**
+- **Node.js 22.23.4+, 24.22.1+ or 26.12.1+**. Earlier releases are affected by [CVE-2026-111497](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) (Brotli decoder out-of-bounds write), which Node's built-in `fetch` reaches when it decompresses a Brotli response from Umbraco. Upgrading Node.js is the only fix.
 - An **Umbraco instance with Umbraco Forms installed**, reachable over HTTP(S)
 - An **API user** on that instance (see below)
 

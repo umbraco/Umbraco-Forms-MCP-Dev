@@ -22,7 +22,7 @@ migrates forward, so never point a v18 site at it, or a v17 site at `FormsMcpDb`
 
 ## Prerequisites
 
-- Node.js 22+
+- Node.js 22.23.4+, 24.22.1+ or 26.12.1+ (CVE-2026-111497)
 - .NET SDK 10.0 and SQL Server reachable at `localhost:1433` — **only if you're running the
   bundled `demo-site/`** (see below). Pointing this server at an existing Umbraco Forms
   instance instead needs neither.
