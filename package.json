@@ -48,7 +48,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.3.191",
     "@cloudflare/workers-oauth-provider": "^0.8.1",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@umbraco-cms/mcp-hosted": "1.0.0-beta.47",
@@ -60,6 +59,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.191",
     "@cloudflare/workers-types": "^5.20260825.1",
     "@jest/types": "^29.6.3",
     "@playwright/test": "^1.61.1",
