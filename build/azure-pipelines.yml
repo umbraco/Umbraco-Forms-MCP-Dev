@@ -76,7 +76,7 @@ stages:
 
 # Runs in parallel with the build and gates both release stages: a failed SBOM (e.g. a license policy
 # violation) must stop a publish. Runs on v17/main, or on any branch when sbom_generate is set (a forced
-# run is not flagged isLatest in Dependency-Track).
+# run is also flagged isLatest in Dependency-Track).
 - stage: GenerateSBOM
   displayName: Generate SBOM
   dependsOn: []
@@ -92,9 +92,6 @@ stages:
         sbom_nuget: false
         sbom_npm_paths: ['.']
         sbom_version_from: package.json # v<major> of package.json, e.g. 17.6.1-beta.6 -> v17
-        # a run forced with sbom_generate must not displace the latest version in Dependency-Track
-        ${{ if eq(parameters.sbom_generate, true) }}:
-          sbom_is_latest: 'false'
 
 - stage: Deploy_Prerelease
   displayName: Prerelease (MyGet)
