@@ -8,7 +8,7 @@ Built on [`@umbraco-cms/mcp-server-sdk`](https://www.npmjs.com/package/@umbraco-
 
 > **Renamed:** this package was previously published as `@umbraco-forms/mcp-dev`. If your MCP
 > client config still names it, change it to `@umbraco-forms/mcp` (Umbraco 18) or
-> `@umbraco-forms/mcp@lts-17-beta` (Umbraco 17). The command (`forms-mcp-server`) is unchanged.
+> `@umbraco-forms/mcp@lts-17` (Umbraco 17). The command (`forms-mcp-server`) is unchanged.
 
 ## Requirements
 
@@ -25,13 +25,12 @@ what you're doing.
 | Umbraco | Umbraco Forms | Package |
 |---------|---------------|---------|
 | **18** | **18.x** | **`@umbraco-forms/mcp`** |
-| 17 | 17.x | `@umbraco-forms/mcp@lts-17-beta` |
+| 17 | 17.x | `@umbraco-forms/mcp@lts-17` |
 
 Install the version that matches your site's Umbraco major — the API client and the version check
 differ between them.
 
-The Umbraco 17 line is in beta and published under the `lts-17-beta` dist-tag. A range such as
-`@17` doesn't match prereleases and won't find a version until 17.0.0 is released.
+The Umbraco 17 line is published under the `lts-17` dist-tag, so it never takes over `latest`.
 
 Every Umbraco Forms release on the matching major works. Some endpoints arrived partway through a
 line, at a different minor on each major; on an older release the tools that need them fail with a
@@ -263,7 +262,7 @@ Set `DISABLE_MCP_CHAINING=true` to turn this off and run Forms tools only.
 |---------|--------------|
 | `401` on every tool | Wrong `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET`, or the API user lacks permissions |
 | Self-signed certificate errors | Local HTTPS instance — set `NODE_TLS_REJECT_UNAUTHORIZED=0` |
-| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 18 — use `@umbraco-forms/mcp@lts-17-beta` for Umbraco 17, or set `UMBRACO_EXPECTED_MAJOR` |
+| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 18 — use `@umbraco-forms/mcp@lts-17` for Umbraco 17, or set `UMBRACO_EXPECTED_MAJOR` |
 | A tool says it needs a newer Umbraco Forms | The endpoint arrived later in the line — see the table under [Requirements](#which-version-for-which-umbraco) |
 | `403` from the Delivery API tools | `UMBRACO_FORMS_API_KEY` missing or not matching `FormsApiKey`, or `EnableAntiForgeryTokenForFormsApi` is still `true` |
 | `404` from the Delivery API for a form that exists | `EnableFormsApi` isn't `true`, or the site wasn't restarted |
