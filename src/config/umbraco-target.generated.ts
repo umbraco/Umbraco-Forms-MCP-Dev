@@ -6,7 +6,7 @@
  * Read from the Umbraco instance this server's tools were generated against,
  * via `GET /umbraco/management/api/v1/server/information`.
  *
- * Reported version: 18.2.1+e573de0.
+ * Reported version: 18.3.0+ee1861c.
  *
  * Passed to `checkUmbracoVersion` at startup, which blocks tool execution when
  * the connected instance's major differs. Set `UMBRACO_EXPECTED_MAJOR` (or

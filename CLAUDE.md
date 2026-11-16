@@ -48,8 +48,9 @@ the bare 404 with a message naming the version needed. Successful calls cost not
 **Response properties** - `MID_LINE_PROPERTIES` in `api/relax-mid-line-fields.ts`, an orval input
 transformer that drops them from `required`, so output schemas accept responses from releases that
 don't send them yet (on 18.x: `Field.memberPrefillMode` and `WorkflowTypeWithSettings.isConfigured`
-before 18.1, `trashed` and the record search's `additionalData`/`isDateField` before 18.2). The file
-lists the first release for each.
+before 18.1, `trashed` and the record search's `additionalData`/`isDateField` before 18.2, and
+the config's `defaultDaysToRetain*RecordsFor` and the folder item's `isTrashed` before 18.3). The
+file lists the first release for each.
 
 Never gate on a single version ("18.1 or later") - that refuses the feature on 17.x releases that
 have it. When a regenerated spec gains an endpoint or a required response property, find the first

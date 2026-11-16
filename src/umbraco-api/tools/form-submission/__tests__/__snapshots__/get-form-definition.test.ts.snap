@@ -38,6 +38,8 @@ exports[`get-form-definition should return form definition from Delivery API 1`]
                     "requiredErrorMessage": "Consent is required to store and process the data in this form.",
                     "settings": {
                       "acceptCopy": "Yes, I give permission to store and process my data",
+                      "consentDetails": "",
+                      "consentDetailsBlocks": "",
                       "showLabel": "",
                     },
                     "settingsRichText": {},
