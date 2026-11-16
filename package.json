@@ -1,5 +1,5 @@
 {
-  "name": "@umbraco-forms/mcp-dev",
+  "name": "@umbraco-forms/mcp",
   "version": "17.6.1-beta.6",
   "type": "module",
   "description": "MCP server for forms-mcp-server",
@@ -50,8 +50,8 @@
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.8.1",
     "@modelcontextprotocol/sdk": "^1.32.1",
-    "@umbraco-cms/mcp-hosted": "1.0.0-beta.47",
-    "@umbraco-cms/mcp-server-sdk": "1.0.0-beta.47",
+    "@umbraco-cms/mcp-hosted": "1.0.0-beta.48",
+    "@umbraco-cms/mcp-server-sdk": "1.0.0-beta.48",
     "agents": "^0.6.0",
     "dotenv": "^17.4.2",
     "uuid": "^11.1.0",
