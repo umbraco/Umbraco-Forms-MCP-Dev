@@ -1,4 +1,4 @@
-# @umbraco-forms/mcp-dev
+# @umbraco-forms/mcp
 
 An [MCP](https://modelcontextprotocol.io) server for **Umbraco Forms**. Point it at an Umbraco
 instance and your AI assistant can build forms, manage data sources and prevalue sources, read
@@ -20,8 +20,8 @@ what you're doing.
 
 | Umbraco | Umbraco Forms | Package |
 |---------|---------------|---------|
-| 18 | 18.x | `@umbraco-forms/mcp-dev` (18.x) |
-| **17** | **17.x** | **`@umbraco-forms/mcp-dev@lts-17-beta`** |
+| 18 | 18.x | `@umbraco-forms/mcp` (18.x) |
+| **17** | **17.x** | **`@umbraco-forms/mcp@lts-17-beta`** |
 
 Install the version that matches your site's Umbraco major — the API client and the version check
 differ between them.
@@ -71,7 +71,7 @@ Add to your `.mcp.json` (or `claude_desktop_config.json`):
   "mcpServers": {
     "umbraco-forms": {
       "command": "npx",
-      "args": ["-y", "@umbraco-forms/mcp-dev@lts-17-beta"],
+      "args": ["-y", "@umbraco-forms/mcp@lts-17-beta"],
       "env": {
         "UMBRACO_BASE_URL": "https://your-site.example.com",
         "UMBRACO_CLIENT_ID": "your-client-id",
@@ -92,7 +92,7 @@ The server speaks MCP over stdio. Run it however your client spawns servers:
 UMBRACO_BASE_URL=https://your-site.example.com \
 UMBRACO_CLIENT_ID=your-client-id \
 UMBRACO_CLIENT_SECRET=your-client-secret \
-npx -y @umbraco-forms/mcp-dev@lts-17-beta
+npx -y @umbraco-forms/mcp@lts-17-beta
 ```
 
 ### Local Umbraco with a self-signed certificate
@@ -106,14 +106,14 @@ Without wiring up a client:
 
 ```bash
 # List every tool this server exposes
-npx -y @umbraco-forms/mcp-dev@lts-17-beta --list-tools
+npx -y @umbraco-forms/mcp@lts-17-beta --list-tools
 
 # Show resolved configuration and where each value came from
-npx -y @umbraco-forms/mcp-dev@lts-17-beta --debug-config
+npx -y @umbraco-forms/mcp@lts-17-beta --debug-config
 
 # Call a tool directly
 UMBRACO_BASE_URL=... UMBRACO_CLIENT_ID=... UMBRACO_CLIENT_SECRET=... \
-  npx -y @umbraco-forms/mcp-dev@lts-17-beta --call list-all-forms --call-args '{}'
+  npx -y @umbraco-forms/mcp@lts-17-beta --call list-all-forms --call-args '{}'
 ```
 
 `--describe-tool <name>` prints a single tool's full input schema.
@@ -259,7 +259,7 @@ Set `DISABLE_MCP_CHAINING=true` to turn this off and run Forms tools only.
 |---------|--------------|
 | `401` on every tool | Wrong `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET`, or the API user lacks permissions |
 | Self-signed certificate errors | Local HTTPS instance — set `NODE_TLS_REJECT_UNAUTHORIZED=0` |
-| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 17 — use `@umbraco-forms/mcp-dev` 18.x for Umbraco 18, or set `UMBRACO_EXPECTED_MAJOR` |
+| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 17 — use `@umbraco-forms/mcp` 18.x for Umbraco 18, or set `UMBRACO_EXPECTED_MAJOR` |
 | A tool says it needs a newer Umbraco Forms | The endpoint arrived later in the 17.x line — see the table under [Requirements](#which-version-for-which-umbraco) |
 | `403` from the Delivery API tools | `UMBRACO_FORMS_API_KEY` missing or not matching `FormsApiKey`, or `EnableAntiForgeryTokenForFormsApi` is still `true` |
 | `404` from the Delivery API for a form that exists | `EnableFormsApi` isn't `true`, or the site wasn't restarted |
