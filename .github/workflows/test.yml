@@ -64,6 +64,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Run unit tests
+        # Unit tests outside src/umbraco-api/tools/*/__tests__, which the
+        # per-collection step below never reaches. They need no Umbraco, so
+        # they run before it starts.
+        # src/testing/__tests__/ is left out: it needs a live Umbraco.
+        run: |
+          NODE_OPTIONS="--max-old-space-size=4096" node --experimental-vm-modules node_modules/jest/bin/jest.js \
+            --runInBand \
+            --testPathPatterns="src/config/__tests__/" \
+            --testPathPatterns="src/umbraco-api/api/__tests__/"
+
       - name: Setup .NET dev certs
         run: dotnet dev-certs https
 
