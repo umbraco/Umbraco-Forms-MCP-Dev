@@ -5,7 +5,7 @@ instance, see [README.md](README.md) instead — none of the scripts below exist
 published npm package.
 
 
-This repo builds `@umbraco-forms/mcp-dev`, an MCP server for Umbraco Forms built on
+This repo builds `@umbraco-forms/mcp`, an MCP server for Umbraco Forms built on
 `@umbraco-cms/mcp-server-sdk`. It exposes the Forms management APIs as MCP tools, plus the public
 Forms Delivery API (see [Forms Delivery API](#forms-delivery-api)).
 
@@ -22,7 +22,7 @@ migrates forward, so never point a v18 site at it, or a v17 site at `FormsMcpDb`
 
 ## Prerequisites
 
-- Node.js 22+
+- Node.js 22.23.4+, 24.22.1+ or 26.12.1+ (CVE-2026-111497)
 - .NET SDK 10.0 and SQL Server reachable at `localhost:1433` — **only if you're running the
   bundled `demo-site/`** (see below). Pointing this server at an existing Umbraco Forms
   instance instead needs neither.

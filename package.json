@@ -1,6 +1,6 @@
 {
-  "name": "@umbraco-forms/mcp-dev",
-  "version": "18.2.1-beta.3",
+  "name": "@umbraco-forms/mcp",
+  "version": "18.3.0",
   "type": "module",
   "description": "MCP server for forms-mcp-server",
   "main": "dist/index.js",
@@ -35,7 +35,7 @@
     "deploy:worker": "npx wrangler deploy"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
   },
   "files": [
     "dist"
@@ -48,11 +48,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.3.191",
     "@cloudflare/workers-oauth-provider": "^0.8.1",
     "@modelcontextprotocol/sdk": "^1.32.1",
-    "@umbraco-cms/mcp-hosted": "1.0.0-beta.47",
-    "@umbraco-cms/mcp-server-sdk": "1.0.0-beta.47",
+    "@umbraco-cms/mcp-hosted": "1.0.0-beta.48",
+    "@umbraco-cms/mcp-server-sdk": "1.0.0-beta.48",
     "agents": "^0.6.0",
     "dotenv": "^17.4.2",
     "uuid": "^11.1.0",
@@ -60,6 +59,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.191",
     "@cloudflare/workers-types": "^5.20260825.1",
     "@jest/types": "^29.6.3",
     "@playwright/test": "^1.61.1",

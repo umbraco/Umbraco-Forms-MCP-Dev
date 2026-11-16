@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Overview
 
-`@umbraco-forms/mcp-dev` - an MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`
+`@umbraco-forms/mcp` - an MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`
 and published to npm. User-facing docs are in `README.md`; repo setup is in `CONTRIBUTING.md`.
 
 ## Branches
@@ -48,8 +48,9 @@ the bare 404 with a message naming the version needed. Successful calls cost not
 **Response properties** - `MID_LINE_PROPERTIES` in `api/relax-mid-line-fields.ts`, an orval input
 transformer that drops them from `required`, so output schemas accept responses from releases that
 don't send them yet (on 18.x: `Field.memberPrefillMode` and `WorkflowTypeWithSettings.isConfigured`
-before 18.1, `trashed` and the record search's `additionalData`/`isDateField` before 18.2). The file
-lists the first release for each.
+before 18.1, `trashed` and the record search's `additionalData`/`isDateField` before 18.2, and
+the config's `defaultDaysToRetain*RecordsFor` and the folder item's `isTrashed` before 18.3). The
+file lists the first release for each.
 
 Never gate on a single version ("18.1 or later") - that refuses the feature on 17.x releases that
 have it. When a regenerated spec gains an endpoint or a required response property, find the first
@@ -256,7 +257,7 @@ The script's Swagger OAuth `redirect_uri` must match the `umbraco-swagger` OpenI
 `npm run build` runs `umbraco-mcp-generate-types` as a `postbuild` step. This walks the compiled `dist/collections.js`, runs every tool's input/output Zod schema through codegen, and writes a typed registry to `dist/tool-types.d.ts`. The `./tool-types` subpath in `package.json#exports` makes this importable by anyone who depends on this package and wants to chain to it with type safety:
 
 ```ts
-import type { McpDevTools } from "@umbraco-forms/mcp-dev/tool-types";
+import type { McpDevTools } from "@umbraco-forms/mcp/tool-types";
 ```
 
 If your MCP is private/internal and no other MCP will chain to it, you can remove the `postbuild` script and the `./tool-types` export — neither is required for the server to run.

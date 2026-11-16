@@ -5,6 +5,9 @@ exports[`get-forms-config should return the Umbraco Forms back-office configurat
   "content": [],
   "structuredContent": {
     "allowedFileUploadExtensions": "",
+    "defaultDaysToRetainApprovedRecordsFor": 0,
+    "defaultDaysToRetainRejectedRecordsFor": 0,
+    "defaultDaysToRetainSubmittedRecordsFor": 0,
     "disallowedFileUploadExtensions": "config,exe,dll,asp,aspx,js",
     "enableAdvancedValidationRules": false,
     "enableMultiPageFormSettings": true,
