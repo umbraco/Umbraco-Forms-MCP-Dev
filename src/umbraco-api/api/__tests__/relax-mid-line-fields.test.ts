@@ -6,10 +6,12 @@
 
 import { MID_LINE_PROPERTIES, relaxMidLineFields } from "../relax-mid-line-fields.js";
 import {
+  getConfigResponse,
   getFolderByIdResponse,
   getFormByFormIdRecordResponse,
   getFormByIdResponse,
   getFormResponse,
+  getItemFolderResponseItem,
   getTreeFormRootResponse,
 } from "../generated/umbracoFormsManagementApi.zod.js";
 
@@ -77,5 +79,18 @@ describe("generated schemas - properties Forms 17.6 / 18.2 added", () => {
     const shape = getFormByFormIdRecordResponse.shape;
     expect(shape.results.element.shape.additionalData.safeParse(undefined).success).toBe(true);
     expect(shape.schema.element.shape.isDateField.safeParse(undefined).success).toBe(true);
+  });
+});
+
+describe("generated schemas - properties Forms 17.7 / 18.3 added", () => {
+  it("should not require the record-retention defaults on the back-office config", () => {
+    const shape = getConfigResponse.shape;
+    expect(shape.defaultDaysToRetainSubmittedRecordsFor.safeParse(undefined).success).toBe(true);
+    expect(shape.defaultDaysToRetainApprovedRecordsFor.safeParse(undefined).success).toBe(true);
+    expect(shape.defaultDaysToRetainRejectedRecordsFor.safeParse(undefined).success).toBe(true);
+  });
+
+  it("should not require isTrashed on a folder item", () => {
+    expect(getItemFolderResponseItem.shape.isTrashed.safeParse(undefined).success).toBe(true);
   });
 });
