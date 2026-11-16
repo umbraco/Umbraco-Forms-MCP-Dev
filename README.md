@@ -1,4 +1,4 @@
-# @umbraco-forms/mcp-dev
+# @umbraco-forms/mcp
 
 An [MCP](https://modelcontextprotocol.io) server for **Umbraco Forms**. Point it at an Umbraco
 instance and your AI assistant can build forms, manage data sources and prevalue sources, read
@@ -6,9 +6,13 @@ submissions, query analytics, and submit entries — 118 tools across 25 collect
 
 Built on [`@umbraco-cms/mcp-server-sdk`](https://www.npmjs.com/package/@umbraco-cms/mcp-server-sdk).
 
+> **Renamed:** this package was previously published as `@umbraco-forms/mcp-dev`. If your MCP
+> client config still names it, change it to `@umbraco-forms/mcp` (Umbraco 18) or
+> `@umbraco-forms/mcp@lts-17` (Umbraco 17). The command (`forms-mcp-server`) is unchanged.
+
 ## Requirements
 
-- **Node.js 22+**
+- **Node.js 22.23.4+, 24.22.1+ or 26.12.1+**. Earlier releases are affected by [CVE-2026-111497](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) (Brotli decoder out-of-bounds write), which Node's built-in `fetch` reaches when it decompresses a Brotli response from Umbraco. Upgrading Node.js is the only fix.
 - An **Umbraco instance with Umbraco Forms installed**, reachable over HTTP(S)
 - An **API user** on that instance (see below)
 
@@ -20,15 +24,14 @@ what you're doing.
 
 | Umbraco | Umbraco Forms | Package |
 |---------|---------------|---------|
-| 18 | 18.x | `@umbraco-forms/mcp-dev` (18.x) |
-| **17** | **17.x** | **`@umbraco-forms/mcp-dev@lts-17-beta`** |
+| 18 | 18.x | `@umbraco-forms/mcp` (18.x) |
+| **17** | **17.x** | **`@umbraco-forms/mcp@lts-17`** |
 
 Install the version that matches your site's Umbraco major — the API client and the version check
 differ between them.
 
 The Umbraco 17 line is published under its own `lts-17` dist-tags, so it never takes over `latest`
-or `beta` from the Umbraco 18 line. It is in beta, so install `@lts-17-beta`. A range such as `@17`
-doesn't match prereleases and won't find a version until 17.0.0 is released.
+or `beta` from the Umbraco 18 line. Install `@lts-17`.
 
 Every Umbraco Forms 17.x release works. Some endpoints arrived partway through the line, at a
 different minor on each major; on an older release the tools that need them fail with a message
@@ -71,7 +74,7 @@ Add to your `.mcp.json` (or `claude_desktop_config.json`):
   "mcpServers": {
     "umbraco-forms": {
       "command": "npx",
-      "args": ["-y", "@umbraco-forms/mcp-dev@lts-17-beta"],
+      "args": ["-y", "@umbraco-forms/mcp@lts-17"],
       "env": {
         "UMBRACO_BASE_URL": "https://your-site.example.com",
         "UMBRACO_CLIENT_ID": "your-client-id",
@@ -92,7 +95,7 @@ The server speaks MCP over stdio. Run it however your client spawns servers:
 UMBRACO_BASE_URL=https://your-site.example.com \
 UMBRACO_CLIENT_ID=your-client-id \
 UMBRACO_CLIENT_SECRET=your-client-secret \
-npx -y @umbraco-forms/mcp-dev@lts-17-beta
+npx -y @umbraco-forms/mcp@lts-17
 ```
 
 ### Local Umbraco with a self-signed certificate
@@ -106,14 +109,14 @@ Without wiring up a client:
 
 ```bash
 # List every tool this server exposes
-npx -y @umbraco-forms/mcp-dev@lts-17-beta --list-tools
+npx -y @umbraco-forms/mcp@lts-17 --list-tools
 
 # Show resolved configuration and where each value came from
-npx -y @umbraco-forms/mcp-dev@lts-17-beta --debug-config
+npx -y @umbraco-forms/mcp@lts-17 --debug-config
 
 # Call a tool directly
 UMBRACO_BASE_URL=... UMBRACO_CLIENT_ID=... UMBRACO_CLIENT_SECRET=... \
-  npx -y @umbraco-forms/mcp-dev@lts-17-beta --call list-all-forms --call-args '{}'
+  npx -y @umbraco-forms/mcp@lts-17 --call list-all-forms --call-args '{}'
 ```
 
 `--describe-tool <name>` prints a single tool's full input schema.
@@ -121,6 +124,10 @@ UMBRACO_BASE_URL=... UMBRACO_CLIENT_ID=... UMBRACO_CLIENT_SECRET=... \
 ## Configuration
 
 Every option is an environment variable, and most also have a CLI flag (`--help` lists them).
+
+CLI flags win over environment variables, and environment variables (including your MCP
+client's `env` block) win over a `.env` file in the working directory. A file passed with
+`--env <path>` overrides both the environment and `./.env`.
 
 ### Connection
 
@@ -144,7 +151,7 @@ Every option is an environment variable, and most also have a CLI flag (`--help`
 | `UMBRACO_INCLUDE_TOOLS` / `UMBRACO_EXCLUDE_TOOLS` | Individual tools by name |
 | `UMBRACO_INCLUDE_SLICES` / `UMBRACO_EXCLUDE_SLICES` | By operation type, e.g. `delete` |
 | `UMBRACO_READONLY` | Block every write operation |
-| `UMBRACO_DRY_RUN` | Log writes instead of performing them |
+| `UMBRACO_DRY_RUN` | Log writes instead of performing them; write tools return a preview instead of their normal result |
 
 Available modes:
 
@@ -259,11 +266,12 @@ Set `DISABLE_MCP_CHAINING=true` to turn this off and run Forms tools only.
 |---------|--------------|
 | `401` on every tool | Wrong `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET`, or the API user lacks permissions |
 | Self-signed certificate errors | Local HTTPS instance — set `NODE_TLS_REJECT_UNAUTHORIZED=0` |
-| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 17 — use `@umbraco-forms/mcp-dev` 18.x for Umbraco 18, or set `UMBRACO_EXPECTED_MAJOR` |
+| Version mismatch warning, first tool call blocked | Instance isn't Umbraco 17 — use `@umbraco-forms/mcp` 18.x for Umbraco 18, or set `UMBRACO_EXPECTED_MAJOR` |
 | A tool says it needs a newer Umbraco Forms | The endpoint arrived later in the 17.x line — see the table under [Requirements](#which-version-for-which-umbraco) |
 | `403` from the Delivery API tools | `UMBRACO_FORMS_API_KEY` missing or not matching `FormsApiKey`, or `EnableAntiForgeryTokenForFormsApi` is still `true` |
 | `404` from the Delivery API for a form that exists | `EnableFormsApi` isn't `true`, or the site wasn't restarted |
 | A tool you expected isn't listed | Check `UMBRACO_TOOL_MODES` and the include/exclude variables with `--debug-config` |
+| A value in `.env` seems to be ignored | The same variable is also set in your MCP client's `env` block or your shell, and that wins over `./.env`. Remove one of them, or pass the file with `--env <path>` |
 
 ## Contributing
 

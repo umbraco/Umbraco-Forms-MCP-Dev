@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Overview
 
-`@umbraco-forms/mcp-dev` - an MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`
+`@umbraco-forms/mcp` - an MCP server for Umbraco Forms, built on `@umbraco-cms/mcp-server-sdk`
 and published to npm. User-facing docs are in `README.md`; repo setup is in `CONTRIBUTING.md`.
 
 ## Umbraco 17 line (`v17/main`, `v17/dev`)
@@ -25,7 +25,7 @@ Mirrors the Umbraco CMS MCP's and Automate MCP's `v17/*` branches:
   (3.1) and `/umbraco/openapi/oauth2-redirect.html`.
 - `orval.config.ts` reads the spec from `UMBRACO_BASE_URL`, the same instance the target-major
   transformer queries, so `npm run generate` can't mix one install's spec with another's version.
-- The demo site is Umbraco.Cms 17.7.0, Umbraco.Forms 17.6.1, Clean 7.0.8, with its own database
+- The demo site is Umbraco.Cms 17.7.0, Umbraco.Forms 17.7.0, Clean 7.0.8, with its own database
   (`FormsMcpDbV17`) - Umbraco can't migrate down, so never point it at a database a v18 site has
   used. To run it beside a v18 site, start it on other ports (e.g. 44391/9220).
 - Swashbuckle's spec differs from Umbraco 18's in ways the generated code shows: enum references
@@ -62,7 +62,8 @@ the bare 404 with a message naming the version needed. Successful calls cost not
 
 **Response properties** - `MID_LINE_PROPERTIES` in `api/relax-mid-line-fields.ts`, an orval input
 transformer that drops them from `required`, so output schemas accept responses from releases that
-don't send them yet (tree items' `icon` before 17.1, `BasicForm.entries` before 17.3, ...). The
+don't send them yet (tree items' `icon` before 17.1, `BasicForm.entries` before 17.3, the config's
+`defaultDaysToRetain*RecordsFor` and the folder item's `isTrashed` before 17.7, ...). The
 file lists the first release for each.
 
 Never gate on a single version ("18.1 or later") - that refuses the feature on 17.x releases that
@@ -275,7 +276,7 @@ The script's Swagger OAuth `redirect_uri` must match the `umbraco-swagger` OpenI
 `npm run build` runs `umbraco-mcp-generate-types` as a `postbuild` step. This walks the compiled `dist/collections.js`, runs every tool's input/output Zod schema through codegen, and writes a typed registry to `dist/tool-types.d.ts`. The `./tool-types` subpath in `package.json#exports` makes this importable by anyone who depends on this package and wants to chain to it with type safety:
 
 ```ts
-import type { McpDevTools } from "@umbraco-forms/mcp-dev/tool-types";
+import type { McpDevTools } from "@umbraco-forms/mcp/tool-types";
 ```
 
 If your MCP is private/internal and no other MCP will chain to it, you can remove the `postbuild` script and the `./tool-types` export — neither is required for the server to run.

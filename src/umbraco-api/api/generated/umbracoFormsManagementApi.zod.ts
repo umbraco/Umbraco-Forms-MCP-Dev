@@ -188,6 +188,9 @@ export const getConfigResponse = zod.object({
   "maxNumberOfColumnsInFormGroup": zod.int(),
   "manageSecurityWithUserGroups": zod.boolean(),
   "scheduledRecordDeletionEnabled": zod.boolean(),
+  "defaultDaysToRetainSubmittedRecordsFor": zod.int().optional(),
+  "defaultDaysToRetainApprovedRecordsFor": zod.int().optional(),
+  "defaultDaysToRetainRejectedRecordsFor": zod.int().optional(),
   "mandatoryFieldsetLegends": zod.boolean(),
   "disallowedFileUploadExtensions": zod.string(),
   "allowedFileUploadExtensions": zod.string(),
@@ -720,7 +723,8 @@ export const getItemFolderResponseItem = zod.object({
   "flags": zod.array(zod.object({
   "alias": zod.string()
 })),
-  "name": zod.string()
+  "name": zod.string(),
+  "isTrashed": zod.boolean().optional()
 })
 export const getItemFolderResponse = zod.array(getItemFolderResponseItem)
 
@@ -3210,6 +3214,7 @@ export const postSecurityUserByIdFormSecurityBody = zod.object({
   "user": zod.string()
 }),
   "startFolderIds": zod.array(zod.guid()),
+  "hasRootAccess": zod.boolean(),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
   "formCreated": zod.iso.datetime({"local":true,"offset":true}),
@@ -3258,6 +3263,7 @@ export const getSecurityUserByIdFormSecurityResponse = zod.object({
   "user": zod.string()
 }),
   "startFolderIds": zod.array(zod.guid()),
+  "hasRootAccess": zod.boolean(),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
   "formCreated": zod.iso.datetime({"local":true,"offset":true}),
@@ -3293,6 +3299,7 @@ export const putSecurityUserByIdFormSecurityBody = zod.object({
   "user": zod.string()
 }),
   "startFolderIds": zod.array(zod.guid()),
+  "hasRootAccess": zod.boolean(),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
   "formCreated": zod.iso.datetime({"local":true,"offset":true}),
@@ -3330,6 +3337,7 @@ export const getSecurityUserCurrentFormSecurityResponse = zod.object({
   "user": zod.string()
 }),
   "startFolderIds": zod.array(zod.guid()),
+  "hasRootAccess": zod.boolean(),
   "formsSecurity": zod.array(zod.object({
   "formName": zod.string(),
   "formCreated": zod.iso.datetime({"local":true,"offset":true}),
@@ -3382,6 +3390,14 @@ export const getTreeSecurityChildrenByParentIdParams = zod.object({
   "parentId": zod.guid()
 })
 
+export const getTreeSecurityChildrenByParentIdQuerySkipDefault = 0;
+export const getTreeSecurityChildrenByParentIdQueryTakeDefault = 100;
+
+export const getTreeSecurityChildrenByParentIdQueryParams = zod.object({
+  "skip": zod.coerce.number().int().optional(),
+  "take": zod.coerce.number().int().default(getTreeSecurityChildrenByParentIdQueryTakeDefault)
+})
+
 export const getTreeSecurityChildrenByParentIdResponse = zod.object({
   "total": zod.int(),
   "items": zod.array(zod.object({
@@ -3400,6 +3416,14 @@ export const getTreeSecurityChildrenByParentIdResponse = zod.object({
 }))
 })
 
+
+export const getTreeSecurityRootQuerySkipDefault = 0;
+export const getTreeSecurityRootQueryTakeDefault = 100;
+
+export const getTreeSecurityRootQueryParams = zod.object({
+  "skip": zod.coerce.number().int().optional(),
+  "take": zod.coerce.number().int().default(getTreeSecurityRootQueryTakeDefault)
+})
 
 export const getTreeSecurityRootResponse = zod.object({
   "total": zod.int(),
@@ -3429,7 +3453,12 @@ export const getThemeResponse = zod.array(getThemeResponseItem)
 export const getUpdatesVersionResponse = zod.string()
 
 
-export const deleteRecycleBinEmptyResponse = zod.unknown()
+export const deleteRecycleBinEmptyResponse = zod.object({
+  "keptFolders": zod.array(zod.object({
+  "id": zod.guid(),
+  "name": zod.string()
+}))
+})
 
 
 export const getWorkflowTypeResponseItem = zod.object({
