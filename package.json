@@ -1,5 +1,5 @@
 {
-  "name": "@umbraco-forms/mcp-dev",
+  "name": "@umbraco-forms/mcp",
   "version": "18.2.1-beta.3",
   "type": "module",
   "description": "MCP server for forms-mcp-server",

@@ -5,7 +5,7 @@ instance, see [README.md](README.md) instead — none of the scripts below exist
 published npm package.
 
 
-This repo builds `@umbraco-forms/mcp-dev`, an MCP server for Umbraco Forms built on
+This repo builds `@umbraco-forms/mcp`, an MCP server for Umbraco Forms built on
 `@umbraco-cms/mcp-server-sdk`. It exposes the Forms management APIs as MCP tools, plus the public
 Forms Delivery API (see [Forms Delivery API](#forms-delivery-api)).
 
