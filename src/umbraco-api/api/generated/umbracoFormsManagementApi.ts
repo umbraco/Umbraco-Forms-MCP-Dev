@@ -163,6 +163,9 @@ export interface BackOfficeConfig {
   maxNumberOfColumnsInFormGroup: number;
   manageSecurityWithUserGroups: boolean;
   scheduledRecordDeletionEnabled: boolean;
+  defaultDaysToRetainSubmittedRecordsFor?: number;
+  defaultDaysToRetainApprovedRecordsFor?: number;
+  defaultDaysToRetainRejectedRecordsFor?: number;
   mandatoryFieldsetLegends: boolean;
   disallowedFileUploadExtensions: string;
   allowedFileUploadExtensions: string;
@@ -412,6 +415,15 @@ export interface ElementReferenceResponseModel {
   id: string;
   /** @nullable */
   name?: string | null;
+}
+
+export interface EmptyRecycleBinKeptFolderResponseModel {
+  id: string;
+  name: string;
+}
+
+export interface EmptyRecycleBinResponseModel {
+  keptFolders: EmptyRecycleBinKeptFolderResponseModel[];
 }
 
 export interface FieldData {
@@ -683,6 +695,7 @@ export interface Folder {
 }
 
 export interface FolderItemResponseModel {
+  isTrashed?: boolean;
   name: string;
   id: string;
   flags: FlagModel[];
@@ -953,6 +966,7 @@ export interface FormSecurityForUser {
   entityType: string | null;
   userSecurity: UserSecurity;
   startFolderIds: string[];
+  hasRootAccess: boolean;
   formsSecurity: UserFormSecurity[];
 }
 
@@ -1642,6 +1656,16 @@ includeFormFieldDetails?: boolean;
 
 export type GetTreeSecurityAncestorsParams = {
 descendantId?: string;
+};
+
+export type GetTreeSecurityChildrenByParentIdParams = {
+skip?: number;
+take?: number;
+};
+
+export type GetTreeSecurityRootParams = {
+skip?: number;
+take?: number;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -2833,18 +2857,21 @@ const getTreeSecurityAncestors = (
 
 const getTreeSecurityChildrenByParentId = (
     parentId: string,
+    params?: GetTreeSecurityChildrenByParentIdParams,
  options?: SecondParameter<typeof customInstance<PagedSecurityTreeItemResponseModel>>,) => {
       return customInstance<PagedSecurityTreeItemResponseModel>(
-      {url: `/umbraco/forms/management/api/v1/tree/security/children/${parentId}`, method: 'GET'
+      {url: `/umbraco/forms/management/api/v1/tree/security/children/${parentId}`, method: 'GET',
+        params
     },
       options);
     }
 
 const getTreeSecurityRoot = (
-
+    params?: GetTreeSecurityRootParams,
  options?: SecondParameter<typeof customInstance<PagedSecurityTreeItemResponseModel>>,) => {
       return customInstance<PagedSecurityTreeItemResponseModel>(
-      {url: `/umbraco/forms/management/api/v1/tree/security/root`, method: 'GET'
+      {url: `/umbraco/forms/management/api/v1/tree/security/root`, method: 'GET',
+        params
     },
       options);
     }
@@ -2869,8 +2896,8 @@ const getUpdatesVersion = (
 
 const deleteRecycleBinEmpty = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
-      return customInstance<void>(
+ options?: SecondParameter<typeof customInstance<EmptyRecycleBinResponseModel>>,) => {
+      return customInstance<EmptyRecycleBinResponseModel>(
       {url: `/umbraco/forms/management/api/v1/recycle-bin/empty`, method: 'DELETE'
     },
       options);
