@@ -15,6 +15,7 @@ import {
   configureApiClient,
   initializeUmbracoFetch,
   createToolAnnotations,
+  getRegisteredOutputSchema,
   discoverProxiedTools,
   parseProxiedToolName,
   createCollectionConfigLoader,
@@ -259,7 +260,9 @@ for (const collection of collections) {
     server.registerTool(tool.name, {
       description: tool.description,
       inputSchema: tool.inputSchema,
-      outputSchema: tool.outputSchema,
+      // In dry-run, a mutation tool returns a preview rather than its real
+      // result, so its outputSchema must not be advertised (or enforced).
+      outputSchema: getRegisteredOutputSchema(tool),
       annotations,
     }, tool.handler as ToolCallback<typeof tool.inputSchema>);
 
