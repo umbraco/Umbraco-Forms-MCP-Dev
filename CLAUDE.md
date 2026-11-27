@@ -17,7 +17,8 @@ Mirrors the Umbraco CMS MCP's and Automate MCP's `v17/*` branches:
   branches come off `v17/dev` and never merge into `main`/`dev`.
 - Package version is `17.x`; the chained CMS MCP is `@umbraco-cms/mcp-dev@17`.
 - The SDK packages (`@umbraco-cms/mcp-server-sdk`, `@umbraco-cms/mcp-hosted`) are **not** versioned
-  per Umbraco major - stay on the same `1.0.0-beta.x` line as `main`. The major this server targets
+  per Umbraco major - stay on the same version as `main` (`1.1.x`), which must also be the one the
+  chained `@umbraco-cms/mcp-dev@17` depends on (see Hosted Worker). The major this server targets
   is `UMBRACO_TARGET_MAJOR` (`"17"` here), stamped by `npm run generate`.
 - Umbraco 17 serves OpenAPI through Swashbuckle: the Forms spec is
   `/umbraco/swagger/forms-management/swagger.json` (OpenAPI 3.0) and Swagger UI's OAuth redirect is
@@ -342,13 +343,36 @@ Rules:
 
 ## Hosted Worker (`src/worker.ts`)
 
-The template includes a Cloudflare Worker entry point for hosted deployment. Key configuration:
+The Cloudflare Worker entry point for hosted deployment. Key configuration:
 
 - `McpAgent.serve("/mcp", { binding: "MCP_AGENT" })` — use `.serve()` for Streamable HTTP (NOT `.mount()` which is SSE)
 - `new_sqlite_classes` in `wrangler.toml` migrations (agents library requires SQLite-backed DOs)
 - `.dev.vars` — local secrets including `UMBRACO_SERVER_URL` for self-signed cert workaround
 - Umbraco needs the Worker registered as an authorization_code OpenIdDict client via a C# Composer (backoffice UI only supports client_credentials)
-- Registered OAuth client ID: `umbraco-back-office-hosted-mcp` (via `McpOAuthComposer.cs`) — must match `UMBRACO_OAUTH_CLIENT_ID` in `.dev.vars`
+- Local OAuth client ID: `umbraco-back-office-hosted-mcp` (via `demo-site/McpOAuthComposer.cs`) — must match `UMBRACO_OAUTH_CLIENT_ID` in `.dev.vars`
+- Umbraco Cloud OAuth client ID: `umbraco-forms-developer-mcp-hosted` (`siteRouting` in `worker.ts`; the
+  `Umbraco.Mcp.HostedAuth` package's `umbraco-{product}-{variant}-mcp-hosted` convention). Every
+  Cloud project the Worker serves must register it.
+
+### CMS chaining
+
+stdio chains the CMS MCP as an `npx @umbraco-cms/mcp-dev@17` subprocess (`config/mcp-servers.ts`); a
+Worker can't spawn one, so `worker.ts` chains `@umbraco-cms/mcp-dev` **in-process** with
+`registerChainedTools` from `@umbraco-cms/mcp-hosted`. Same `cms--` prefix; the CMS modes get their
+own section on the consent screen, and admin readonly/mode/slice settings apply to them too.
+
+- `@umbraco-cms/mcp-dev` is a **devDependency**: only the Worker bundle uses it, and wrangler builds
+  that from a checkout. Keep its major on this line's Umbraco major (`^17` here, `^18` on `dev`).
+- It must share **one copy** of `@umbraco-cms/mcp-server-sdk` and `@umbraco-cms/mcp-hosted` with
+  this package. The hosted library puts the signed-in user's token on its SDK client; a second,
+  nested SDK copy under `mcp-dev` would send every CMS call without it. After bumping either,
+  `npm ls @umbraco-cms/mcp-server-sdk` must show `deduped` under `mcp-dev`.
+- Its collections are imported **on first use**, not at module scope (`umbraco-api/cms-collections-loader.ts`):
+  importing them builds every CMS tool's schemas, and Cloudflare caps Worker startup at 1 s of CPU.
+  `src/__tests__/startup-imports.test.ts` fails on a static import of `mcp-dev` in `worker.ts`.
+- Don't call mcp-dev's `setUmbracoVersion` — it's a module-level global, and one Worker serves many
+  sites; the hosted library passes the connected version per request instead. File-path uploads stay
+  off (mcp-dev's default), since a Worker has no filesystem.
 - `expectedUmbracoMajor: UMBRACO_TARGET_MAJOR` in the `options` object wires the version-mismatch check into every request (`env.UMBRACO_EXPECTED_MAJOR` overrides it, mirroring stdio's `UMBRACO_EXPECTED_MAJOR`). Checked fresh per request via a request-scoped `VersionCheckService` and folded into that request's `instructions` — deliberately **not** wired through `configureVersionCheckHook()`, since that hook is a module-level singleton shared by every request in the Worker isolate and would leak one user's/site's mismatch state into another's tool calls (see `createPerRequestServer` in `@umbraco-cms/mcp-hosted`)
 
 Run locally: `npx wrangler dev --port 8787`

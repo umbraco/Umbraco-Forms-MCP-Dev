@@ -88,6 +88,16 @@ public class RegisterMcpHostedClientsHandler
                 "https://umbraco-cms-dev-mcp.umbraco.workers.dev",
                 "https://umbraco-cms-dev-mcp-staging.umbraco.workers.dev",
             ]),
+        // This repo's Worker (`oauthClientId` in src/worker.ts). Origins follow the
+        // hosted-MCP host convention `{product}.{mcp-type}.{major}[.{env}].mcp.umbraco.ai`.
+        new(
+            ClientId: "umbraco-forms-developer-mcp-hosted",
+            DisplayName: "Umbraco Forms MCP Worker",
+            WorkerOrigins:
+            [
+                "https://forms.developer.17.mcp.umbraco.ai",
+                "https://forms.developer.17.dev.mcp.umbraco.ai",
+            ]),
     ];
 
     private readonly IOpenIddictApplicationManager _applicationManager;
