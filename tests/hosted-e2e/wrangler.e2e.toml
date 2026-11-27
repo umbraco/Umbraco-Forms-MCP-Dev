@@ -1,7 +1,7 @@
 # Wrangler config for E2E tests.
 # Uses a fixed port and test-specific KV/DO bindings.
 
-name = "my-umbraco-mcp-e2e"
+name = "umbraco-forms-mcp-e2e"
 main = "../../src/worker.ts"
 compatibility_date = "2025-02-24"
 compatibility_flags = ["nodejs_compat"]
