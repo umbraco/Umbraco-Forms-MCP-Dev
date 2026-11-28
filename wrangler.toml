@@ -44,3 +44,5 @@ new_sqlite_classes = ["UmbracoMcpAgent"]
 # Tool checkboxes on the consent screen. Off by default: every Forms and CMS
 # tool. On: users pick tool groups, and the CMS groups are opt-in.
 # ENABLE_CONSENT_TOOL_SELECTION = "true"
+# Leave out the chained Umbraco CMS tools (cms--*), Forms tools only
+# DISABLE_MCP_CHAINING = "true"

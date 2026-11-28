@@ -13,6 +13,7 @@
  *   only for the CMS modes ticked (`cms:<mode>`), and ticking only CMS modes
  *   hides the Forms tools — so tests that need both tick a Forms mode and a CMS
  *   mode.
+ * - DISABLE_MCP_CHAINING=true: Forms tools only, as over stdio.
  *
  * Prerequisites:
  * - The demo site running (`npm run start:umbraco`), with the hosted OAuth
@@ -130,6 +131,36 @@ test.describe("MCP Inspector E2E: default consent screen", () => {
     // signed-in user's token.
     const cmsResult = await callTool(page, "cms--get-server-status", "serverStatus");
     expect(cmsResult).toContain('"serverStatus"');
+  });
+});
+
+test.describe("MCP Inspector E2E: DISABLE_MCP_CHAINING=true", () => {
+  let workerUrl: string;
+  let inspector: InspectorHandle;
+
+  test.beforeAll(async () => {
+    workerUrl = await startWorker({ DISABLE_MCP_CHAINING: "true" });
+    inspector = await startInspector({ client: 6284, proxy: 6287 });
+  });
+
+  test.afterAll(async () => {
+    await inspector.stop();
+    await stopWorker();
+  });
+
+  test("Forms tools only, no chained CMS tools", async ({ page }) => {
+    test.setTimeout(120000);
+
+    const oauthPage = await connectInspector(page, workerUrl, inspector.url);
+    await handleOAuthFlow(page, oauthPage, undefined, CREDENTIALS);
+
+    const tools = await getToolNames(page, ALL_TOOLS);
+    for (const tool of FORMS_TOOLS) {
+      expect(tools).toContain(tool);
+    }
+    for (const tool of CMS_TOOLS) {
+      expect(tools).not.toContain(tool);
+    }
   });
 });
 
