@@ -6,7 +6,7 @@
  *
  * @example
  * ```typescript
- * import { collections, allModes, allModeNames, allSliceNames } from "my-umbraco-mcp/collections";
+ * import { collections, allModes, allModeNames, allSliceNames } from "@umbraco-forms/mcp/collections";
  *
  * manager.registerServer({
  *   transport: "in-process",
