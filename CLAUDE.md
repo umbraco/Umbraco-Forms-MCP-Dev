@@ -366,8 +366,15 @@ unset, so `ENABLE_CONSENT_TOOL_SELECTION` decides and it's **off** by default. N
 and every Forms and CMS tool is registered. Don't hardcode the option either way, or the env var
 can't turn it on. With it on, the CMS modes get their own section and are **opt-in**
 (`@umbraco-cms/mcp-hosted` behaviour): only the CMS modes ticked (`cms:<mode>`) are registered,
-and ticking only CMS modes leaves out the Forms tools. The hosted E2E test (`tests/hosted-e2e/`)
-covers both screens, and needs the demo site plus
+and ticking only CMS modes leaves out the Forms tools.
+
+`DISABLE_MCP_CHAINING=true` works on the Worker as on stdio: `init()` skips loading `mcp-dev` and
+`registerChainedTools` (`isCmsChainingDisabled` in `worker.ts`), so only Forms tools are
+registered. With tool selection on, the consent screen still lists the CMS modes, because the
+library builds that section from `chainedServers` once at startup; ticking them adds nothing.
+
+The hosted E2E test (`tests/hosted-e2e/`) covers both screens and the chaining switch, and needs
+the demo site plus
 `@modelcontextprotocol/inspector` pinned at `1.0.1`, as in the CMS repos: newer 1.0.x releases
 drop the Inspector's proxy settings on the OAuth callback and never reconnect.
 

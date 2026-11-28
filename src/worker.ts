@@ -158,6 +158,16 @@ const options: HostedMcpServerOptions = {
 
 const serverOptions = getServerOptions(options);
 
+/**
+ * `DISABLE_MCP_CHAINING=true` turns the chained CMS tools off, matching the
+ * stdio flag. With ENABLE_CONSENT_TOOL_SELECTION=true the consent screen still
+ * shows the CMS modes (the library builds that from `chainedServers` once), but
+ * ticking them adds nothing.
+ */
+function isCmsChainingDisabled(env: HostedMcpEnv): boolean {
+  return (env as HostedMcpEnv & { DISABLE_MCP_CHAINING?: string }).DISABLE_MCP_CHAINING === "true";
+}
+
 // ============================================================================
 // McpAgent Durable Object
 // ============================================================================
@@ -190,6 +200,10 @@ export class UmbracoMcpAgent extends McpAgent<HostedMcpEnv, unknown, AuthProps> 
       this.props!,
       sessionId,
     );
+
+    // DISABLE_MCP_CHAINING=true leaves the CMS tools out, as it does over stdio,
+    // and skips loading mcp-dev for the session.
+    if (isCmsChainingDisabled(this.env)) return;
 
     // Chain the CMS tools in-process, filtered by the user's consent choices
     // and the admin's mode/slice/readonly settings. registerChainedTools logs

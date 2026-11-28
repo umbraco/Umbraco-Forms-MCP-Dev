@@ -266,7 +266,8 @@ its consent screen has no tool choices, as in the CMS editor MCP, and every Form
 available. Set `ENABLE_CONSENT_TOOL_SELECTION=true` on the Worker to let users pick tool groups.
 There the CMS tools are **opt-in**: the CMS groups have their own section, and only the ones
 ticked are added. If you tick only CMS groups, tick the Forms groups you want too, or the Forms
-tools are left out.
+tools are left out. `DISABLE_MCP_CHAINING=true` on the Worker leaves the CMS tools out, as it
+does over stdio.
 
 ## Troubleshooting
 
