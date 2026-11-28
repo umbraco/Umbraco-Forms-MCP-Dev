@@ -5,6 +5,11 @@
  * list — the Forms tools and the CMS tools chained in-process from
  * `@umbraco-cms/mcp-dev` (prefixed `cms--`) — and executes a tool call on each.
  *
+ * Chained CMS tools are opt-in on the consent screen: `@umbraco-cms/mcp-hosted`
+ * registers them only for the CMS modes the user ticks (`cms:<mode>`), and
+ * ticking only CMS modes hides the Forms tools. Tests that need both tick a
+ * Forms mode and a CMS mode.
+ *
  * Prerequisites:
  * - The demo site running (`npm run start:umbraco`), with the hosted OAuth
  *   client from demo-site/McpOAuthComposer.cs. Its URLs are set in
@@ -23,7 +28,7 @@ import {
 } from "@umbraco-cms/mcp-hosted/testing";
 
 // ============================================================================
-// Tool lists
+// Tool lists and consent choices
 // ============================================================================
 
 const FORMS_TOOLS = [
@@ -41,6 +46,7 @@ const FORMS_TOOLS = [
 // Chained from @umbraco-cms/mcp-dev by registerChainedTools in worker.ts.
 const CMS_TOOLS = [
   "cms--get-server-information",
+  "cms--get-server-status",
   "cms--get-document-root",
   "cms--get-document-type-root",
   "cms--get-data-type-root",
@@ -49,6 +55,18 @@ const CMS_TOOLS = [
 ];
 
 const ALL_TOOLS = [...FORMS_TOOLS, ...CMS_TOOLS];
+
+// Every Forms mode, plus the CMS modes holding CMS_TOOLS (system: server;
+// content: document; content-modeling: document-type, data-type).
+const FORMS_AND_CMS_MODES = [
+  "umbraco-server",
+  "forms-management-all",
+  "cms:system",
+  "cms:content",
+  "cms:content-modeling",
+];
+
+const CREDENTIALS = { email: "admin@admin.com", password: "1234567890" };
 
 // ============================================================================
 // Tests
@@ -79,10 +97,7 @@ test.describe("MCP Inspector E2E", () => {
     test.setTimeout(120000);
 
     const oauthPage = await connectInspector(page, workerUrl, inspector.url);
-    await handleOAuthFlow(page, oauthPage, undefined, {
-      email: "admin@admin.com",
-      password: "1234567890",
-    });
+    await handleOAuthFlow(page, oauthPage, { checkModes: FORMS_AND_CMS_MODES }, CREDENTIALS);
 
     const tools = await getToolNames(page, ALL_TOOLS);
     for (const tool of ALL_TOOLS) {
@@ -90,37 +105,46 @@ test.describe("MCP Inspector E2E", () => {
     }
   });
 
+  test("CMS tools are opt-in: none without a CMS mode ticked", async ({ page }) => {
+    test.setTimeout(120000);
+
+    const oauthPage = await connectInspector(page, workerUrl, inspector.url);
+    await handleOAuthFlow(page, oauthPage, undefined, CREDENTIALS);
+
+    const tools = await getToolNames(page, ALL_TOOLS);
+    for (const tool of FORMS_TOOLS) {
+      expect(tools).toContain(tool);
+    }
+    for (const tool of CMS_TOOLS) {
+      expect(tools).not.toContain(tool);
+    }
+  });
+
   test("execute a Forms tool and a chained CMS tool", async ({ page }) => {
     test.setTimeout(120000);
 
     const oauthPage = await connectInspector(page, workerUrl, inspector.url);
-    await handleOAuthFlow(page, oauthPage, undefined, {
-      email: "admin@admin.com",
-      password: "1234567890",
-    });
+    await handleOAuthFlow(page, oauthPage, { checkModes: FORMS_AND_CMS_MODES }, CREDENTIALS);
 
     const tools = await getToolNames(page, ALL_TOOLS);
     expect(tools).toContain("get-server-info");
-    expect(tools).toContain("cms--get-server-information");
+    expect(tools).toContain("cms--get-server-status");
 
     const formsResult = await callTool(page, "get-server-info", "assemblyVersion");
     expect(formsResult).toContain("assemblyVersion");
 
-    // Proves the chained CMS client carries the signed-in user's token.
-    const cmsResult = await callTool(page, "cms--get-server-information", "version");
-    expect(cmsResult).toContain("version");
+    // `serverStatus` only appears in this tool's response (a 401 would come back
+    // as an error instead), so this proves the chained CMS client carries the
+    // signed-in user's token.
+    const cmsResult = await callTool(page, "cms--get-server-status", "serverStatus");
+    expect(cmsResult).toContain('"serverStatus"');
   });
 
   test("consent screen mode filtering", async ({ page }) => {
     test.setTimeout(120000);
 
     const oauthPage = await connectInspector(page, workerUrl, inspector.url);
-    await handleOAuthFlow(page, oauthPage, {
-      checkModes: ["forms-authoring"],
-    }, {
-      email: "admin@admin.com",
-      password: "1234567890",
-    });
+    await handleOAuthFlow(page, oauthPage, { checkModes: ["forms-authoring"] }, CREDENTIALS);
 
     const tools = await getToolNames(page, ALL_TOOLS);
 
@@ -128,16 +152,14 @@ test.describe("MCP Inspector E2E", () => {
     expect(tools).toContain("list-forms");
     expect(tools).not.toContain("list-data-sources");
     expect(tools).not.toContain("get-server-info");
+    expect(tools).not.toContain("cms--get-document-root");
   });
 
   test("readOnly toggle excludes write tools, Forms and chained CMS", async ({ page }) => {
     test.setTimeout(120000);
 
     const oauthPage = await connectInspector(page, workerUrl, inspector.url);
-    await handleOAuthFlow(page, oauthPage, { checkReadOnly: true }, {
-      email: "admin@admin.com",
-      password: "1234567890",
-    });
+    await handleOAuthFlow(page, oauthPage, { checkModes: FORMS_AND_CMS_MODES, checkReadOnly: true }, CREDENTIALS);
 
     const tools = await getToolNames(page, ALL_TOOLS);
 
