@@ -72,6 +72,7 @@ jobs:
         run: |
           NODE_OPTIONS="--max-old-space-size=4096" node --experimental-vm-modules node_modules/jest/bin/jest.js \
             --runInBand \
+            --testPathPatterns="src/__tests__/" \
             --testPathPatterns="src/config/__tests__/" \
             --testPathPatterns="src/umbraco-api/api/__tests__/"
 

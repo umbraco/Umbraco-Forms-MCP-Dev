@@ -5,6 +5,11 @@
  * Uses the same tool collections as the stdio entry point (index.ts)
  * but runs over Streamable HTTP with OAuth authentication.
  *
+ * The CMS developer MCP (`@umbraco-cms/mcp-dev`) is chained in-process, so its
+ * tools appear next to the Forms tools with a `cms--` prefix — the hosted
+ * counterpart of the `npx @umbraco-cms/mcp-dev@18` subprocess the stdio entry
+ * point chains (config/mcp-servers.ts). A Worker can't spawn a subprocess.
+ *
  * NOTE: This file is built by wrangler (not tsup) because it uses
  * Wrangler virtual modules (`agents/mcp`, `@cloudflare/workers-oauth-provider`).
  *
@@ -28,11 +33,11 @@ import {
   createPerRequestServer,
   createSiteRoutingApiHandler,
   getServerOptions,
+  registerChainedTools,
+  type ChainedServerConsentConfig,
   type HostedMcpEnv,
+  type HostedMcpServerOptions,
   type AuthProps,
-  // Uncomment for in-process chaining:
-  // registerChainedTools,
-  // type ChainedServerConsentConfig,
 } from "@umbraco-cms/mcp-hosted";
 
 // Cloud preset for hosting this MCP across multiple Umbraco Cloud projects
@@ -54,34 +59,37 @@ import { UMBRACO_TARGET_MAJOR } from "./config/index.js";
 // Import the Orval-generated API client (same factory as stdio mode)
 import { getUmbracoFormsManagementAPI } from "./umbraco-api/api/generated/umbracoFormsManagementApi.js";
 
-// Uncomment for in-process chaining:
-// import {
-//   collections as chainedCollections,
-//   allModes as chainedModes,
-//   allModeNames as chainedModeNames,
-//   allSliceNames as chainedSliceNames,
-//   UmbracoManagementClient as ChainedClient,
-// } from "@umbraco-cms/mcp-dev/collections";
+// mcp-dev is loaded on first request, not at startup (see cms-collections-loader.ts)
+import {
+  getLoadedCmsCollections,
+  loadCmsCollections,
+  needsCmsCollections,
+} from "./umbraco-api/cms-collections-loader.js";
+
+import packageJson from "../package.json" with { type: "json" };
 
 // ============================================================================
 // Server Configuration
 // ============================================================================
 
-// Uncomment for in-process chaining — registers the chained server's modes
-// on the consent screen so users can select which tool groups to enable:
-//
-// const cmsChainedServer: ChainedServerConsentConfig = {
-//   name: "cms",
-//   displayName: "umbraco-cms-mcp",
-//   modeRegistry: chainedModes,
-//   collections: chainedCollections,
-//   allModeNames: chainedModeNames,
-//   allSliceNames: chainedSliceNames,
-// };
+// The chained CMS server, shown as its own section on the consent screen so
+// users can pick which CMS tool groups to enable. Getters, so mcp-dev's
+// collections are only read at request time (consent screen, /info), after
+// the fetch entry below has loaded them.
+const cmsChainedServer: ChainedServerConsentConfig = {
+  name: "cms",
+  displayName: "Umbraco CMS",
+  get modeRegistry() { return getLoadedCmsCollections().allModes; },
+  get collections() { return getLoadedCmsCollections().collections; },
+  get allModeNames() { return getLoadedCmsCollections().allModeNames; },
+  get allSliceNames() { return getLoadedCmsCollections().allSliceNames; },
+};
 
-const options = {
-  name: "my-umbraco-mcp",
-  version: "1.0.0",
+// Typed so a misplaced option fails to compile rather than being silently
+// dropped by getServerOptions().
+const options: HostedMcpServerOptions = {
+  name: "umbraco-forms-mcp",
+  version: packageJson.version,
   collections,
   modeRegistry: allModes,
   allModeNames,
@@ -89,42 +97,33 @@ const options = {
   // Connect the Orval-generated API client so tool handlers can call
   // Umbraco's Management API using the authenticated user's token.
   clientFactory: () => getUmbracoFormsManagementAPI(),
-  // Show tool mode/collection/slice checkboxes on the consent screen
-  enableConsentToolSelection: true,
+  // enableConsentToolSelection is deliberately left unset, so the
+  // ENABLE_CONSENT_TOOL_SELECTION env var decides. Off by default, like the
+  // editor MCP: a plain consent screen, and every Forms and chained CMS tool.
+  // Set ENABLE_CONSENT_TOOL_SELECTION=true for the mode/collection/slice
+  // checkboxes, where the chained CMS tools are opt-in.
   // Show "Log in as different user" button on the consent screen after first auth
   authOptions: { showReauthButton: true },
-  // Optional server-level instructions sent to clients on `initialize`. Most
-  // clients fold this into the model's system prompt, so it applies implicitly
-  // without per-tool repetition. Can also be a `(props, env) => string` callback
-  // for per-site / per-user guidance in multi-site deployments.
-  //
-  // instructions: "When summarising results, refer to items by name, not by ID.",
-  //
-  // Uncomment for in-process chaining — adds chained server modes to consent screen:
-  // chainedServers: [cmsChainedServer],
+  // The chained CMS tools; with tool selection on, also their consent-screen modes.
+  chainedServers: [cmsChainedServer],
 
   // URL-based site routing — lets one Worker serve every Umbraco Cloud project
-  // that has the standardised MCP OAuth client registered. MCP clients connect
-  // to `https://<your-worker-host>/at/<project-alias>/`; the Worker resolves
-  // each project on demand.
+  // that has the Forms MCP OAuth client registered. MCP clients connect to
+  // `https://<your-worker-host>/at/<project-alias>/`; the Worker resolves each
+  // project on demand.
   //
   // Activated by `env.UMBRACO_CLOUD_ROUTING_ENABLED === "true"` (set in
   // `wrangler.toml [vars]` or via `wrangler secret`). When absent or any
   // other value, the Worker behaves single-tenant — `UMBRACO_BASE_URL` is
   // honoured and `/at/*` requests 401 from OAuthProvider.
   //
-  // Each Cloud project served by this Worker must:
-  //   1. Register an OAuth client with the `oauthClientId` below (PKCE/public
-  //      recommended) — see umbraco/McpOAuthComposer.cs.
-  //   2. Add the Cloud-only short-circuit composer that lets cold-start MCP
-  //      clients reach Umbraco ID SSO — see
-  //      umbraco/McpExternalLoginShortCircuitComposer.Cloud.cs.
-  //
-  // Replace `oauthClientId` with the client id registered in your Cloud
-  // projects (single value across all projects for this MCP type).
+  // Each Cloud project served by this Worker must register an OpenIddict
+  // client with this id and the Worker's redirect URI. The
+  // `Umbraco.Mcp.HostedAuth` package does that, following its
+  // `umbraco-{product}-{variant}-mcp-hosted` convention; for a hand-written
+  // composer see umbraco/McpHostedClientsComposer.Cloud.cs.
   siteRouting: umbracoCloudSiteRouting({
-    oauthClientId: "my-umbraco-mcp",
-    // region: "euwest01",            // or set env.UMBRACO_CLOUD_REGION
+    oauthClientId: "umbraco-forms-developer-mcp-hosted",
   }),
 
   // Version Check
@@ -159,6 +158,16 @@ const options = {
 
 const serverOptions = getServerOptions(options);
 
+/**
+ * `DISABLE_MCP_CHAINING=true` turns the chained CMS tools off, matching the
+ * stdio flag. With ENABLE_CONSENT_TOOL_SELECTION=true the consent screen still
+ * shows the CMS modes (the library builds that from `chainedServers` once), but
+ * ticking them adds nothing.
+ */
+function isCmsChainingDisabled(env: HostedMcpEnv): boolean {
+  return (env as HostedMcpEnv & { DISABLE_MCP_CHAINING?: string }).DISABLE_MCP_CHAINING === "true";
+}
+
 // ============================================================================
 // McpAgent Durable Object
 // ============================================================================
@@ -172,25 +181,44 @@ export class UmbracoMcpAgent extends McpAgent<HostedMcpEnv, unknown, AuthProps> 
   server!: McpServer;
 
   async init() {
+    // The MCP session id goes on the init span so a failed start —
+    // `createPerRequestServer` throwing `UmbracoSignInUnavailableError` when
+    // this session has no usable Umbraco sign-in — can be traced back to the
+    // session that hit it. Telemetry only: `getSessionId()` throws when the
+    // Durable Object name carries no session id, and that must not stop the
+    // server from starting.
+    let sessionId: string | undefined;
+    try {
+      sessionId = this.getSessionId?.();
+    } catch (error) {
+      console.warn("[mcp-hosted] could not read MCP session id for telemetry:", error);
+      sessionId = undefined;
+    }
     this.server = await createPerRequestServer(
       serverOptions,
       this.env,
-      this.props!
+      this.props!,
+      sessionId,
     );
 
-    // ========================================================================
-    // In-Process Chaining (uncomment to enable)
-    // ========================================================================
-    // Chain another MCP server's tools into this worker. Tools are bundled
-    // in-process (no subprocess), proxied with a prefix (e.g. "cms--get-document"),
-    // and filtered by the user's consent screen selections.
-    //
-    // await registerChainedTools({
-    //   server: this.server,
-    //   env: this.env,
-    //   props: this.props!,
-    //   chainedServer: { ...cmsChainedServer, clientFactory: () => ChainedClient.getClient() },
-    // });
+    // DISABLE_MCP_CHAINING=true leaves the CMS tools out, as it does over stdio,
+    // and skips loading mcp-dev for the session.
+    if (isCmsChainingDisabled(this.env)) return;
+
+    // Chain the CMS tools in-process, filtered by the user's consent choices
+    // and the admin's mode/slice/readonly settings. registerChainedTools logs
+    // and returns 0 on failure rather than throwing, so a CMS problem leaves
+    // the Forms tools working.
+    const cms = await loadCmsCollections();
+    await registerChainedTools({
+      server: this.server,
+      env: this.env,
+      props: this.props!,
+      chainedServer: {
+        ...cmsChainedServer,
+        clientFactory: () => cms.UmbracoManagementClient.getClient(),
+      },
+    });
   }
 }
 
@@ -234,6 +262,28 @@ const provider = new OAuthProvider({
   clientRegistrationEndpoint: "/register",
   // Advertise and accept S256 only (the hosted authorize handler also enforces it).
   allowPlainPKCE: false,
+  // Registered clients never expire (the 0.8.x default is 90 days).
+  clientRegistrationTTL: undefined,
 });
 
-export default createWorkerExport(provider, options);
+const workerExport = createWorkerExport(provider, options);
+
+export default {
+  async fetch(request: Request, env: HostedMcpEnv, ctx: ExecutionContext): Promise<Response> {
+    // Load mcp-dev only for requests that read the chained server's config
+    // synchronously (see needsCmsCollections). Other requests skip it, and MCP
+    // sessions load it themselves in init(). A failed load is logged and the
+    // request carries on, so the reader gets the getter's "not loaded" error
+    // rather than every route failing.
+    // Same rule as createDefaultHandler: an explicit option wins, then the env var.
+    const consentToolSelection = options.enableConsentToolSelection ?? env.ENABLE_CONSENT_TOOL_SELECTION === "true";
+    if (needsCmsCollections(new URL(request.url).pathname, consentToolSelection)) {
+      try {
+        await loadCmsCollections();
+      } catch (error) {
+        console.error("[forms-mcp] Failed to load @umbraco-cms/mcp-dev collections:", error);
+      }
+    }
+    return workerExport.fetch(request, env, ctx);
+  },
+};

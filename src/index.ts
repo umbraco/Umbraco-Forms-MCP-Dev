@@ -149,7 +149,7 @@ const collections = [
 // Otherwise it returns and the server continues to start.
 await handleCliCommands(collections, {
   cliFlags: serverConfig.cliFlags,
-  serverName: "my-umbraco-mcp",
+  serverName: "umbraco-forms-mcp",
   serverVersion: packageJson.version,
   filterConfig,
   serverConfig: serverConfig.umbraco,
@@ -226,7 +226,7 @@ const versionCheckMessage = getVersionCheckMessage();
 // (null otherwise). Extend the string if you also want custom guidance, e.g.:
 // [versionCheckMessage, "Refer to items by name, not by ID."].filter(Boolean).join("\n\n")
 const server = new McpServer(
-  { name: "my-umbraco-mcp", version: packageJson.version },
+  { name: "umbraco-forms-mcp", version: packageJson.version },
   versionCheckMessage ? { instructions: versionCheckMessage } : undefined,
 );
 
