@@ -5,10 +5,14 @@
  * list — the Forms tools and the CMS tools chained in-process from
  * `@umbraco-cms/mcp-dev` (prefixed `cms--`) — and executes a tool call on each.
  *
- * Chained CMS tools are opt-in on the consent screen: `@umbraco-cms/mcp-hosted`
- * registers them only for the CMS modes the user ticks (`cms:<mode>`), and
- * ticking only CMS modes hides the Forms tools. Tests that need both tick a
- * Forms mode and a CMS mode.
+ * Two consent screens are covered:
+ * - The default (ENABLE_CONSENT_TOOL_SELECTION unset), as in the editor MCP: no
+ *   tool checkboxes, and the user gets every Forms and chained CMS tool.
+ * - ENABLE_CONSENT_TOOL_SELECTION=true: mode/collection/slice checkboxes. There
+ *   the chained CMS tools are opt-in — `@umbraco-cms/mcp-hosted` registers them
+ *   only for the CMS modes ticked (`cms:<mode>`), and ticking only CMS modes
+ *   hides the Forms tools — so tests that need both tick a Forms mode and a CMS
+ *   mode.
  *
  * Prerequisites:
  * - The demo site running (`npm run start:umbraco`), with the hosted OAuth
@@ -72,7 +76,14 @@ const CREDENTIALS = { email: "admin@admin.com", password: "1234567890" };
 // Tests
 // ============================================================================
 
-test.describe("MCP Inspector E2E", () => {
+test.afterEach(async ({ page }) => {
+  const disconnectButton = page.getByRole("button", { name: "Disconnect" });
+  if (await disconnectButton.isVisible().catch(() => false)) {
+    await disconnectButton.click();
+  }
+});
+
+test.describe("MCP Inspector E2E: default consent screen", () => {
   let workerUrl: string;
   let inspector: InspectorHandle;
 
@@ -86,11 +97,54 @@ test.describe("MCP Inspector E2E", () => {
     await stopWorker();
   });
 
-  test.afterEach(async ({ page }) => {
-    const disconnectButton = page.getByRole("button", { name: "Disconnect" });
-    if (await disconnectButton.isVisible().catch(() => false)) {
-      await disconnectButton.click();
+  test("no tool selection; every Forms and chained CMS tool", async ({ page }) => {
+    test.setTimeout(120000);
+
+    const oauthPage = await connectInspector(page, workerUrl, inspector.url);
+    await oauthPage.locator('button[value="approve"]').waitFor();
+    expect(await oauthPage.locator(".mode-checkbox").count()).toBe(0);
+    expect(await oauthPage.locator('input[name="readOnly"]').count()).toBe(0);
+    await handleOAuthFlow(page, oauthPage, undefined, CREDENTIALS);
+
+    const tools = await getToolNames(page, ALL_TOOLS);
+    for (const tool of ALL_TOOLS) {
+      expect(tools).toContain(tool);
     }
+  });
+
+  test("execute a Forms tool and a chained CMS tool", async ({ page }) => {
+    test.setTimeout(120000);
+
+    const oauthPage = await connectInspector(page, workerUrl, inspector.url);
+    await handleOAuthFlow(page, oauthPage, undefined, CREDENTIALS);
+
+    const tools = await getToolNames(page, ALL_TOOLS);
+    expect(tools).toContain("get-server-info");
+    expect(tools).toContain("cms--get-server-status");
+
+    const formsResult = await callTool(page, "get-server-info", "assemblyVersion");
+    expect(formsResult).toContain("assemblyVersion");
+
+    // `serverStatus` only appears in this tool's response (a 401 would come back
+    // as an error instead), so this proves the chained CMS client carries the
+    // signed-in user's token.
+    const cmsResult = await callTool(page, "cms--get-server-status", "serverStatus");
+    expect(cmsResult).toContain('"serverStatus"');
+  });
+});
+
+test.describe("MCP Inspector E2E: ENABLE_CONSENT_TOOL_SELECTION=true", () => {
+  let workerUrl: string;
+  let inspector: InspectorHandle;
+
+  test.beforeAll(async () => {
+    workerUrl = await startWorker({ ENABLE_CONSENT_TOOL_SELECTION: "true" });
+    inspector = await startInspector({ client: 6284, proxy: 6287 });
+  });
+
+  test.afterAll(async () => {
+    await inspector.stop();
+    await stopWorker();
   });
 
   test("connect and list the Forms and chained CMS tools", async ({ page }) => {
@@ -118,26 +172,6 @@ test.describe("MCP Inspector E2E", () => {
     for (const tool of CMS_TOOLS) {
       expect(tools).not.toContain(tool);
     }
-  });
-
-  test("execute a Forms tool and a chained CMS tool", async ({ page }) => {
-    test.setTimeout(120000);
-
-    const oauthPage = await connectInspector(page, workerUrl, inspector.url);
-    await handleOAuthFlow(page, oauthPage, { checkModes: FORMS_AND_CMS_MODES }, CREDENTIALS);
-
-    const tools = await getToolNames(page, ALL_TOOLS);
-    expect(tools).toContain("get-server-info");
-    expect(tools).toContain("cms--get-server-status");
-
-    const formsResult = await callTool(page, "get-server-info", "assemblyVersion");
-    expect(formsResult).toContain("assemblyVersion");
-
-    // `serverStatus` only appears in this tool's response (a 401 would come back
-    // as an error instead), so this proves the chained CMS client carries the
-    // signed-in user's token.
-    const cmsResult = await callTool(page, "cms--get-server-status", "serverStatus");
-    expect(cmsResult).toContain('"serverStatus"');
   });
 
   test("consent screen mode filtering", async ({ page }) => {

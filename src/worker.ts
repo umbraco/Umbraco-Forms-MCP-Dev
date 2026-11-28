@@ -97,11 +97,14 @@ const options: HostedMcpServerOptions = {
   // Connect the Orval-generated API client so tool handlers can call
   // Umbraco's Management API using the authenticated user's token.
   clientFactory: () => getUmbracoFormsManagementAPI(),
-  // Show tool mode/collection/slice checkboxes on the consent screen
-  enableConsentToolSelection: true,
+  // enableConsentToolSelection is deliberately left unset, so the
+  // ENABLE_CONSENT_TOOL_SELECTION env var decides. Off by default, like the
+  // editor MCP: a plain consent screen, and every Forms and chained CMS tool.
+  // Set ENABLE_CONSENT_TOOL_SELECTION=true for the mode/collection/slice
+  // checkboxes, where the chained CMS tools are opt-in.
   // Show "Log in as different user" button on the consent screen after first auth
   authOptions: { showReauthButton: true },
-  // Adds the chained CMS modes to the consent screen.
+  // The chained CMS tools; with tool selection on, also their consent-screen modes.
   chainedServers: [cmsChainedServer],
 
   // URL-based site routing — lets one Worker serve every Umbraco Cloud project

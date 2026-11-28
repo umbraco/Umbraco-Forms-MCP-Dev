@@ -41,3 +41,6 @@ new_sqlite_classes = ["UmbracoMcpAgent"]
 # UMBRACO_INCLUDE_SLICES = ""
 # UMBRACO_EXCLUDE_SLICES = ""
 # UMBRACO_READONLY = "false"
+# Tool checkboxes on the consent screen. Off by default: every Forms and CMS
+# tool. On: users pick tool groups, and the CMS groups are opt-in.
+# ENABLE_CONSENT_TOOL_SELECTION = "true"
