@@ -358,12 +358,16 @@ The Cloudflare Worker entry point for hosted deployment. Key configuration:
 
 stdio chains the CMS MCP as an `npx @umbraco-cms/mcp-dev@17` subprocess (`config/mcp-servers.ts`); a
 Worker can't spawn one, so `worker.ts` chains `@umbraco-cms/mcp-dev` **in-process** with
-`registerChainedTools` from `@umbraco-cms/mcp-hosted`. Same `cms--` prefix; the CMS modes get their
-own section on the consent screen, and admin readonly/mode/slice settings apply to them too.
+`registerChainedTools` from `@umbraco-cms/mcp-hosted`. Same `cms--` prefix, and admin
+readonly/mode/slice settings apply to them too.
 
-CMS tools are **opt-in** (`@umbraco-cms/mcp-hosted` behaviour): only the CMS modes ticked on the
-consent screen (`cms:<mode>`) are registered, and ticking only CMS modes leaves out the Forms
-tools. The hosted E2E test (`tests/hosted-e2e/`) covers both, and needs the demo site plus
+The consent screen matches the CMS editor MCP: `worker.ts` leaves `enableConsentToolSelection`
+unset, so `ENABLE_CONSENT_TOOL_SELECTION` decides and it's **off** by default. No tool checkboxes,
+and every Forms and CMS tool is registered. Don't hardcode the option either way, or the env var
+can't turn it on. With it on, the CMS modes get their own section and are **opt-in**
+(`@umbraco-cms/mcp-hosted` behaviour): only the CMS modes ticked (`cms:<mode>`) are registered,
+and ticking only CMS modes leaves out the Forms tools. The hosted E2E test (`tests/hosted-e2e/`)
+covers both screens, and needs the demo site plus
 `@modelcontextprotocol/inspector` pinned at `1.0.1`, as in the CMS repos: newer 1.0.x releases
 drop the Inspector's proxy settings on the OAuth callback and never reconnect.
 
