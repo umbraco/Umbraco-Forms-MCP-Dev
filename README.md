@@ -257,9 +257,10 @@ By default this server also chains to [`@umbraco-cms/mcp-dev`](https://www.npmjs
 Set `DISABLE_MCP_CHAINING=true` to turn this off and run Forms tools only.
 
 The hosted (Cloudflare Worker) server chains the same CMS tools, with the same `cms--` prefix,
-in-process rather than as a subprocess. They are filtered by the tool groups chosen on the
-consent screen, where the CMS groups appear in their own section, and they use the signed-in
-backoffice user's token.
+in-process rather than as a subprocess, using the signed-in backoffice user's token. They are
+**opt-in**: the CMS tool groups have their own section on the consent screen, and only the groups
+you tick there are added. If you tick only CMS groups, tick the Forms groups you want too, or the
+Forms tools are left out.
 
 ## Troubleshooting
 

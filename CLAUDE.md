@@ -342,6 +342,12 @@ Worker can't spawn one, so `worker.ts` chains `@umbraco-cms/mcp-dev` **in-proces
 `registerChainedTools` from `@umbraco-cms/mcp-hosted`. Same `cms--` prefix; the CMS modes get their
 own section on the consent screen, and admin readonly/mode/slice settings apply to them too.
 
+CMS tools are **opt-in** (`@umbraco-cms/mcp-hosted` behaviour): only the CMS modes ticked on the
+consent screen (`cms:<mode>`) are registered, and ticking only CMS modes leaves out the Forms
+tools. The hosted E2E test (`tests/hosted-e2e/`) covers both, and needs the demo site plus
+`@modelcontextprotocol/inspector` pinned at `1.0.1`, as in the CMS repos: newer 1.0.x releases
+drop the Inspector's proxy settings on the OAuth callback and never reconnect.
+
 - `@umbraco-cms/mcp-dev` is a **devDependency**: only the Worker bundle uses it, and wrangler builds
   that from a checkout. Keep its major on this line's Umbraco major (`^18` here, `^17` on `v17/dev`).
 - It must share **one copy** of `@umbraco-cms/mcp-server-sdk` and `@umbraco-cms/mcp-hosted` with
